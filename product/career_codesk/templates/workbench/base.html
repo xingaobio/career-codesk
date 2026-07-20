@@ -1,0 +1,19 @@
+{% load static %}
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Career CoDesk adviser workbench{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'career_codesk/workbench.css' %}">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <header class="site-header">
+      <p class="eyebrow">Career CoDesk · local prototype</p>
+      <h1><a href="{% url 'workbench-queue' %}">Adviser decision workbench</a></h1>
+      <p><strong>Synthetic mock source — no MIS connection.</strong> Simulated identity only; this is not production authentication.</p>
+    </header>
+    <main id="main">{% block content %}{% endblock %}</main>
+  </body>
+</html>

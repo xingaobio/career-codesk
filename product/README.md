@@ -22,6 +22,25 @@ Run tests with:
 bash scripts/verify-product.sh
 ```
 
+## Adviser workbench
+
+The home page is the synthetic adviser decision queue. It shows only ordinary,
+proposed allocations; a restricted safety exit is absent from both the queue and
+direct ordinary-review URLs. Each review keeps immutable source statements,
+provisional AI interpretation and its unknowns, persisted planner rationale,
+feasible alternatives, capacity effect, waiting time, and explicit unmet demand
+separate. Queue sorting is allowlisted (`age`, `wait`, `case`, and `route`).
+
+Approve, amend, and reject use a two-step confirmation form protected by Django
+CSRF middleware. The fixed `adviser` fixture is required by the domain service;
+the visible identity remains a simulation and is not authentication. Every
+decision records append-only reviewed-input and support-decision evidence. An
+amendment retires its reviewed proposal and creates a separate proposed
+alternative which must be approved in a later confirmation. Reversing to an
+earlier feasible route similarly creates a successor proposal and event instead
+of rewriting history. Every decision records a new deterministic planner run
+with the remaining capacity, waiting-time, and unmet-demand result.
+
 ## Prototype boundaries
 
 Every source must be labelled `Synthetic mock source — no MIS connection.` Fixtures are versioned,

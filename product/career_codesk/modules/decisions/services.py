@@ -41,19 +41,14 @@ class SupportDecisionService:
             raise DomainInvariantError("Decision allocation must belong to the stated case")
         if case_has_safety_exit(canonical_case_id):
             raise DomainInvariantError("A safety-exited case cannot receive a support decision")
-        if action in {"amend", "reject"} and predecessor is None:
-            raise DomainInvariantError("An amendment or rejection must supersede a decision")
-        if action == "approve" and predecessor is not None:
-            raise DomainInvariantError("An approval must start a decision history")
         if predecessor is not None:
             predecessor = SupportDecision.objects.select_for_update().get(pk=predecessor.pk)
-            if (
-                predecessor.case_id != canonical_case_id
-                or predecessor.allocation_id != allocation.id
-            ):
-                raise DomainInvariantError("A decision predecessor must describe the same proposal")
+            if predecessor.case_id != canonical_case_id:
+                raise DomainInvariantError("A decision predecessor must describe the same case")
             if predecessor.successors.exists():
                 raise DomainInvariantError("A decision predecessor already has a successor")
+        elif SupportDecision.objects.filter(allocation=allocation).exists():
+            raise DomainInvariantError("A decision history must remain linear")
         decision = SupportDecision.objects.create(
             case_id=canonical_case_id,
             allocation=allocation,

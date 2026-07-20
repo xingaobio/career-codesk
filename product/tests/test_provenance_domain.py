@@ -265,17 +265,6 @@ class ProvenanceDomainTests(TestCase):
 
     def test_decisions_reload_proposals_and_require_a_linear_predecessor_history(self):
         proposal = self._proposal()
-        with self.assertRaises(DomainInvariantError):
-            SupportDecisionService().record(
-                case_id=self.case.id,
-                allocation=proposal,
-                action="amend",
-                actor=actor_for("adviser"),
-                reason="An amendment cannot be an unrelated root.",
-                reviewed_inputs=[("capture", self.capture.id)],
-                policy_version="decision-policy-v1",
-                planner_version="planner-v1",
-            )
         approved = self._approve(proposal)
         amended = SupportDecisionService().record(
             case_id=self.case.id,
@@ -314,6 +303,22 @@ class ProvenanceDomainTests(TestCase):
                 planner_version="planner-v1",
                 predecessor=amended,
             )
+
+    def test_initial_rejection_is_an_immutable_adviser_event(self):
+        proposal = self._proposal()
+        rejected = SupportDecisionService().record(
+            case_id=self.case.id,
+            allocation=proposal,
+            action="reject",
+            actor=actor_for("adviser"),
+            reason="The stated synthetic route is not appropriate.",
+            reviewed_inputs=[("capture", self.capture.id)],
+            policy_version="decision-policy-v1",
+            planner_version="planner-v1",
+        )
+        self.assertIsNone(rejected.predecessor_id)
+        proposal.refresh_from_db()
+        self.assertEqual(proposal.state, "inactive")
 
     def test_forged_adviser_cannot_approve_or_move_a_case(self):
         forged_adviser = SimulatedActor(

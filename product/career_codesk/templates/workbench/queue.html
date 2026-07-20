@@ -1,0 +1,29 @@
+{% extends "workbench/base.html" %}
+{% block title %}Decision queue · Career CoDesk{% endblock %}
+{% block content %}
+  <section aria-labelledby="queue-title">
+    <h2 id="queue-title">Decision queue</h2>
+    <p>Proposed routes require meaningful adviser approval. Safety-like signals are not shown here and are reserved for restricted human handling.</p>
+    <p><span class="status status-proposed">◇ Proposed</span> {{ items|length }} ordinary proposal{{ items|length|pluralize }} awaiting review.</p>
+    <div class="table-wrap">
+      <table>
+        <caption>Sortable ordinary decision queue</caption>
+        <thead><tr>
+          <th scope="col" aria-sort="{% if sort == 'case' %}ascending{% else %}none{% endif %}"><a href="?sort=case">Case</a></th>
+          <th scope="col" aria-sort="{% if sort == 'route' %}ascending{% else %}none{% endif %}"><a href="?sort=route">Proposal</a></th>
+          <th scope="col" aria-sort="{% if sort == 'wait' %}ascending{% else %}none{% endif %}"><a href="?sort=wait">Waiting time</a></th>
+          <th scope="col" aria-sort="{% if sort == 'age' %}ascending{% else %}none{% endif %}"><a href="?sort=age">Queue age</a></th>
+          <th scope="col">Unmet demand</th><th scope="col">Review</th>
+        </tr></thead>
+        <tbody>{% for item in items %}<tr>
+          <td>{{ item.allocation.case_id }}</td>
+          <td><span class="status status-proposed">◇ Proposed</span> {{ item.allocation.route_code }}</td>
+          <td>{{ item.allocation.waiting_days }} day{{ item.allocation.waiting_days|pluralize }}</td>
+          <td>{{ item.queue_age_days }} day{{ item.queue_age_days|pluralize }}</td>
+          <td>{{ item.unmet_demand|length }} explicit</td>
+          <td><a class="button-link" href="{% url 'workbench-review' item.allocation.id %}?sort={{ sort }}">Review proposal</a></td>
+        </tr>{% empty %}<tr><td colspan="6">No ordinary proposals await review.</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

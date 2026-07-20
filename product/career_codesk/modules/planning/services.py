@@ -3,6 +3,7 @@
 import json
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import date
 
 from django.db import transaction
 
@@ -370,6 +371,46 @@ class PlannerRunService:
             result_digest=result.digest,
         )
 
+    @transaction.atomic
+    def record_selected_plan(
+        self, request: PlanningRequest, source_run: PlannerRun, plan_variant: int
+    ):
+        """Persist an adviser-selected, already deterministic feasible plan.
+
+        The selected plan must be one of the exact alternatives emitted by the
+        source run and the current reconstructed input must be unchanged.  This
+        makes selection explicit planner evidence rather than silently treating
+        the old primary route as the adviser amendment.
+        """
+        source_run = PlannerRun.objects.select_for_update().get(pk=source_run.pk)
+        if canonical_digest(request.canonical()) != source_run.input_digest:
+            raise DomainInvariantError("A selected plan is stale against current capacity")
+        plans = [
+            source_run.canonical_result["primary"],
+            *source_run.canonical_result["alternatives"],
+        ]
+        if plan_variant < 0 or plan_variant >= len(plans):
+            raise DomainInvariantError("The selected planner alternative is unavailable")
+        canonical_result = {
+            "algorithm_version": source_run.algorithm_version,
+            "policy_version": source_run.policy_version,
+            "seed": source_run.seed_metadata["seed"],
+            "primary": plans[plan_variant],
+            "alternatives": tuple(
+                plan for index, plan in enumerate(plans) if index != plan_variant
+            ),
+        }
+        return PlannerRun.objects.create(
+            input_digest=canonical_digest(request.canonical()),
+            policy_version=source_run.policy_version,
+            algorithm_version=source_run.algorithm_version,
+            seed_metadata=source_run.seed_metadata,
+            source_ids=source_run.source_ids,
+            canonical_input=json.loads(canonical_json(request.canonical())),
+            canonical_result=json.loads(canonical_json(canonical_result)),
+            result_digest=canonical_digest(canonical_result),
+        )
+
 
 class AllocationService:
     @transaction.atomic
@@ -383,6 +424,9 @@ class AllocationService:
         planner_algorithm_version,
         planner_policy_version,
         hypothesis=None,
+        demand_id=None,
+        plan_variant=0,
+        supersedes=None,
     ):
         if not Case.objects.filter(pk=case_id).exists():
             raise DomainInvariantError("An allocation must belong to an existing case")
@@ -398,19 +442,38 @@ class AllocationService:
             if hypothesis.case_id != case_id:
                 raise DomainInvariantError("Allocation hypothesis must belong to the stated case")
             self._require_validated_gateway_hypothesis(hypothesis, case_id)
-        self._require_planner_run(
+        if supersedes is not None:
+            supersedes = InterventionAllocation.objects.select_for_update().get(pk=supersedes.pk)
+            if supersedes.case_id != case_id or supersedes.state != "inactive":
+                raise DomainInvariantError(
+                    "A replacement proposal must follow an inactive proposal in the same case"
+                )
+        planned = self._require_planner_run(
             planner_run_id,
             case_id,
             need.taxonomy_code,
             route_code,
             planner_algorithm_version,
             planner_policy_version,
+            demand_id=demand_id,
+            plan_variant=plan_variant,
         )
         return InterventionAllocation.objects.create(
             case_id=case_id,
             need=need,
             hypothesis=hypothesis,
             route_code=route_code,
+            demand_id=planned["demand_id"],
+            resource_id=planned["resource_id"],
+            scheduled_on=date.fromisoformat(planned["scheduled_on"]),
+            waiting_days=planned["waiting_days"],
+            effort_hours=next(
+                item["effort_hours"]
+                for item in PlannerRun.objects.get(pk=planner_run_id).canonical_input["demands"]
+                if item["demand_id"] == planned["demand_id"]
+            ),
+            plan_variant=plan_variant,
+            supersedes=supersedes,
             planner_run_id=planner_run_id,
             planner_algorithm_version=planner_algorithm_version,
             planner_policy_version=planner_policy_version,
@@ -424,6 +487,9 @@ class AllocationService:
         route_code,
         algorithm_version,
         policy_version,
+        *,
+        demand_id=None,
+        plan_variant=0,
     ):
         try:
             run = PlannerRun.objects.get(pk=planner_run_id)
@@ -438,14 +504,25 @@ class AllocationService:
             or run.result_digest != canonical_digest(run.canonical_result)
         ):
             raise DomainInvariantError("Allocation planner evidence digest or version is invalid")
-        allocations = run.canonical_result.get("primary", {}).get("allocations", [])
-        if not any(
-            item.get("case_id") == case_id
+        plans = (
+            run.canonical_result.get(
+                "primary",
+            ),
+        ) + tuple(run.canonical_result.get("alternatives", []))
+        if plan_variant >= len(plans) or not plans[plan_variant]:
+            raise DomainInvariantError("Allocation must select a persisted feasible planner plan")
+        allocations = plans[plan_variant].get("allocations", [])
+        matches = [
+            item
+            for item in allocations
+            if item.get("case_id") == case_id
             and item.get("need_code") == need_code
             and item.get("route_code") == route_code
-            for item in allocations
-        ):
+            and (demand_id is None or item.get("demand_id") == demand_id)
+        ]
+        if len(matches) != 1:
             raise DomainInvariantError("Allocation must match a feasible planner result")
+        return matches[0]
 
     @staticmethod
     def _require_validated_gateway_hypothesis(hypothesis, case_id):
@@ -575,6 +652,15 @@ class AllocationService:
             )
         if allocation.state != "inactive":
             self._set_state(allocation, "inactive")
+        return allocation
+
+    @transaction.atomic
+    def retire_stale_proposal(self, allocation):
+        """Retire a superseded planner projection without rewriting its evidence."""
+        allocation = InterventionAllocation.objects.select_for_update().get(pk=allocation.pk)
+        if allocation.state != "proposed":
+            raise DomainInvariantError("Only a pending proposal can be superseded by replanning")
+        self._set_state(allocation, "inactive")
         return allocation
 
     @staticmethod

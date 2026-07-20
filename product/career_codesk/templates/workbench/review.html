@@ -1,0 +1,34 @@
+{% extends "workbench/base.html" %}
+{% block title %}Review proposal · Career CoDesk{% endblock %}
+{% block content %}
+  <p><a href="{% url 'workbench-queue' %}">← Back to queue</a></p>
+  <section class="review-heading" aria-labelledby="review-title">
+    <div><p class="eyebrow">Case {{ allocation.case_id }}</p><h2 id="review-title">Review proposed {{ allocation.route_code }} route</h2></div>
+    <p class="status {% if allocation.state == 'active' %}status-recorded{% else %}status-proposed{% endif %}">{% if allocation.state == 'active' %}✓ Active — backed by a prior approval{% else %}◇ Proposed — not active{% endif %}</p>
+  </section>
+  <p>Only an explicit approval from the fixed simulated adviser can activate an allocation. An active allocation may be amended or rejected through a new successor event; this screen does not authenticate a person.</p>
+  {% if error %}<section class="error-summary" role="alert" tabindex="-1"><h2>Decision not recorded</h2><p>{{ error }}</p>{% if stale %}<p>Nothing changed. Return to the queue and review the current evidence.</p>{% endif %}</section>{% endif %}
+  <div class="review-grid">
+    <section aria-labelledby="source-title"><h3 id="source-title">Source statements</h3>
+      <p class="source-label">Synthetic mock source — no MIS connection.</p>
+      {% for capture in captures %}<article class="evidence"><h4>{{ capture.get_source_type_display }} source · {{ capture.source_version }}</h4><p>{{ capture.source_payload.statement }}</p><p class="muted">Immutable capture {{ capture.id }}</p></article>{% empty %}<p>No ordinary source statement is available.</p>{% endfor %}
+    </section>
+    <section aria-labelledby="inference-title"><h3 id="inference-title">Provisional AI inference</h3>
+      {% for hypothesis in hypotheses %}<article class="evidence"><p class="status status-provisional">? Provisional — no decision authority</p><p>{{ hypothesis.explanation }}</p><p><strong>Confidence:</strong> {{ hypothesis.confidence_state|default:"unknown" }}{% if hypothesis.confidence %} ({{ hypothesis.confidence }}){% endif %}</p><p><strong>Unknowns:</strong> {{ hypothesis.unknowns|join:", "|default:"None declared" }}</p></article>{% empty %}<p class="status status-provisional">? No hypothesis is available; human review remains required.</p>{% endfor %}
+    </section>
+    <section aria-labelledby="proposal-title"><h3 id="proposal-title">Deterministic proposal and capacity effect</h3>
+      <dl><dt>Reason for proposal</dt><dd>Feasible under persisted {{ run.policy_version }} planning evidence; scheduled {{ allocation.scheduled_on }} for demand {{ allocation.demand_id }}.</dd><dt>Waiting time</dt><dd>{{ allocation.waiting_days }} day{{ allocation.waiting_days|pluralize }}</dd><dt>Queue age</dt><dd>{{ queue_age_days }} day{{ queue_age_days|pluralize }}</dd>{% if capacity.slot %}<dt>Capacity effect</dt><dd>{{ capacity.consumed.seats_consumed|default:0 }} of {{ capacity.slot.seats }} seats; {{ capacity.consumed.adviser_hours_consumed|default:0 }} of {{ capacity.slot.adviser_hours }} adviser hours in this plan. {{ capacity.remaining_seats }} seat{{ capacity.remaining_seats|pluralize }} and {{ capacity.remaining_adviser_hours }} adviser hour{{ capacity.remaining_adviser_hours|pluralize }} remain after this proposed allocation.</dd>{% endif %}</dl>
+      <h4>Explicit unmet demand</h4><ul>{% for unmet in unmet_demand %}<li>{{ unmet.demand_id }} — {{ unmet.reason_code }}{% if unmet.minimum_entitlement %} (minimum demo entitlement){% endif %}</li>{% empty %}<li>None in this planner run.</li>{% endfor %}</ul>
+    </section>
+    <section aria-labelledby="alternatives-title"><h3 id="alternatives-title">Feasible alternatives</h3>{% for alternative in alternatives %}<p><strong>Alternative {{ alternative.index }}:</strong> {{ alternative.allocation.route_code }} via {{ alternative.allocation.resource_id }} on {{ alternative.allocation.scheduled_on }} ({{ alternative.allocation.waiting_days }} days)</p>{% empty %}<p>No persisted feasible alternative for this demand.</p>{% endfor %}</section>
+  </div>
+  <section class="decision-panel" aria-labelledby="decision-title"><h3 id="decision-title">Record an adviser decision</h3><p>A reason and confirmation are required. Rejecting releases this proposal; amending retires it and creates a new proposed alternative which still needs approval.</p>
+    <form method="post" action="{% url 'workbench-confirm' allocation.id %}">{% csrf_token %}
+      <input type="hidden" name="actor" value="adviser">
+      <fieldset><legend>Decision</legend>{% if allocation.state == 'proposed' %}<label><input type="radio" name="action" value="approve" required> Approve this route</label>{% endif %}<label><input type="radio" name="action" value="amend" {% if allocation.state == 'active' %}required{% endif %}> Amend to an alternative</label><label><input type="radio" name="action" value="reject"> Reject this route</label></fieldset>
+      <label for="alternative">Alternative for amendment</label><select id="alternative" name="alternative_index"><option value="">Choose only when amending</option>{% for alternative in alternatives %}<option value="{{ alternative.index }}">Alternative {{ alternative.index }} — {{ alternative.allocation.route_code }} on {{ alternative.allocation.scheduled_on }}</option>{% endfor %}</select>
+      <label for="reason">Reason for this simulated adviser decision</label><textarea id="reason" name="reason" required>{% if reason %}{{ reason }}{% endif %}</textarea>
+      <button type="submit">Continue to confirmation</button>
+    </form>
+  </section>
+{% endblock %}

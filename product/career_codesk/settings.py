@@ -22,14 +22,16 @@ INSTALLED_APPS = [
     "career_codesk.modules.delivery_feedback.apps.DeliveryFeedbackConfig",
     "career_codesk.modules.export.apps.ExportConfig",
 ]
-MIDDLEWARE = []
+MIDDLEWARE = ["django.middleware.csrf.CsrfViewMiddleware"]
 ROOT_URLCONF = "career_codesk.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [BASE_DIR / "career_codesk" / "templates"],
         "APP_DIRS": True,
-        "OPTIONS": {"context_processors": []},
+        "OPTIONS": {
+            "context_processors": ["django.template.context_processors.csrf"],
+        },
     }
 ]
 WSGI_APPLICATION = "career_codesk.wsgi.application"
@@ -47,6 +49,7 @@ USE_I18N = True
 USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = Path(os.environ.get("STATIC_ROOT", BASE_DIR / "static-build"))
+STATICFILES_DIRS = [BASE_DIR / "career_codesk" / "static"]
 
 # Explicit prototype controls. No setting enables a live service.
 SYNTHETIC_ONLY_MODE = True

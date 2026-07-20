@@ -51,6 +51,24 @@ class InterventionAllocation(DomainRecord):
         NeedHypothesis, null=True, blank=True, on_delete=models.PROTECT, related_name="allocations"
     )
     route_code = models.CharField(max_length=64)
+    # These are copied from the immutable planner result at proposal time.  They
+    # make a proposal independently inspectable when a planner run contains
+    # several demands using the same need and route.
+    demand_id = models.CharField(max_length=64, default="legacy-unbound")
+    resource_id = models.CharField(max_length=64, default="legacy-unbound")
+    scheduled_on = models.DateField(null=True, blank=True)
+    waiting_days = models.PositiveIntegerField(null=True, blank=True)
+    effort_hours = models.PositiveIntegerField(default=1)
+    # Zero is the primary plan; positive values select the corresponding
+    # persisted feasible alternative.  It is evidence, never a mutable choice.
+    plan_variant = models.PositiveIntegerField(default=0)
+    supersedes = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="replacement_proposals",
+    )
     planner_run_id = models.CharField(max_length=64)
     planner_algorithm_version = models.CharField(max_length=64)
     planner_policy_version = models.CharField(max_length=64)
@@ -60,8 +78,8 @@ class InterventionAllocation(DomainRecord):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=("case_id", "need", "planner_run_id"),
-                name="allocation_planner_proposal_once",
+                fields=("case_id", "need", "planner_run_id", "demand_id", "plan_variant"),
+                name="allocation_planner_binding_once",
             )
         ]
 
