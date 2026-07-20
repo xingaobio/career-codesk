@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en-GB">
+  <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Career CoDesk — local prototype foundation</title></head>
+  <body>
+    <main>
+      <h1>Career CoDesk local prototype</h1>
+      <p><strong>Synthetic mock source — no MIS connection.</strong></p>
+      <p>This is a local, synthetic-only foundation. It does not use real learner data, live integrations, external writes, or deployment.</p>
+      <p><strong>Simulated identity only:</strong> fixed manager and adviser actors are deterministic local fixtures. This is not authentication: there are no passwords, SSO, institutional permissions, or production access claims.</p>
+      <p>Consequential routing remains for meaningful adviser approval. Safety-like signals are reserved for restricted human handling and never become a score.</p>
+      <h2>Available foundation seams</h2>
+      <ul>{% for name in foundation.module_names %}<li>{{ name }}</li>{% endfor %}</ul>
+    </main>
+  </body>
+</html>
