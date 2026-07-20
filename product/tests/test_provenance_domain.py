@@ -6,8 +6,13 @@ from django.test import TestCase
 
 from career_codesk.domain import DomainInvariantError, ImmutableRecordError
 from career_codesk.identity import SimulatedActor, actor_for
+from career_codesk.modules.ai_gateway.contracts import (
+    AiRequest,
+    DeterministicFakeAdapter,
+    SourceReference,
+)
 from career_codesk.modules.ai_gateway.models import NeedHypothesis, NeedHypothesisInput
-from career_codesk.modules.ai_gateway.services import HypothesisService
+from career_codesk.modules.ai_gateway.services import AiGatewayService, HypothesisService
 from career_codesk.modules.casework.models import Case, CaseTransition
 from career_codesk.modules.casework.services import CaseWorkflowService
 from career_codesk.modules.decisions.models import ReviewedInput, SupportDecision
@@ -61,16 +66,23 @@ class ProvenanceDomainTests(TestCase):
         )
 
     def _hypothesis(self):
+        result = self._gateway_result(self.capture)
         return HypothesisService().record(
             case_id=self.case.id,
             captures=[self.capture],
-            tags=["route-comparison"],
-            explanation="A provisional, source-qualified interpretation.",
-            unknowns=["availability"],
-            gateway_policy_version="ai-policy-v1",
-            adapter_version="fake-ai-v1",
-            confidence="0.500",
+            gateway_result=result,
         )
+
+    def _gateway_result(self, capture):
+        request = AiRequest(
+            task_kind="need_hypothesis",
+            source_records=(SourceReference(capture.id, "need_capture", capture.source_version),),
+            input_metadata={"case_id": self.case.id, "capture_ids": [capture.id]},
+            prompt_version="test-prompt-v1",
+            output_schema_version="test-schema-v1",
+            policy_version="test-policy-v1",
+        )
+        return AiGatewayService(DeterministicFakeAdapter()).interpret(request)
 
     def _proposal(self):
         return AllocationService().propose(
@@ -147,11 +159,7 @@ class ProvenanceDomainTests(TestCase):
         later = HypothesisService().record(
             case_id=self.case.id,
             captures=[correction],
-            tags=["route-comparison"],
-            explanation="Later provisional interpretation.",
-            unknowns=[],
-            gateway_policy_version="ai-policy-v2",
-            adapter_version="fake-ai-v2",
+            gateway_result=self._gateway_result(correction),
         )
         self.assertEqual(list(first.inputs.values_list("capture_id", flat=True)), [self.capture.id])
         self.assertEqual(list(later.inputs.values_list("capture_id", flat=True)), [correction.id])

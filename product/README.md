@@ -52,6 +52,27 @@ human handling and never become an ordinary-workflow score.
 SQLite is appropriate for this deterministic local demonstration. A later, separately approved
 implementation may migrate the shared relational store to PostgreSQL; that is not implemented here.
 
+## AI gateway boundary
+
+AI is server-side only and limited to four bounded, synthetic-data uses: intake interpretation,
+provisional need hypotheses, cohort explanations, and adviser-facing drafts. User-facing modules
+depend on the published gateway contract, never a model provider. The sole configured adapter is a
+deterministic fake: it needs no key, clock, randomness, or network access.
+
+Every invocation creates append-only attempt/output evidence linked to exact `NeedCapture` IDs and
+their source versions, a digest of the complete canonical request, and prompt, output-schema,
+fake-model, adapter, and policy versions. Outputs are always marked
+`provisional_no_decision_authority`; gateway receipts are reloaded from this evidence before a
+hypothesis can be recorded. The only dispositions are `provisional_output`,
+`human_review_required`, `restricted_safety_escalation`, `schema_failure`, `timeout`, and
+`adapter_error`. Any declared unknown (even alongside high confidence), or low/unknown confidence,
+requires human review. Unsupported schema versions, duplicate or oversized source/tag/unknown
+collections are rejected before adapter invocation; malformed adapter payloads are
+`schema_failure`. Timeouts and adapter errors are non-consequential. A safety exit is checked
+before adapter invocation and is retained only as restricted human handling. A
+`NeedHypothesis` is a source-linked provisional interpretation, never a factual “career barrier”
+or a human `SupportDecision`.
+
 ## Module boundaries
 
 `career_codesk/modules/` contains small published contracts for intake/provenance, casework, AI,

@@ -2,8 +2,8 @@
 
 from dataclasses import dataclass
 
-from career_codesk.modules.ai_gateway.contracts import AiGateway, DeterministicFakeAiGateway
-from career_codesk.modules.ai_gateway.services import HypothesisService
+from career_codesk.modules.ai_gateway.contracts import AiGateway, DeterministicFakeAdapter
+from career_codesk.modules.ai_gateway.services import AiGatewayService, HypothesisService
 from career_codesk.modules.audit.contracts import AuditProjection, DeferredAuditProjection
 from career_codesk.modules.casework.contracts import CaseworkService
 from career_codesk.modules.casework.services import CaseWorkflowService
@@ -56,7 +56,7 @@ def compose_foundation() -> Foundation:
     return Foundation(
         intake=ProvenanceIntake(),
         casework=CaseWorkflowService(),
-        ai_gateway=DeterministicFakeAiGateway(),
+        ai_gateway=AiGatewayService(DeterministicFakeAdapter()),
         planning=DeterministicPlanner(),
         decisions=AdviserDecisionGate(),
         delivery_feedback=DeliveryFeedbackService(),
