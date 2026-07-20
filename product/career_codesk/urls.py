@@ -1,4 +1,6 @@
-from django.urls import path
+from django.conf import settings
+from django.urls import path, re_path
+from django.views.static import serve
 
 from career_codesk.web import views
 
@@ -17,4 +19,13 @@ urlpatterns = [
         name="learner-feedback",
     ),
     path("health/", views.health, name="health"),
+    # This product is an explicitly loopback-only synthetic demonstrator. Keep
+    # DEBUG disabled while still making its checked-in stylesheet available to
+    # the documented local runserver command.
+    re_path(
+        r"^static/(?P<path>.*)$",
+        serve,
+        {"document_root": settings.STATICFILES_DIRS[0], "show_indexes": False},
+        name="local-static",
+    ),
 ]

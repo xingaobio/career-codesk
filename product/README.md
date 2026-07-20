@@ -15,6 +15,10 @@ uv run --project product --locked --no-sync python product/manage.py runserver 1
 ```
 
 Open `http://127.0.0.1:8000/`. The server is documented and configured for loopback-only use.
+The checked-in interface stylesheet is served by an explicit local-only route while DEBUG
+remains disabled, so the documented command renders the complete adviser workspace without
+requiring a separate static-file server.
+
 Run tests with:
 
 ```sh

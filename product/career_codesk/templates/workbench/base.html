@@ -4,16 +4,54 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
     <title>{% block title %}Career CoDesk adviser workbench{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'career_codesk/workbench.css' %}">
+    <link rel="stylesheet" href="{% static 'career_codesk/workbench.css' %}?v=ui-redesign-2">
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
-    <header class="site-header">
-      <p class="eyebrow">Career CoDesk · local prototype</p>
-      <h1><a href="{% url 'workbench-queue' %}">Adviser decision workbench</a></h1>
-      <p><strong>Synthetic mock source — no MIS connection.</strong> Simulated identity only; this is not production authentication.</p>
-    </header>
-    <main id="main">{% block content %}{% endblock %}</main>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Career CoDesk navigation">
+        <a class="wordmark" href="{% url 'workbench-queue' %}" aria-label="Career CoDesk home">
+          <span class="wordmark-mark" aria-hidden="true">CC</span>
+          <span>Career <strong>CoDesk</strong></span>
+        </a>
+        <p class="sidebar-kicker">Adviser workspace</p>
+        <nav class="primary-nav" aria-label="Primary">
+          <a class="nav-link {% block nav_queue %}{% endblock %}" href="{% url 'workbench-queue' %}">
+            <span>Decision queue</span><span class="nav-meta">Review</span>
+          </a>
+          <a class="nav-link {% block nav_plans %}{% endblock %}" href="{% url 'weekly-plan-list' %}">
+            <span>Weekly plan</span><span class="nav-meta">Approved</span>
+          </a>
+          <a class="nav-link {% block nav_packages %}{% endblock %}" href="{% url 'weekly-plan-list' %}">
+            <span>Execution packages</span><span class="nav-meta">Local</span>
+          </a>
+          <a class="nav-link {% block nav_exports %}{% endblock %}" href="{% url 'weekly-plan-list' %}">
+            <span>Local exports</span><span class="nav-meta">Mock</span>
+          </a>
+        </nav>
+        <div class="sidebar-boundary">
+          <span class="boundary-label">Environment</span>
+          <strong>Local prototype</strong>
+          <span>No live integrations</span>
+        </div>
+      </aside>
+
+      <div class="app-stage">
+        <header class="boundary-banner">
+          <div>
+            <strong>Synthetic mock source — no MIS connection.</strong>
+            <span>No external writeback · Simulated identity only</span>
+          </div>
+          <span class="environment-chip">LOCAL</span>
+        </header>
+        <main id="main">
+          <div class="{% block main_class %}main-content{% endblock %}">
+            {% block content %}{% endblock %}
+          </div>
+        </main>
+      </div>
+    </div>
   </body>
 </html>

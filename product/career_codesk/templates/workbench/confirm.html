@@ -1,8 +1,49 @@
 {% extends "workbench/base.html" %}
 {% block title %}Confirm decision · Career CoDesk{% endblock %}
+{% block nav_queue %}is-active{% endblock %}
 {% block content %}
-  <section aria-labelledby="confirm-title"><h2 id="confirm-title">Confirm {{ action }} decision</h2><p>You are about to record an immutable simulated-adviser event for case {{ allocation.case_id }}. This cannot be edited or deleted.</p><dl><dt>Proposal</dt><dd>{{ allocation.route_code }} on {{ allocation.scheduled_on }}</dd>{% if selected_alternative %}<dt>Selected amendment target</dt><dd>{{ selected_alternative.allocation.route_code }} via {{ selected_alternative.allocation.resource_id }} on {{ selected_alternative.allocation.scheduled_on }}; {{ selected_alternative.allocation.waiting_days }} waiting day{{ selected_alternative.allocation.waiting_days|pluralize }}; {{ selected_alternative.capacity.remaining_seats }} remaining seat{{ selected_alternative.capacity.remaining_seats|pluralize }} and {{ selected_alternative.capacity.remaining_adviser_hours }} remaining adviser hour{{ selected_alternative.capacity.remaining_adviser_hours|pluralize }} after this proposed allocation.</dd>{% endif %}<dt>Reason</dt><dd>{{ reason }}</dd><dt>Reviewed evidence</dt><dd>{{ captures|length }} source statement{{ captures|length|pluralize }} and {{ hypotheses|length }} provisional inference{{ hypotheses|length|pluralize }}</dd></dl>
-    <form method="post" action="{% url 'workbench-decide' allocation.id %}">{% csrf_token %}<input type="hidden" name="action" value="{{ action }}"><input type="hidden" name="actor" value="{{ actor }}"><input type="hidden" name="reason" value="{{ reason }}"><input type="hidden" name="alternative_index" value="{{ alternative_index }}"><input type="hidden" name="planner_digest" value="{{ planner_digest }}"><input type="hidden" name="decision_token" value="{{ decision_token }}"><button type="submit">Confirm and record {{ action }}</button></form>
-    <p><a href="{% url 'workbench-review' allocation.id %}">Cancel and return to review</a></p>
-  </section>
+  <a class="back-link" href="{% url 'workbench-review' allocation.id %}">Cancel and return to review</a>
+  <div class="confirmation-layout">
+    <header class="page-header">
+      <div class="page-header-copy">
+        <p class="eyebrow">Final human checkpoint</p>
+        <h1 id="confirm-title">Confirm {{ action }} decision</h1>
+        <p class="page-summary">Check the proposal and your reason before recording an immutable simulated-adviser event.</p>
+      </div>
+      <span class="status status-waiting">Not recorded</span>
+    </header>
+    <section class="confirmation-card" aria-labelledby="confirm-title">
+      <div class="surface-header">
+        <div>
+          <h3>Decision summary</h3>
+          <p>Case {{ allocation.case_id }} · this event cannot be edited or deleted after confirmation.</p>
+        </div>
+        <span class="status status-proposed">{{ action }}</span>
+      </div>
+      <div class="surface-body">
+        <dl>
+          <dt>Proposal</dt><dd>{{ allocation.route_code }} on {{ allocation.scheduled_on }}</dd>
+          {% if selected_alternative %}
+            <dt>Selected amendment target</dt>
+            <dd>{{ selected_alternative.allocation.route_code }} via {{ selected_alternative.allocation.resource_id }} on {{ selected_alternative.allocation.scheduled_on }}; {{ selected_alternative.allocation.waiting_days }} waiting day{{ selected_alternative.allocation.waiting_days|pluralize }}; {{ selected_alternative.capacity.remaining_seats }} remaining seat{{ selected_alternative.capacity.remaining_seats|pluralize }} and {{ selected_alternative.capacity.remaining_adviser_hours }} remaining adviser hour{{ selected_alternative.capacity.remaining_adviser_hours|pluralize }} after this proposed allocation.</dd>
+          {% endif %}
+          <dt>Reason</dt><dd>{{ reason }}</dd>
+          <dt>Reviewed evidence</dt><dd>{{ captures|length }} source statement{{ captures|length|pluralize }} and {{ hypotheses|length }} provisional inference{{ hypotheses|length|pluralize }}</dd>
+        </dl>
+        <form method="post" action="{% url 'workbench-decide' allocation.id %}">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="{{ action }}">
+          <input type="hidden" name="actor" value="{{ actor }}">
+          <input type="hidden" name="reason" value="{{ reason }}">
+          <input type="hidden" name="alternative_index" value="{{ alternative_index }}">
+          <input type="hidden" name="planner_digest" value="{{ planner_digest }}">
+          <input type="hidden" name="decision_token" value="{{ decision_token }}">
+          <div class="confirmation-actions">
+            <button type="submit">Confirm and record {{ action }}</button>
+            <a href="{% url 'workbench-review' allocation.id %}">Return without recording</a>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
 {% endblock %}

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.test import SimpleTestCase
+from django.urls import reverse
 
 
 class ConfigurationTests(SimpleTestCase):
@@ -15,3 +16,11 @@ class ConfigurationTests(SimpleTestCase):
             ["localhost", "127.0.0.1", "[::1]"],
         )
         self.assertEqual(settings.ALLOWED_HOSTS.count("testserver"), 1)
+
+    def test_checked_in_stylesheet_is_served_with_safe_local_debug_setting(self):
+        self.assertFalse(settings.DEBUG)
+        response = self.client.get(
+            reverse("local-static", kwargs={"path": "career_codesk/workbench.css"})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/css")

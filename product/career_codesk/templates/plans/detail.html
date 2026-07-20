@@ -1,10 +1,60 @@
 {% extends "workbench/base.html" %}
 {% block title %}Weekly plan · Career CoDesk{% endblock %}
+{% block nav_packages %}is-active{% endblock %}
 {% block content %}
-  <section aria-labelledby="plan-title">
-    <h2 id="plan-title">Approved weekly execution package</h2>
-    <dl><dt>Need</dt><dd>{{ entry.need.taxonomy_code }}</dd><dt>Decision</dt><dd>{{ entry.decision.id }} — approved by simulated adviser</dd><dt>Action and owner</dt><dd>{{ entry.route_code }} with {{ entry.resource_owner_id }}</dd><dt>Timing</dt><dd>{{ entry.scheduled_on }}; deadline {{ entry.deadline }}; {{ entry.effort_hours }} hour{{ entry.effort_hours|pluralize }}</dd><dt>Planner evidence</dt><dd>{{ entry.planner_run.id }}</dd><dt>Reviewed capture IDs</dt><dd>{{ entry.reviewed_capture_ids|join:", " }}</dd><dt>Reviewed provisional hypothesis IDs</dt><dd>{{ entry.reviewed_hypothesis_ids|join:", "|default:"None" }}</dd></dl>
-    <h3>Deterministic adviser brief</h3><dl><dt>Known</dt><dd>{{ entry.adviser_brief.known_facts|linebreaksbr }}</dd><dt>Ask</dt><dd>{{ entry.adviser_brief.questions_to_ask }}</dd><dt>Do not assume</dt><dd>{{ entry.adviser_brief.assumptions_prohibited }}</dd><dt>Intended outcome</dt><dd>{{ entry.adviser_brief.intended_outcome }}</dd></dl>
-    <h3>Local mock export</h3><p>Destination: {{ entry.structured_export.destination }}. State: {{ export_state }}. Idempotency key: {{ entry.structured_export.idempotency_key }}.</p>
+  <a class="back-link" href="{% url 'weekly-plan-list' %}">Back to weekly plans</a>
+  <header class="case-header" aria-labelledby="plan-title">
+    <div>
+      <p class="eyebrow">Execution package · case {{ entry.case_id }}</p>
+      <h1 id="plan-title">Approved weekly execution package</h1>
+      <div class="case-meta">
+        <span><strong>Action</strong> {{ entry.route_code }}</span>
+        <span><strong>Owner</strong> {{ entry.resource_owner_id }}</span>
+        <span><strong>Scheduled</strong> {{ entry.scheduled_on }}</span>
+        <span><strong>Deadline</strong> {{ entry.deadline }}</span>
+      </div>
+    </div>
+    <span class="status status-recorded">Adviser approved</span>
+  </header>
+
+  <div class="two-column">
+    <section class="surface" aria-labelledby="package-detail-title">
+      <div class="surface-header"><div><h3 id="package-detail-title">Package provenance</h3><p>The records that justify this approved action.</p></div></div>
+      <div class="surface-body">
+        <dl>
+          <dt>Need</dt><dd>{{ entry.need.taxonomy_code }}</dd>
+          <dt>Decision</dt><dd><span class="mono">{{ entry.decision.id }}</span> — approved by simulated adviser</dd>
+          <dt>Action and owner</dt><dd>{{ entry.route_code }} with {{ entry.resource_owner_id }}</dd>
+          <dt>Timing</dt><dd>{{ entry.scheduled_on }}; deadline {{ entry.deadline }}; {{ entry.effort_hours }} hour{{ entry.effort_hours|pluralize }}</dd>
+          <dt>Planner evidence</dt><dd class="mono">{{ entry.planner_run.id }}</dd>
+          <dt>Reviewed captures</dt><dd class="mono">{{ entry.reviewed_capture_ids|join:", " }}</dd>
+          <dt>Reviewed provisional hypotheses</dt><dd class="mono">{{ entry.reviewed_hypothesis_ids|join:", "|default:"None" }}</dd>
+        </dl>
+      </div>
+    </section>
+    <aside>
+      <section class="surface">
+        <div class="surface-header"><div><h3>Local mock export</h3><p>No external writeback is performed.</p></div><span class="status status-local">{{ export_state }}</span></div>
+        <div class="surface-body">
+          <dl>
+            <dt>Destination</dt><dd>{{ entry.structured_export.destination }}</dd>
+            <dt>State</dt><dd>{{ export_state }}</dd>
+            <dt>Idempotency key</dt><dd class="mono">{{ entry.structured_export.idempotency_key }}</dd>
+          </dl>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <section class="surface section-gap" aria-labelledby="brief-title">
+    <div class="surface-header"><div><h3 id="brief-title">Deterministic adviser brief</h3><p>A compact human-facing brief generated from approved evidence.</p></div></div>
+    <div class="surface-body">
+      <div class="brief-list">
+        <div class="brief-item"><span>Known</span><p>{{ entry.adviser_brief.known_facts|linebreaksbr }}</p></div>
+        <div class="brief-item"><span>Ask</span><p>{{ entry.adviser_brief.questions_to_ask }}</p></div>
+        <div class="brief-item"><span>Do not assume</span><p>{{ entry.adviser_brief.assumptions_prohibited }}</p></div>
+        <div class="brief-item"><span>Intended outcome</span><p>{{ entry.adviser_brief.intended_outcome }}</p></div>
+      </div>
+    </div>
   </section>
 {% endblock %}

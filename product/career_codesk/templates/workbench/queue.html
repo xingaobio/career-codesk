@@ -1,28 +1,58 @@
 {% extends "workbench/base.html" %}
 {% block title %}Decision queue · Career CoDesk{% endblock %}
+{% block nav_queue %}is-active{% endblock %}
 {% block content %}
-  <section aria-labelledby="queue-title">
-    <h2 id="queue-title">Decision queue</h2>
-    <p>Proposed routes require meaningful adviser approval. Safety-like signals are not shown here and are reserved for restricted human handling.</p>
-    <p><span class="status status-proposed">◇ Proposed</span> {{ items|length }} ordinary proposal{{ items|length|pluralize }} awaiting review.</p>
+  <header class="page-header">
+    <div class="page-header-copy">
+      <p class="eyebrow">Adviser workbench</p>
+      <h1 id="queue-title">Decision queue</h1>
+      <p class="page-summary">Review ordinary proposed routes against their source evidence, provisional interpretation, and current capacity before anything becomes active.</p>
+    </div>
+    <span class="status status-proposed">{{ items|length }} awaiting review</span>
+  </header>
+
+  <section class="metric-row" aria-label="Queue summary">
+    <div class="metric"><span class="metric-label">Ordinary proposals</span><strong>{{ items|length }}</strong><small>meaningful approval required</small></div>
+    <div class="metric"><span class="metric-label">Decision authority</span><strong>Human</strong><small>simulated adviser actor</small></div>
+    <div class="metric"><span class="metric-label">Evidence mode</span><strong>Local</strong><small>synthetic captures only</small></div>
+    <div class="metric"><span class="metric-label">Safety handling</span><strong>Separate</strong><small>not shown in this queue</small></div>
+  </section>
+
+  <section class="surface" aria-labelledby="queue-title">
+    <div class="surface-header">
+      <div>
+        <h3>Proposals requiring a decision</h3>
+        <p>Safety-like signals are reserved for restricted human handling and never appear as a score.</p>
+      </div>
+      <span class="status status-local">Synthetic data</span>
+    </div>
     <div class="table-wrap">
       <table>
         <caption>Sortable ordinary decision queue</caption>
-        <thead><tr>
-          <th scope="col" aria-sort="{% if sort == 'case' %}ascending{% else %}none{% endif %}"><a href="?sort=case">Case</a></th>
-          <th scope="col" aria-sort="{% if sort == 'route' %}ascending{% else %}none{% endif %}"><a href="?sort=route">Proposal</a></th>
-          <th scope="col" aria-sort="{% if sort == 'wait' %}ascending{% else %}none{% endif %}"><a href="?sort=wait">Waiting time</a></th>
-          <th scope="col" aria-sort="{% if sort == 'age' %}ascending{% else %}none{% endif %}"><a href="?sort=age">Queue age</a></th>
-          <th scope="col">Unmet demand</th><th scope="col">Review</th>
-        </tr></thead>
-        <tbody>{% for item in items %}<tr>
-          <td>{{ item.allocation.case_id }}</td>
-          <td><span class="status status-proposed">◇ Proposed</span> {{ item.allocation.route_code }}</td>
-          <td>{{ item.allocation.waiting_days }} day{{ item.allocation.waiting_days|pluralize }}</td>
-          <td>{{ item.queue_age_days }} day{{ item.queue_age_days|pluralize }}</td>
-          <td>{{ item.unmet_demand|length }} explicit</td>
-          <td><a class="button-link" href="{% url 'workbench-review' item.allocation.id %}?sort={{ sort }}">Review proposal</a></td>
-        </tr>{% empty %}<tr><td colspan="6">No ordinary proposals await review.</td></tr>{% endfor %}</tbody>
+        <thead>
+          <tr>
+            <th scope="col" aria-sort="{% if sort == 'case' %}ascending{% else %}none{% endif %}"><a href="?sort=case">Case</a></th>
+            <th scope="col" aria-sort="{% if sort == 'route' %}ascending{% else %}none{% endif %}"><a href="?sort=route">Proposal</a></th>
+            <th scope="col" aria-sort="{% if sort == 'wait' %}ascending{% else %}none{% endif %}"><a href="?sort=wait">Waiting time</a></th>
+            <th scope="col" aria-sort="{% if sort == 'age' %}ascending{% else %}none{% endif %}"><a href="?sort=age">Queue age</a></th>
+            <th scope="col">Unmet demand</th>
+            <th scope="col"><span class="visually-hidden">Review</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+            <tr>
+              <td class="primary-cell">{{ item.allocation.case_id }}</td>
+              <td><span class="status status-proposed">Proposed</span> <span class="primary-cell">{{ item.allocation.route_code }}</span></td>
+              <td>{{ item.allocation.waiting_days }} day{{ item.allocation.waiting_days|pluralize }}</td>
+              <td>{{ item.queue_age_days }} day{{ item.queue_age_days|pluralize }}</td>
+              <td>{{ item.unmet_demand|length }} explicit</td>
+              <td><a class="button-link" href="{% url 'workbench-review' item.allocation.id %}?sort={{ sort }}">Review proposal</a></td>
+            </tr>
+          {% empty %}
+            <tr><td class="empty-cell" colspan="6"><strong>No ordinary proposals await review.</strong><br>Approved work will appear in the weekly plan.</td></tr>
+          {% endfor %}
+        </tbody>
       </table>
     </div>
   </section>

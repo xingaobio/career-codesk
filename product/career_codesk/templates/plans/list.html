@@ -1,10 +1,41 @@
 {% extends "workbench/base.html" %}
 {% block title %}Weekly plans · Career CoDesk{% endblock %}
+{% block nav_plans %}is-active{% endblock %}
 {% block content %}
-  <section aria-labelledby="plans-title">
-    <h2 id="plans-title">Approved weekly plans</h2>
-    <p>Only adviser-approved active allocations have an execution package. Exports remain local mock records.</p>
-    <div class="table-wrap"><table><thead><tr><th>Case</th><th>Action</th><th>Timing</th><th>Owner</th><th>Inspect</th></tr></thead>
-    <tbody>{% for entry in entries %}<tr><td>{{ entry.case_id }}</td><td>{{ entry.route_code }}</td><td>{{ entry.scheduled_on }}; deadline {{ entry.deadline }}</td><td>{{ entry.resource_owner_id }}</td><td><a href="{% url 'weekly-plan-detail' entry.id %}">Plan and export</a></td></tr>{% empty %}<tr><td colspan="5">No approved weekly plans yet.</td></tr>{% endfor %}</tbody></table></div>
+  <header class="page-header">
+    <div class="page-header-copy">
+      <p class="eyebrow">Delivery control room</p>
+      <h1 id="plans-title">Approved weekly plans</h1>
+      <p class="page-summary">Inspect the actions that have passed adviser approval. Each execution package remains tied to immutable evidence and a local mock export.</p>
+    </div>
+    <span class="status status-recorded">{{ entries|length }} approved</span>
+  </header>
+
+  <section class="metric-row" aria-label="Weekly plan summary">
+    <div class="metric"><span class="metric-label">Approved actions</span><strong>{{ entries|length }}</strong><small>execution packages</small></div>
+    <div class="metric"><span class="metric-label">Writeback</span><strong>Local</strong><small>no external messages</small></div>
+    <div class="metric"><span class="metric-label">Evidence</span><strong>Linked</strong><small>decision and planner run</small></div>
+    <div class="metric"><span class="metric-label">Learner view</span><strong>One action</strong><small>adviser-approved only</small></div>
+  </section>
+
+  <section class="surface" aria-labelledby="plans-title">
+    <div class="surface-header">
+      <div><h3>Execution packages</h3><p>Only adviser-approved active allocations appear here.</p></div>
+      <span class="status status-local">Local mock records</span>
+    </div>
+    <div class="surface-body">
+      <div class="plan-list">
+        {% for entry in entries %}
+          <article class="plan-row">
+            <div class="plan-cell"><span>Case and action</span><strong>{{ entry.case_id }}</strong><p>{{ entry.route_code }}</p></div>
+            <div class="plan-cell"><span>Timing</span><strong>{{ entry.scheduled_on }}</strong><p>Deadline {{ entry.deadline }}</p></div>
+            <div class="plan-cell"><span>Owner</span><strong>{{ entry.resource_owner_id }}</strong><p>Simulated resource</p></div>
+            <a class="button-link button-secondary" href="{% url 'weekly-plan-detail' entry.id %}">Inspect plan</a>
+          </article>
+        {% empty %}
+          <div class="empty-cell"><strong>No approved weekly plans yet.</strong><br>Approve a proposed route to create an execution package.</div>
+        {% endfor %}
+      </div>
+    </div>
   </section>
 {% endblock %}
