@@ -26,8 +26,21 @@ bash scripts/verify-product.sh
 
 Every source must be labelled `Synthetic mock source — no MIS connection.` Fixtures are versioned,
 deterministic, and synthetic-only; see `fixtures/foundation-manifest.json`. This repository contains
-no learner records at foundation stage. Do not add real, pseudonymised, mapped, SEND, medical,
-safeguarding, or welfare data.
+only deterministic, obviously synthetic learner fixtures. Do not add real, pseudonymised, mapped,
+SEND, medical, safeguarding, or welfare data.
+
+Synthetic check-in CSV intake is limited to the four row fields documented in
+`fixtures/intake/schema-v1.md`. Version, clock, seed, source, and the required synthetic-data
+attestation belong in its import manifest, never in learner rows. Each import returns explicit
+accepted, rejected, or restricted-quarantine row outcomes and is idempotent for exact bytes and
+metadata. Rejected values are redacted from persistence, summaries, and normal logs.
+
+The intake value gate is deliberately bounded: it rejects email addresses; UK mobile numbers in
+compact, spaced, hyphenated, dotted, and `+44` forms; labelled names, dates of birth, and street
+addresses; and the prototype-sensitive terms `diagnosis`, `diagnosed`, `medical`, `medication`,
+`SEND`, `safeguarding`, and `welfare`. It is not comprehensive PII detection. Safety-like text is
+routed to restricted handling before ordinary sensitive-content rejection, while any overlapping
+direct identifier remains rejected and is not retained.
 
 Local identity is a fixed manager/adviser simulation, not production authentication: there are no
 passwords, SSO, institutional permissions, or access-control claims. The app does not connect to an

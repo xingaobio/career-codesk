@@ -29,6 +29,9 @@ class Enrolment(DomainRecord):
     cohort_code = models.CharField(max_length=64)
     source_row = models.PositiveIntegerField()
     source_version = models.CharField(max_length=64)
+    import_batch = models.ForeignKey(
+        "ImportBatch", null=True, blank=True, on_delete=models.PROTECT, related_name="enrolments"
+    )
 
     class Meta:
         constraints = [
@@ -54,6 +57,9 @@ class NeedCapture(AppendOnlyRecord):
     source_version = models.CharField(max_length=64)
     source_row = models.PositiveIntegerField(null=True, blank=True)
     field_allowlist_passed = models.BooleanField()
+    import_batch = models.ForeignKey(
+        "ImportBatch", null=True, blank=True, on_delete=models.PROTECT, related_name="need_captures"
+    )
     supersedes = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.PROTECT, related_name="corrections"
     )
@@ -103,6 +109,54 @@ class SafetyExit(AppendOnlyRecord):
         if self._state.adding:
             self.full_clean()
         return super().save(*args, **kwargs)
+
+
+class ImportBatch(AppendOnlyRecord):
+    """Immutable provenance for one attested synthetic CSV payload."""
+
+    source_label = models.CharField(max_length=96)
+    schema_version = models.CharField(max_length=32)
+    fixture_version = models.CharField(max_length=64)
+    source_version = models.CharField(max_length=64)
+    fixed_clock_utc = models.CharField(max_length=32)
+    seed = models.CharField(max_length=32)
+    synthetic_data_attestation = models.BooleanField()
+    payload_digest = models.CharField(max_length=64)
+    # This is a one-way identity for the complete submitted manifest.  It allows
+    # invalid manifests to replay without retaining any of their raw values.
+    manifest_digest = models.CharField(max_length=64)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("source_label", "source_version"), name="import_source_version_once"
+            )
+        ]
+
+
+class ImportRowResult(AppendOnlyRecord):
+    """Redacted, append-only outcome for an input row (or row zero file error)."""
+
+    STATUS_CHOICES = (
+        ("accepted", "Accepted"),
+        ("rejected", "Rejected"),
+        ("quarantined", "Quarantined"),
+    )
+
+    import_batch = models.ForeignKey(
+        ImportBatch, on_delete=models.PROTECT, related_name="row_results"
+    )
+    row_number = models.PositiveIntegerField()
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES)
+    error_codes = models.JSONField(default=list)
+    fields = models.JSONField(default=list)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("import_batch", "row_number"), name="import_row_outcome_once"
+            )
+        ]
 
 
 def _contains_score_like_metadata(value):

@@ -315,10 +315,9 @@ class ProvenanceDomainTests(TestCase):
             RestrictedSafetyExitRepository().get_for_capture(self.capture.id), exit_record
         )
         self.assertFalse(hasattr(OrdinaryCaptureRepository(), "safety_exits"))
-        ordinary_capture = OrdinaryCaptureRepository().for_case(self.case.id).get()
-        self.assertFalse(hasattr(ordinary_capture, "restricted_safety_exit"))
-        with self.assertRaises(AttributeError):
-            ordinary_capture.restricted_safety_exit
+        # A safety-exited source is not an ordinary workflow input at all.
+        # The restricted repository above is the sole read path for its handoff.
+        self.assertEqual(OrdinaryCaptureRepository().for_case(self.case.id).count(), 0)
         self.assertNotIn("score", {field.name for field in SafetyExit._meta.fields})
         self.assertNotIn("case", {field.name for field in SafetyExit._meta.fields})
         with self.assertRaises(DomainInvariantError):
