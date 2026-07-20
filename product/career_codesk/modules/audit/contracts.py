@@ -9,7 +9,7 @@ class AuditConvention:
     """The boundary a future audit projection must preserve."""
 
     events_persisted: bool = False
-    evaluation_status: str = "deferred"
+    evaluation_status: str = "local_evaluation_pack"
 
 
 class AuditProjection(Protocol):
@@ -19,8 +19,8 @@ class AuditProjection(Protocol):
         """Return the deferred audit and evaluation boundary."""
 
 
-class DeferredAuditProjection:
-    """Foundation implementation that deliberately records no audit events."""
+class LocalEvaluationPackProjection:
+    """Expose local evaluation availability without creating an event store."""
 
     def convention(self) -> AuditConvention:
         return AuditConvention()

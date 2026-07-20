@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     "career_codesk.modules.decisions.apps.DecisionsConfig",
     "career_codesk.modules.delivery_feedback.apps.DeliveryFeedbackConfig",
     "career_codesk.modules.export.apps.ExportConfig",
+    "career_codesk.modules.audit.apps.AuditConfig",
 ]
 MIDDLEWARE = ["django.middleware.csrf.CsrfViewMiddleware"]
 ROOT_URLCONF = "career_codesk.urls"
@@ -39,7 +40,9 @@ ASGI_APPLICATION = "career_codesk.asgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "career_codesk.sqlite3",
+        "NAME": os.environ.get(
+            "CAREER_CODESK_EVALUATION_SQLITE_PATH", BASE_DIR / "career_codesk.sqlite3"
+        ),
     }
 }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

@@ -1,0 +1,7 @@
+synthetic_identifier,course_code,cohort_code,need_statement
+synthetic-eval-happy-001,SYN-EVAL,SYN-COHORT,Compare synthetic route options before the fixed demo deadline.
+synthetic-eval-capacity-a-001,SYN-EVAL,SYN-COHORT,Need an adviser-reviewed synthetic route comparison.
+synthetic-eval-capacity-b-001,SYN-EVAL,SYN-COHORT,Need a second adviser-reviewed synthetic route comparison.
+synthetic-eval-override-001,SYN-EVAL,SYN-COHORT,Review a synthetic route choice with an alternative workshop route.
+synthetic-eval-export-001,SYN-EVAL,SYN-COHORT,Confirm a synthetic next action for local export testing.
+synthetic-eval-reopen-001,SYN-EVAL,SYN-COHORT,Keep a synthetic route question open for outcome testing.

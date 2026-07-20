@@ -22,6 +22,10 @@ Run tests with:
 bash scripts/verify-product.sh
 ```
 
+For the reproducible eight-scenario synthetic evidence pack, see the [demo
+runbook](DEMO_RUNBOOK.md). Run it with `bash product/scripts/run-demo-evaluation.sh`
+from the repository root; it uses a disposable SQLite database and no secrets.
+
 ## Adviser workbench
 
 The home page is the synthetic adviser decision queue. It shows only ordinary,
