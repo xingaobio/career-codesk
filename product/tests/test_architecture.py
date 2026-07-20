@@ -38,8 +38,8 @@ class ArchitectureTests(SimpleTestCase):
         self.assertEqual(foundation.ai_gateway.preview("capture-1").status, "provisional")
         self.assertEqual(foundation.planning.identity().algorithm_version, "planner-foundation-v1")
         self.assertEqual(foundation.export.destination(), "local-mock-outbox")
-        self.assertFalse(foundation.casework.convention().records_persisted)
-        self.assertFalse(foundation.delivery_feedback.convention().feedback_persisted)
+        self.assertTrue(foundation.casework.convention().records_persisted)
+        self.assertTrue(foundation.delivery_feedback.convention().feedback_persisted)
         self.assertFalse(foundation.audit.convention().events_persisted)
 
     def test_production_adapter_wiring_lives_only_in_the_composition_root(self):

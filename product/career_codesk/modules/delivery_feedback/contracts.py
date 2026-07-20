@@ -1,4 +1,4 @@
-"""Published delivery/feedback interface; event persistence is deferred."""
+"""Published delivery/feedback interface for append-only event persistence."""
 
 from dataclasses import dataclass
 from typing import Protocol
@@ -20,7 +20,7 @@ class FeedbackRecorder(Protocol):
 
 
 class DeferredFeedbackRecorder:
-    """Foundation implementation that deliberately stores no feedback events."""
+    """Compatibility name for the original foundation placeholder."""
 
     def convention(self) -> DeliveryFeedbackConvention:
         return DeliveryFeedbackConvention()

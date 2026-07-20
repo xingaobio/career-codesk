@@ -27,5 +27,10 @@ def actor_for(role: str) -> SimulatedActor:
         raise UnsupportedRoleError(f"Unsupported simulated role: {role}") from error
 
 
+def is_canonical_simulated_adviser(actor: SimulatedActor) -> bool:
+    """Only the singleton local adviser fixture may own adviser-only actions."""
+    return actor is _ACTORS["adviser"]
+
+
 def available_actors() -> tuple[SimulatedActor, SimulatedActor]:
     return (_ACTORS["manager"], _ACTORS["adviser"])

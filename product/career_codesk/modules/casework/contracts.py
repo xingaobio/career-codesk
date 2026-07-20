@@ -1,4 +1,4 @@
-"""Published casework interface; no case records are created by the foundation."""
+"""Published casework interface for the persisted synthetic domain."""
 
 from dataclasses import dataclass
 from typing import Protocol
@@ -20,7 +20,7 @@ class CaseworkService(Protocol):
 
 
 class DeferredCaseworkService:
-    """Foundation implementation that explicitly creates no casework data."""
+    """Compatibility name for the original foundation placeholder."""
 
     def convention(self) -> CaseworkConvention:
         return CaseworkConvention()

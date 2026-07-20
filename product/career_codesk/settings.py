@@ -14,6 +14,13 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.staticfiles",
     "career_codesk.web",
+    "career_codesk.modules.intake_provenance.apps.IntakeProvenanceConfig",
+    "career_codesk.modules.casework.apps.CaseworkConfig",
+    "career_codesk.modules.ai_gateway.apps.AiGatewayConfig",
+    "career_codesk.modules.planning.apps.PlanningConfig",
+    "career_codesk.modules.decisions.apps.DecisionsConfig",
+    "career_codesk.modules.delivery_feedback.apps.DeliveryFeedbackConfig",
+    "career_codesk.modules.export.apps.ExportConfig",
 ]
 MIDDLEWARE = []
 ROOT_URLCONF = "career_codesk.urls"

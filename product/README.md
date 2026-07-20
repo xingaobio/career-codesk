@@ -43,5 +43,9 @@ implementation may migrate the shared relational store to PostgreSQL; that is no
 
 `career_codesk/modules/` contains small published contracts for intake/provenance, casework, AI,
 planning, decisions, delivery/feedback, export, and audit/evaluation. `composition.py` is the only
-wiring point. The foundation deliberately leaves records, import processing, planning, decision
-events, delivery, and export workflows to later approved tasks.
+wiring point. The canonical domain records are persisted in the shared SQLite store with stable
+non-sequential IDs: source captures and corrections, provisional hypotheses, adviser decisions,
+allocation proposals, delivery/outcome evidence, local mock writeback attempts, and restricted
+safety exits. Source evidence, AI hypotheses, and adviser decisions are append-only. Case state is
+a current projection backed by immutable transitions; only the simulated adviser may manually move
+it. Safety exits use a restricted repository path, have no score, and prevent ordinary processing.
