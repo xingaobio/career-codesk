@@ -2,6 +2,18 @@
 
 This project uses versioned product snapshots during its exploratory phase. Changes describe decisions and shifts in product direction, not only software releases.
 
+## [0.2.0] - 2026-07-20
+
+### Added
+
+- Added a candidate implementation RFC for the smallest synthetic-data Career CoDesk vertical slice.
+- Separated source evidence, assumptions, candidate recommendations, recorded human decisions, and open questions.
+- Recorded recommended answers to the eight direction-setting questions while preserving the required adviser-approval, safety-exit, provenance, and deterministic-capacity boundaries.
+
+### Important status note
+
+This is a **Candidate / Awaiting human approval** snapshot. It grants no implementation authority until the named `G001` human approval gate records an approval or amendment. The existing `0.1.0-early` snapshot remains the unapproved exploration baseline.
+
 ## [0.1.0-early] - 2026-07-17
 
 ### Added
