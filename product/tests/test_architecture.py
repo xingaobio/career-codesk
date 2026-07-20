@@ -85,7 +85,7 @@ class ArchitectureTests(SimpleTestCase):
         foundation = compose_foundation()
         self.assertIsInstance(foundation, Foundation)
         self.assertTrue(callable(foundation.ai_gateway.interpret))
-        self.assertEqual(foundation.planning.identity().algorithm_version, "planner-foundation-v1")
+        self.assertEqual(foundation.planning.identity().algorithm_version, "capacity-planner-v1")
         self.assertEqual(foundation.export.destination(), "local-mock-outbox")
         self.assertTrue(foundation.casework.convention().records_persisted)
         self.assertTrue(foundation.delivery_feedback.convention().feedback_persisted)
@@ -95,7 +95,7 @@ class ArchitectureTests(SimpleTestCase):
         package_root = Path(__file__).resolve().parents[1] / "career_codesk"
         adapter_names = {
             "DeterministicFakeAdapter",
-            "DeterministicPlanner",
+            "DeterministicPlanningService",
             "AdviserDecisionGate",
             "LocalMockOutbox",
             "ProvenanceIntake",

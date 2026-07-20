@@ -1,5 +1,7 @@
 """Acceptance evidence for the provenance-aware synthetic domain model."""
 
+from datetime import date
+
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.test import TestCase
@@ -32,8 +34,18 @@ from career_codesk.modules.intake_provenance.services import (
     OrdinaryCaptureRepository,
     RestrictedSafetyExitRepository,
 )
+from career_codesk.modules.planning.contracts import (
+    CapacitySlot,
+    Demand,
+    PlanningPolicy,
+    PlanningRequest,
+)
 from career_codesk.modules.planning.models import InterventionAllocation, Need
-from career_codesk.modules.planning.services import AllocationService
+from career_codesk.modules.planning.services import (
+    AllocationService,
+    DeterministicPlanningService,
+    PlannerRunService,
+)
 
 
 class ProvenanceDomainTests(TestCase):
@@ -85,15 +97,36 @@ class ProvenanceDomainTests(TestCase):
         return AiGatewayService(DeterministicFakeAdapter()).interpret(request)
 
     def _proposal(self):
+        run = self._planner_run()
         return AllocationService().propose(
             case_id=self.case.id,
             need=self.need,
             route_code="guide",
-            planner_run_id=f"planner-run-{InterventionAllocation.objects.count() + 1:03d}",
-            planner_algorithm_version="planner-v1",
-            planner_policy_version="policy-v1",
+            planner_run_id=run.id,
+            planner_algorithm_version=run.algorithm_version,
+            planner_policy_version=run.policy_version,
             hypothesis=self._hypothesis(),
         )
+
+    def _planner_run(self):
+        request = PlanningRequest(
+            policy=PlanningPolicy("policy-v1", ("guide",), 2),
+            demands=(
+                Demand(
+                    demand_id="demand-" + self.case.id,
+                    case_id=self.case.id,
+                    need_code=self.need.taxonomy_code,
+                    route_code="guide",
+                    barrier_key="route",
+                    requested_on=date(2026, 7, 20),
+                    deadline=date(2026, 7, 21),
+                    minimum_entitlement=True,
+                ),
+            ),
+            capacity_slots=(CapacitySlot("adviser-1", "guide", date(2026, 7, 20), 2, 2, 2),),
+        )
+        planner = DeterministicPlanningService()
+        return PlannerRunService().record(request, planner.plan(request))
 
     def _approve(self, allocation=None):
         allocation = allocation or self._proposal()
@@ -120,6 +153,20 @@ class ProvenanceDomainTests(TestCase):
         self.case.refresh_from_db()
         self.assertEqual(self.case.learner_id, self.learner.id)
         self.assertEqual(self.case.state, "open")
+
+    def test_allocation_proposal_requires_matching_persisted_planner_evidence(self):
+        with self.assertRaisesRegex(DomainInvariantError, "planner evidence"):
+            AllocationService().propose(
+                case_id=self.case.id,
+                need=self.need,
+                route_code="guide",
+                planner_run_id="caller-supplied-metadata-is-not-evidence",
+                planner_algorithm_version="capacity-planner-v1",
+                planner_policy_version="policy-v1",
+                hypothesis=self._hypothesis(),
+            )
+        allocation = self._proposal()
+        self.assertEqual(allocation.planner_algorithm_version, "capacity-planner-v1")
 
     def test_conflicting_captures_and_correction_preserve_the_original_source(self):
         conflict = NeedCapture.objects.create(

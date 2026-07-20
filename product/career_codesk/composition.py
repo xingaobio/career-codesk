@@ -15,8 +15,8 @@ from career_codesk.modules.export.contracts import ExportGateway, LocalMockOutbo
 from career_codesk.modules.export.services import WritebackService
 from career_codesk.modules.intake_provenance.contracts import ProvenanceIntake
 from career_codesk.modules.intake_provenance.services import CaptureService
-from career_codesk.modules.planning.contracts import DeterministicPlanner, Planner
-from career_codesk.modules.planning.services import AllocationService
+from career_codesk.modules.planning.contracts import Planner
+from career_codesk.modules.planning.services import AllocationService, DeterministicPlanningService
 
 
 @dataclass(frozen=True)
@@ -57,7 +57,7 @@ def compose_foundation() -> Foundation:
         intake=ProvenanceIntake(),
         casework=CaseWorkflowService(),
         ai_gateway=AiGatewayService(DeterministicFakeAdapter()),
-        planning=DeterministicPlanner(),
+        planning=DeterministicPlanningService(),
         decisions=AdviserDecisionGate(),
         delivery_feedback=DeliveryFeedbackService(),
         export=LocalMockOutbox(),

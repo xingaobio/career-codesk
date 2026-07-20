@@ -25,6 +25,23 @@ class Need(AppendOnlyRecord):
         ]
 
 
+class PlannerRun(AppendOnlyRecord):
+    """Immutable evidence for one pure feasibility calculation.
+
+    The canonical fields intentionally exclude this record's generated ID and
+    timestamp, so equivalent inputs retain equivalent feasibility digests.
+    """
+
+    input_digest = models.CharField(max_length=64, db_index=True)
+    policy_version = models.CharField(max_length=64)
+    algorithm_version = models.CharField(max_length=64)
+    seed_metadata = models.JSONField(default=dict)
+    source_ids = models.JSONField(default=list)
+    canonical_input = models.JSONField()
+    canonical_result = models.JSONField()
+    result_digest = models.CharField(max_length=64, db_index=True)
+
+
 class InterventionAllocation(DomainRecord):
     STATES = (("proposed", "Proposed"), ("active", "Active"), ("inactive", "Inactive"))
 
