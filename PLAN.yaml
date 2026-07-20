@@ -1,0 +1,295 @@
+version: 1
+project: Career CoDesk thin vertical-slice demonstrator
+
+tasks:
+  - id: D001-implementation-rfc
+    title: Draft the approvable v0.2 implementation RFC
+    mode: agent
+    priority: 10
+    agent_profile: implementer
+    depends_on: []
+    objective: >-
+      Convert the preserved 0.1 exploratory product snapshot into a new, explicitly unapproved
+      v0.2 implementation RFC for the smallest demonstrable Career CoDesk vertical slice. Resolve
+      technical defaults as recommendations, keep product decisions visible, and answer all eight
+      direction-setting questions without rewriting the historical baseline.
+    acceptance:
+      - A new versioned RFC separates evidence, assumptions, recommendations, decisions, and open questions.
+      - The RFC defines one primary manager/adviser workflow and the minimum learner feedback interaction.
+      - The RFC fixes the prototype boundary to synthetic data, CSV/mock input, no live MIS, and no external mutation.
+      - The RFC defines the canonical records, provenance rules, safety exit, adviser approval gate, and deterministic capacity responsibilities.
+      - The RFC recommends a modular-monolith implementation stack, module map, demo scenarios, acceptance measures, and falsification criteria.
+      - Each of the eight open decisions in the 0.1 snapshot has an explicit recommended prototype answer and rationale.
+      - The RFC status remains Candidate / Awaiting human approval.
+      - CHANGELOG records the candidate snapshot without relabelling 0.1 as approved.
+    source_paths:
+      - SPEC.md
+      - product_definition.md
+      - docs/versions/v0.1.0-early-product-concept.md
+      - docs/versions/README.md
+      - CHANGELOG.md
+    allowed_paths:
+      - docs/versions/v0.2.0-implementation-rfc.md
+      - CHANGELOG.md
+    verify:
+      - test -f docs/versions/v0.2.0-implementation-rfc.md
+      - rg -q 'Awaiting human approval' docs/versions/v0.2.0-implementation-rfc.md
+      - rg -q 'Direction-setting decisions' docs/versions/v0.2.0-implementation-rfc.md
+
+  - id: G001-approve-rfc
+    title: Approve or amend the v0.2 prototype contract
+    mode: human
+    priority: 20
+    depends_on:
+      - D001-implementation-rfc
+    objective: >-
+      Review the v0.2 RFC in the private integration worktree, amend any incorrect assumptions,
+      obtain the necessary product authority, change its status to Approved for prototype
+      implementation, and record a specific approval note. Do not approve if the data boundary,
+      safeguarding exit, human-decision ownership, first workflow, or success measures remain
+      ambiguous.
+    acceptance:
+      - The RFC status says Approved for prototype implementation.
+      - Every direction-setting decision has an owner and an approved prototype answer.
+      - Synthetic-only data and no-live-integration constraints remain explicit.
+      - The approval note identifies who approved what and any conditions.
+    source_paths:
+      - docs/versions/v0.2.0-implementation-rfc.md
+    allowed_paths:
+      - docs/versions/v0.2.0-implementation-rfc.md
+      - CHANGELOG.md
+    verify:
+      - rg -q 'Status.*Approved for prototype implementation' docs/versions/v0.2.0-implementation-rfc.md
+
+  - id: F001-product-foundation
+    title: Establish the modular-monolith product foundation
+    mode: agent
+    priority: 30
+    agent_profile: implementer
+    depends_on:
+      - G001-approve-rfc
+    objective: >-
+      Implement the approved RFC's product skeleton under product/, with a reproducible local
+      developer command, architectural module seams, deterministic test harness, synthetic fixture
+      conventions, and one scripts/verify-product.sh interface that later tasks can rely on.
+    acceptance:
+      - The product starts locally from documented commands without requiring secrets or external services.
+      - Module seams reflect the approved domain, AI gateway, deterministic planning, human decision, and export responsibilities.
+      - Local identity is an explicit deterministic simulation with manager/adviser roles, not a production authentication claim.
+      - A deterministic test runner and fixture strategy exist.
+      - scripts/verify-product.sh performs formatting/static checks, tests, and a production build or equivalent integrity check.
+      - Configuration contains safe local defaults and no credentials.
+    source_paths:
+      - docs/versions/v0.2.0-implementation-rfc.md
+    allowed_paths:
+      - product/**
+      - scripts/verify-product.sh
+    verify:
+      - test -x scripts/verify-product.sh
+      - bash scripts/verify-product.sh
+
+  - id: D002-provenance-domain
+    title: Implement the canonical provenance-aware case model
+    mode: agent
+    priority: 40
+    agent_profile: implementer
+    depends_on:
+      - F001-product-foundation
+    objective: >-
+      Implement and test the approved canonical learner, enrolment, need capture, need hypothesis,
+      support decision, intervention allocation, delivery event, outcome confirmation, and writeback
+      attempt model. Preserve source qualification, version history, correction, human ownership,
+      and ordinary-workflow safety exits as enforceable invariants.
+    acceptance:
+      - Learner, enrolment, need, and case are separate concepts with stable identifiers.
+      - Source statements and AI hypotheses cannot overwrite one another.
+      - Adviser approve, amend, and reject decisions are immutable auditable events.
+      - Safety-exit records are access-separated from ordinary career barriers and never share a score.
+      - State transitions reject invalid or unauthorised movement and support close/reopen history.
+      - Tests cover provenance conflicts, correction, approval ownership, safety exit, and reopening.
+    source_paths:
+      - docs/versions/v0.2.0-implementation-rfc.md
+      - product/README.md
+    allowed_paths:
+      - product/**
+    verify:
+      - bash scripts/verify-product.sh
+
+  - id: I001-synthetic-intake
+    title: Build synthetic CSV intake and the sensitive-data gate
+    mode: agent
+    priority: 50
+    agent_profile: implementer
+    depends_on:
+      - D002-provenance-domain
+    objective: >-
+      Add schema-validated CSV/mock intake for synthetic learner check-ins. Keep original field
+      provenance, report row-level errors without partial silent corruption, reject or quarantine
+      fields outside the approved minimum dataset, and route safety-like free text to restricted
+      human handling rather than classification.
+    acceptance:
+      - A documented synthetic CSV schema covers only the approved prototype fields.
+      - Import is idempotent, source-qualified, and produces a clear accepted/rejected/quarantined summary.
+      - Direct identifiers and disallowed sensitive fields are rejected, fixtures require a synthetic-data attestation, and normal logs contain no raw rejected value.
+      - Safety-like content creates a restricted human-review signal and bypasses ordinary AI classification.
+      - Deterministic synthetic fixtures cover valid, malformed, duplicate, disallowed, and safety-exit cases.
+    source_paths:
+      - docs/versions/v0.2.0-implementation-rfc.md
+      - product/README.md
+    allowed_paths:
+      - product/**
+    verify:
+      - bash scripts/verify-product.sh
+
+  - id: A001-ai-gateway
+    title: Implement structured AI gateway contracts and a deterministic fake
+    mode: agent
+    priority: 60
+    agent_profile: implementer
+    depends_on:
+      - I001-synthetic-intake
+    objective: >-
+      Implement the server-side AI gateway interface for intake interpretation, transparent barrier
+      hypotheses, cohort explanation, and adviser-facing drafts. Require schema validation,
+      unknown-over-guessing behaviour, prompt/model/policy provenance, safe failure handling, and a
+      deterministic fake adapter for all default tests and demos.
+    acceptance:
+      - User-facing code cannot call a model provider directly.
+      - Every AI output is provisional, schema-validated, versioned, source-linked, and distinguishable from a human decision.
+      - Unknown, low-confidence, unsafe, and malformed outputs take explicit non-consequential paths.
+      - The default local demo and test suite use a deterministic fake with no API key or network dependency.
+      - Contract tests cover valid output, schema failure, timeout/error mapping, unknown values, and safety escalation.
+    source_paths:
+      - docs/versions/v0.2.0-implementation-rfc.md
+      - product/README.md
+    allowed_paths:
+      - product/**
+    verify:
+      - bash scripts/verify-product.sh
+
+  - id: P001-capacity-planner
+    title: Implement deterministic cohort and capacity planning
+    mode: agent
+    priority: 70
+    agent_profile: implementer
+    depends_on:
+      - A001-ai-gateway
+    objective: >-
+      Build the deterministic engine that aggregates approved/provisional need tags, proposes
+      cohorts, applies entitlement, deadlines, adviser hours, group limits, rooms or availability,
+      and approved provider capacity, and returns feasible alternatives plus explicit unmet demand.
+      AI may explain proposals but cannot own arithmetic or feasibility.
+    acceptance:
+      - Identical inputs and policy versions always produce identical feasibility results.
+      - Minimum entitlement and human-review requirements cannot be displaced by capacity pressure.
+      - Grouping obeys barrier compatibility, maximum size, deadlines, and approved intervention types.
+      - Plans expose consumed capacity, waiting time, unallocated demand, binding constraints, and at least one feasible alternative where possible.
+      - Property or table-driven tests cover zero capacity, over-capacity, deadline ties, group limits, external capacity, and impossible demand.
+    source_paths:
+      - docs/versions/v0.2.0-implementation-rfc.md
+      - product/README.md
+    allowed_paths:
+      - product/**
+    verify:
+      - bash scripts/verify-product.sh
+
+  - id: U001-adviser-workbench
+    title: Build the adviser decision queue and override flow
+    mode: agent
+    priority: 80
+    agent_profile: implementer
+    depends_on:
+      - P001-capacity-planner
+    objective: >-
+      Implement the primary high-density manager/adviser workbench: sortable decision queue,
+      source-versus-inference view, uncertainty, alternatives, capacity effect, approve/amend/reject
+      controls, queue age and unmet-demand visibility, with keyboard and accessibility basics.
+    acceptance:
+      - The interface never hides source statements, provisional inference, uncertainty, or the reason for a proposal.
+      - Approval, amendment, and rejection require the approved simulated prototype staff role and create auditable domain events without claiming production authentication.
+      - Capacity and waiting-time effects update from deterministic code after every decision.
+      - Colour is never the only status signal and consequential actions have clear confirmation/undo semantics where safe.
+      - Integration tests cover review, override, rejection, stale-plan handling, and restricted safety cases.
+    source_paths:
+      - docs/versions/v0.2.0-implementation-rfc.md
+      - product/README.md
+    allowed_paths:
+      - product/**
+    verify:
+      - bash scripts/verify-product.sh
+
+  - id: O001-plan-export-feedback
+    title: Deliver weekly plan, structured export, and learner feedback loop
+    mode: agent
+    priority: 90
+    agent_profile: implementer
+    depends_on:
+      - U001-adviser-workbench
+    objective: >-
+      Turn approved allocations into an executable weekly plan, adviser brief and action drafts,
+      one idempotent structured export object, and a minimal learner-facing next-action/feedback
+      interaction that can reopen unresolved cases. Keep all sending and live writeback mocked.
+    acceptance:
+      - Only approved decisions appear in the executable plan or export.
+      - Weekly plan entries retain need, decision, capacity, intervention, owner, timing, and evidence links.
+      - Adviser drafts state what is known, what to ask, what not to assume, and the intended outcome.
+      - Export attempts have idempotency keys, result states, retry/reconciliation semantics, and no live connector.
+      - The learner view shows one explained next action, effort/deadline, human-help option, and unresolved feedback that reopens the case.
+      - End-to-end tests prove propose to approve to allocate to export to feedback/reopen history.
+    source_paths:
+      - docs/versions/v0.2.0-implementation-rfc.md
+      - product/README.md
+    allowed_paths:
+      - product/**
+    verify:
+      - bash scripts/verify-product.sh
+
+  - id: E001-evaluation-demo
+    title: Harden the synthetic end-to-end demonstrator and evidence pack
+    mode: agent
+    priority: 100
+    agent_profile: implementer
+    depends_on:
+      - O001-plan-export-feedback
+    objective: >-
+      Create deterministic demo scenarios and an evaluation pack that exercise the complete thin
+      slice, quantify capacity feasibility and human override behaviour, document failure modes and
+      product claims, and make the demonstrator reproducible without secrets or real learner data.
+    acceptance:
+      - One command seeds and runs at least happy-path, over-capacity, malformed-input, AI-failure, safety-exit, override, failed-export, and reopen scenarios.
+      - Evaluation checks structured-output validity, deterministic feasibility, provenance preservation, approval enforcement, accessibility smoke checks, and no-network default operation.
+      - The demo runbook names assumptions, non-claims, expected evidence, known gaps, and cleanup/reset steps.
+      - No fixture resembles an identifiable real person and a repository scan finds no credential or personal-data sample.
+      - The full product verification command passes from a clean checkout.
+    source_paths:
+      - docs/versions/v0.2.0-implementation-rfc.md
+      - product/README.md
+    allowed_paths:
+      - product/**
+    verify:
+      - bash scripts/verify-product.sh
+
+  - id: G002-final-acceptance
+    title: Human acceptance of the demonstrator
+    mode: human
+    priority: 110
+    depends_on:
+      - E001-evaluation-demo
+    objective: >-
+      Run the documented synthetic demo from the integration worktree, inspect evidence and open
+      gaps, confirm that the prototype stays inside the approved claims/data boundary, and record
+      acceptance conditions or refuse the gate. This gate does not authorise deployment, real data,
+      live MIS integration, or merging to main.
+    acceptance:
+      - The complete synthetic workflow is reproducible from the runbook.
+      - Human approval and override remain meaningful and auditable.
+      - Capacity feasibility and unmet demand are visible and arithmetically correct.
+      - Safety-like input exits the normal workflow without diagnosis or scoring.
+      - Known limitations and next validation experiments are recorded in the approval note.
+    source_paths:
+      - docs/versions/v0.2.0-implementation-rfc.md
+      - product/README.md
+    allowed_paths:
+      - product/**
+    verify:
+      - bash scripts/verify-product.sh

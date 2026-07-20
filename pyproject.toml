@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "career-codesk-loop"
+version = "0.1.0"
+description = "A local, isolated guide-build-verify-review loop for Career CoDesk"
+requires-python = ">=3.9"
+dependencies = ["PyYAML>=6.0"]
+
+[project.scripts]
+career-loop = "loop_engine.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["loop_engine*"]
+
