@@ -298,6 +298,10 @@ class HardeningTests(unittest.TestCase):
             with self.assertRaises(KeyboardInterrupt):
                 engine.run_once()
 
+            paused = engine.status()["tasks"][0]
+            self.assertEqual("paused", paused["status"])
+            self.assertEqual("implementing", paused["resume_stage"])
+
             with self.assertRaises(RunFailed) as caught:
                 engine.run_once()
 
@@ -448,7 +452,25 @@ class HardeningTests(unittest.TestCase):
                 "questions": [],
             }
             with self.assertRaises(AgentError):
-                RunEngine._validate_review(invalid_review)
+                RunEngine._validate_review(invalid_review, task)
+
+            out_of_scope_blocker = {
+                "verdict": "repair",
+                "summary": "Invented future architecture audit.",
+                "findings": [
+                    {
+                        "severity": "blocking",
+                        "criterion": "Add a future plugin security framework.",
+                        "message": "Not part of this task.",
+                        "repair": "Broaden the architecture.",
+                    }
+                ],
+                "questions": [],
+            }
+            RunEngine._validate_review(out_of_scope_blocker, task)
+            self.assertEqual(
+                "accept", RunEngine._effective_review_verdict(out_of_scope_blocker, task)
+            )
 
     def test_generic_secret_names_are_removed_from_child_environments(self) -> None:
         with mock.patch.dict(

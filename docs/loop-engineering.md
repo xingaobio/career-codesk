@@ -18,9 +18,9 @@ Terra/high or explicit Luna/high implementer (task worktree)
           ↓
 deterministic verification
           ↓
-Sol/ultra independent review (read-only)
+Sol/ultra acceptance-scoped review (read-only)
           ↓
-bounded repair loop or needs-human stop
+one autonomous repair or targeted/human stop
           ↓
 engine-owned commit → private codex/loop-integration branch
 ```
@@ -58,6 +58,7 @@ python3 -m loop_engine run [--max-tasks N]
 python3 -m loop_engine approve TASK_ID --approver "role/name" --note "specific approval and conditions"
 python3 -m loop_engine reject TASK_ID --approver "role/name" --note "reason the gate is refused"
 python3 -m loop_engine retry TASK_ID [--note "answer to the blocked question"]
+python3 -m loop_engine pause TASK_ID [--note "why execution stopped"]
 ```
 
 Add global `--json` before the command for machine-readable output. Installing the package in a
@@ -193,6 +194,12 @@ reviewer accepts that exact tree. The engine creates the accepted commit directl
 tree using Git plumbing with repository hooks bypassed, so a hook cannot change the tree between
 review and commit.
 
+Within one task run, the implementation/repair turns reuse one Terra or Luna session and the review
+turns reuse a separate read-only Sol session. Guide, implementer, and reviewer remain isolated by
+role. This preserves focused context across a repair without rebuilding the repository context in
+another ephemeral turn. Session identity, model, reasoning level, sandbox, and worktree must match
+before the Adapter resumes it.
+
 Acceptance is reconciled only when the persisted task digest, workflow digest, base commit,
 reviewed-tree digest, and engine commit agree with Git history. Commit messages and trailers do not
 reconstruct acceptance. Preserve `.loop/state.json` and the associated run evidence: deleting that
@@ -207,22 +214,36 @@ human actions.
 
 ## Recovery and attention states
 
-- An interrupted run keeps its task worktree, run ID, guide output, logs, and state. Before
-  continuing, the engine reconciles recorded child PIDs and terminates a stale Codex or verifier
-  process group rather than assuming it survived safely.
+- An interrupted run keeps its task worktree, run ID, guide output, logs, and state. `Ctrl-C` is
+  persisted as `paused` with the exact resume stage. If a process was killed outside the CLI and
+  status still says `running`, use `python3 -m loop_engine pause TASK_ID --note "..."`; `once
+  TASK_ID` then resumes verification/review safely. An interruption during implementation/repair
+  still stops as an ambiguous mutation that requires inspection. Before continuing, the engine
+  reconciles recorded child PIDs and terminates a stale Codex or verifier process group rather than
+  assuming it survived safely.
 - `needs_human` records the guide/reviewer questions and stops the loop.
 - Retrying a task blocked on a guide or reviewer question requires an explicit answer, for example
   `python3 -m loop_engine retry TASK_ID --note "<decision and authority>"`. The answer is preserved
   for the next run; retry is not an approval shortcut.
 - `failed` preserves all evidence. Infrastructure retries are deliberate operator actions: fix the
-  cause, run `python3 -m loop_engine retry TASK_ID`, and then run `once` again. They are not consumed
-  automatically as semantic repair cycles.
+  cause, run `python3 -m loop_engine retry TASK_ID`, and then run `once` again. When the single
+  autonomous semantic-repair budget is exhausted, retry automatically becomes targeted: it keeps
+  the same run, guide, worktree, and last blocking evidence, then authorises one consolidated repair
+  instead of restarting guide and initial implementation.
 - A task commit created just before a crash can be reconciled only from matching persisted
   task/workflow/base/tree/commit metadata. A trailer by itself cannot resume or accept a task, and
   deleting `.loop/state.json` is not recoverable from trailers.
-- The configured limit of three applies to semantic repair cycles triggered by deterministic
-  verification or reviewer findings. Deterministic verification failure cannot be overridden by a
-  reviewer; explicit infrastructure retries remain manual.
+- Delivery mode permits at most one autonomous semantic repair, even while the legacy workflow
+  ceiling remains higher. A reviewer may trigger it only with a blocking finding tied to an exact
+task acceptance criterion or a fixed scope/safety/data-integrity run invariant. Important and
+minor findings, including out-of-contract findings mislabeled as blocking, are retained as
+follow-ups and do not block acceptance. A `repair` or `reject` verdict without a valid blocker is
+therefore recorded but normalized to `accept`. A final valid blocking result
+stops with targeted retry evidence instead of opening another autonomous audit loop.
+
+Verification runs task-specific acceptance commands first and stops on the first failure. Passing
+command output remains in evidence files but is omitted from the reviewer prompt; only bounded
+failure tails are included. The full configured command set still has to pass on an accepted tree.
 
 ## Trust posture
 

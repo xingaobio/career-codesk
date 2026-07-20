@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 TASK_PENDING = "pending"
 TASK_RUNNING = "running"
+TASK_PAUSED = "paused"
 TASK_WAITING_HUMAN = "waiting_human"
 TASK_ACCEPTED = "accepted"
 TASK_BLOCKED = "blocked"
@@ -75,6 +76,7 @@ class AgentRequest:
     cwd: Path
     run_dir: Path
     response_schema: Optional[Mapping[str, Any]] = None
+    session_path: Optional[Path] = None
 
 
 @dataclass(frozen=True)

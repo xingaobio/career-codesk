@@ -120,28 +120,38 @@ class CodexCliAdapter:
         stderr_path = request.run_dir / (token + ".stderr.log")
         prompt_path.write_text(request.prompt, encoding="utf-8")
 
-        command = [
-            executable,
-            "exec",
-            "--model",
-            request.profile.model,
+        session_id = self._load_session(request)
+        shared_options = [
             "-c",
             'model_reasoning_effort="%s"' % request.profile.reasoning_effort,
             "-c",
             'approval_policy="never"',
             "-c",
+            'sandbox_mode="%s"' % request.profile.sandbox,
+            "-c",
             "sandbox_workspace_write.network_access=false",
-            "--sandbox",
-            request.profile.sandbox,
-            "--cd",
-            str(cwd),
-            "--ephemeral",
-            "--color",
-            "never",
+            "--model",
+            request.profile.model,
             "--json",
             "--output-last-message",
             str(output_path),
         ]
+        if session_id:
+            command = [executable, "exec", "resume", *shared_options]
+        else:
+            command = [
+                executable,
+                "exec",
+                *shared_options,
+                "--sandbox",
+                request.profile.sandbox,
+                "--cd",
+                str(cwd),
+                "--color",
+                "never",
+            ]
+            if request.session_path is None:
+                command.append("--ephemeral")
         if request.response_schema is not None:
             schema_path = request.run_dir / (token + ".schema.json")
             schema_path.write_text(
@@ -149,6 +159,8 @@ class CodexCliAdapter:
                 encoding="utf-8",
             )
             command.extend(["--output-schema", str(schema_path)])
+        if session_id:
+            command.append(session_id)
         command.append("-")
 
         child_env = _agent_environment(self.strip_environment)
@@ -191,6 +203,19 @@ class CodexCliAdapter:
                 "%s agent failed with exit %d: %s" % (request.role, process.returncode, reason),
                 details={"stdout": str(stdout_path), "stderr": str(stderr_path)},
             )
+        thread_id = _thread_id(stdout_path)
+        if request.session_path is not None:
+            if not thread_id:
+                raise AgentError(
+                    "E_AGENT_SESSION",
+                    "%s agent did not report a resumable session id" % request.role,
+                )
+            if session_id and thread_id != session_id:
+                raise AgentError(
+                    "E_AGENT_SESSION",
+                    "%s agent resumed an unexpected session" % request.role,
+                )
+            self._save_session(request, thread_id)
         if not output_path.exists():
             raise AgentError(
                 "E_AGENT_OUTPUT",
@@ -209,6 +234,48 @@ class CodexCliAdapter:
                     "%s agent returned invalid structured output: %s" % (request.role, exc),
                 )
         return AgentResponse(request.role, output, output_path, stdout_path, stderr_path)
+
+    @staticmethod
+    def _load_session(request: AgentRequest) -> Optional[str]:
+        path = request.session_path
+        if path is None or not path.exists():
+            return None
+        try:
+            value = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise AgentError("E_AGENT_SESSION", "Cannot read agent session %s: %s" % (path, exc))
+        expected = {
+            "role": request.role,
+            "model": request.profile.model,
+            "reasoning_effort": request.profile.reasoning_effort,
+            "sandbox": request.profile.sandbox,
+            "cwd": str(request.cwd.resolve()),
+        }
+        if not isinstance(value, dict) or any(value.get(key) != item for key, item in expected.items()):
+            raise AgentError("E_AGENT_SESSION", "Agent session metadata does not match this turn")
+        session_id = value.get("session_id")
+        if not isinstance(session_id, str) or not re.fullmatch(
+            r"[0-9a-fA-F]{8}-[0-9a-fA-F-]{27,}", session_id
+        ):
+            raise AgentError("E_AGENT_SESSION", "Agent session id is invalid")
+        return session_id
+
+    @staticmethod
+    def _save_session(request: AgentRequest, session_id: str) -> None:
+        path = request.session_path
+        if path is None:
+            return
+        path.parent.mkdir(parents=True, exist_ok=True)
+        value = {
+            "version": 1,
+            "session_id": session_id,
+            "role": request.role,
+            "model": request.profile.model,
+            "reasoning_effort": request.profile.reasoning_effort,
+            "sandbox": request.profile.sandbox,
+            "cwd": str(request.cwd.resolve()),
+        }
+        path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 class Verifier:
@@ -269,19 +336,60 @@ class Verifier:
                     stderr_path=stderr_path,
                 )
             )
+            if exit_code != 0:
+                break
         return results
 
 
-def verification_summary(results: Sequence[VerificationResult], max_chars: int = 12000) -> str:
+def verification_summary(results: Sequence[VerificationResult], max_chars: int = 4000) -> str:
+    if max_chars <= 0:
+        return ""
+    headers = [
+        "COMMAND: %s\nEXIT: %d\nDURATION: %.3fs"
+        % (result.command, result.exit_code, result.duration_seconds)
+        for result in results
+    ]
+    failed = [result for result in results if not result.passed]
+    skeletons = [
+        header + "\nLOGS: retained in evidence files"
+        if result.passed
+        else header + "\nSTDOUT TAIL:\n\nSTDERR TAIL:\n"
+        for result, header in zip(results, headers)
+    ]
+    fixed_size = len("\n\n".join(skeletons))
+    log_budget = max(max_chars - fixed_size, 0)
+    per_stream = max(log_budget // max(len(failed) * 2, 1), 0)
     sections = []
-    for result in results:
-        stdout = _tail(result.stdout_path, max_chars=max_chars // max(len(results), 1))
-        stderr = _tail(result.stderr_path, max_chars=max_chars // max(len(results), 1))
+    for result, header in zip(results, headers):
+        if result.passed:
+            sections.append(header + "\nLOGS: retained in evidence files")
+            continue
+        stdout = _tail(result.stdout_path, max_chars=per_stream)
+        stderr = _tail(result.stderr_path, max_chars=per_stream)
         sections.append(
-            "COMMAND: %s\nEXIT: %d\nSTDOUT:\n%s\nSTDERR:\n%s"
-            % (result.command, result.exit_code, stdout, stderr)
+            "%s\nSTDOUT TAIL:\n%s\nSTDERR TAIL:\n%s" % (header, stdout, stderr)
         )
-    return "\n\n".join(sections)
+    summary = "\n\n".join(sections)
+    if len(summary) <= max_chars:
+        return summary
+    return summary[:max_chars]
+
+
+def _thread_id(path: Path) -> Optional[str]:
+    try:
+        with path.open("r", encoding="utf-8", errors="replace") as handle:
+            for line in handle:
+                try:
+                    event = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if event.get("type") == "thread.started" and isinstance(
+                    event.get("thread_id"), str
+                ):
+                    return event["thread_id"]
+    except OSError:
+        return None
+    return None
 
 
 def _tail(path: Path, max_chars: int = 4000) -> str:
