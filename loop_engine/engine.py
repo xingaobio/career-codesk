@@ -19,6 +19,7 @@ from .models import (
     TASK_ACCEPTED,
     TASK_BLOCKED,
     TASK_FAILED,
+    TASK_PAUSED,
     TASK_PENDING,
     TASK_RUNNING,
     TASK_WAITING_HUMAN,
@@ -34,10 +35,16 @@ from .state import EventLog, StateStore, new_run_id, utc_now
 
 _CHECKPOINT_VERSION = 1
 _MAX_VERIFICATION_STABILITY_PASSES = 3
+_MAX_AUTONOMOUS_REPAIR_CYCLES = 1
+_MAX_REVIEW_FINDINGS = 6
+_REVIEW_GLOBAL_CRITERIA = {
+    "RUN-INVARIANT: task scope and repository policy",
+    "RUN-INVARIANT: safety and data integrity",
+}
 
 
 class RunEngine:
-    """One fixed guide -> implement -> verify -> review -> repair loop."""
+    """A bounded guide -> implement -> verify -> acceptance-review delivery loop."""
 
     def __init__(
         self,
@@ -176,6 +183,12 @@ class RunEngine:
                     "stage": runtime.get("stage", "pending"),
                     "attempts": runtime.get("attempts", 0),
                     "repair_cycles": runtime.get("repair_cycles", 0),
+                    "run_id": runtime.get("run_id"),
+                    "resume_stage": runtime.get("resume_stage"),
+                    "updated_at": runtime.get("updated_at"),
+                    "targeted_retry_available": isinstance(
+                        runtime.get("targeted_repair"), Mapping
+                    ),
                     "questions": runtime.get("questions", []),
                     "gate_request": runtime.get("gate_request")
                     if runtime.get("status") == TASK_WAITING_HUMAN
@@ -187,6 +200,15 @@ class RunEngine:
             "project": plan.project,
             "active_run": state.get("active_run"),
             "integration_branch": workflow.integration_branch,
+            "delivery_profile": {
+                "autonomous_repair_cycles": min(
+                    workflow.max_repair_cycles, _MAX_AUTONOMOUS_REPAIR_CYCLES
+                ),
+                "review_scope": "acceptance_and_fixed_run_invariants",
+                "max_review_findings": _MAX_REVIEW_FINDINGS,
+                "role_session_reuse": True,
+                "verification_order": "task_first_fail_fast",
+            },
             "tasks": rows,
         }
 
@@ -299,9 +321,10 @@ class RunEngine:
                 )
 
             active = state.get("active_run") or {}
-            resuming = (
-                active.get("task_id") == task.id and runtime.get("status") == TASK_RUNNING
-            )
+            resuming = active.get("task_id") == task.id and runtime.get("status") in {
+                TASK_RUNNING,
+                TASK_PAUSED,
+            }
             if resuming:
                 run_id = self._validated_run_id(active.get("run_id"))
                 if active.get("branch") != branch or Path(str(active.get("worktree", ""))).resolve() != worktree:
@@ -312,8 +335,33 @@ class RunEngine:
                     raise GitSafetyError(
                         "E_ACTIVE_RUN_STALE", "Integration base changed while the run was interrupted"
                     )
-                resume_stage = str(runtime.get("stage", "guiding"))
+                resume_stage = str(
+                    (
+                        runtime.get("resume_stage") or runtime.get("stage") or "guiding"
+                    )
+                    if runtime.get("status") == TASK_PAUSED
+                    else (runtime.get("stage") or "guiding")
+                )
                 repairs = int(runtime.get("repair_cycles", 0))
+                runtime.update(
+                    {
+                        "status": TASK_RUNNING,
+                        "stage": resume_stage,
+                        "resume_stage": None,
+                        "updated_at": utc_now(),
+                    }
+                )
+                active["stage"] = resume_stage
+                active.pop("resume_stage", None)
+                store.save(state)
+                events.emit(
+                    "run_resumed",
+                    run_id=run_id,
+                    task_id=task.id,
+                    phase=resume_stage,
+                    outcome="resumed",
+                    details={"repair_cycles": repairs},
+                )
             else:
                 if int(runtime.get("attempts", 0)) == 0 and git.has_changes(worktree):
                     raise GitSafetyError(
@@ -338,6 +386,7 @@ class RunEngine:
                         "task_digest": self._task_digest(task),
                         "workflow_digest": self._workflow_digest(workflow),
                         "stage": "guiding",
+                        "resume_stage": None,
                         "questions": [],
                     }
                 )
@@ -395,8 +444,14 @@ class RunEngine:
                     verifier=verifier,
                     repairs=repairs,
                     skip_implementation=resuming
-                    and resume_stage in {"verifying", "reviewing", "checkpointing"},
+                    and resume_stage
+                    in {"verifying", "reviewing", "checkpointing", "targeted_repair"},
+                    targeted_repair=resuming and resume_stage == "targeted_repair",
                 )
+            except KeyboardInterrupt:
+                self._pause_runtime(state, runtime, task.id, run_id, events)
+                store.save(state)
+                raise
             except LoopError as exc:
                 checkpointed = isinstance(runtime.get("checkpoint"), Mapping)
                 runtime.update(
@@ -680,7 +735,8 @@ class RunEngine:
 
     def retry(self, task_id: str, note: str = "") -> RunOutcome:
         workflow, plan, git, store, events = self._context()
-        if task_id not in plan.by_id():
+        task = plan.by_id().get(task_id)
+        if task is None:
             raise LoopError("E_TASK_NOT_FOUND", "Unknown task: %s" % task_id)
         with store.lock():
             self._reconcile_child_processes(workflow)
@@ -716,6 +772,74 @@ class RunEngine:
                         "recorded_at": utc_now(),
                     }
                 )
+            targeted = runtime.get("targeted_repair")
+            if isinstance(targeted, Mapping):
+                run_id = self._validated_run_id(targeted.get("run_id"))
+                current_base = (
+                    git.resolve_ref(workflow.integration_branch)
+                    if git.branch_exists(workflow.integration_branch)
+                    else git.resolve_ref("HEAD")
+                )
+                if (
+                    run_id != runtime.get("run_id")
+                    or targeted.get("base_commit") != runtime.get("base_commit")
+                    or current_base != runtime.get("base_commit")
+                    or runtime.get("task_digest") != self._task_digest(task)
+                    or runtime.get("workflow_digest") != self._workflow_digest(workflow)
+                    or not isinstance(targeted.get("feedback"), str)
+                    or not str(targeted.get("feedback")).strip()
+                ):
+                    raise LoopError(
+                        "E_TARGETED_RETRY_STALE",
+                        "Task, policy, base, or repair evidence changed; targeted retry is unsafe",
+                    )
+                branch = runtime.get("branch")
+                worktree = runtime.get("worktree")
+                if not isinstance(branch, str) or not isinstance(worktree, str):
+                    raise LoopError(
+                        "E_TARGETED_RETRY_STATE",
+                        "Targeted retry metadata is incomplete for %s" % task_id,
+                    )
+                runtime.update(
+                    {
+                        "status": TASK_PAUSED,
+                        "stage": "paused",
+                        "resume_stage": "targeted_repair",
+                        "error": None,
+                        "questions": [],
+                        "updated_at": utc_now(),
+                    }
+                )
+                state["active_run"] = {
+                    "run_id": run_id,
+                    "task_id": task_id,
+                    "branch": branch,
+                    "worktree": worktree,
+                    "stage": "paused",
+                    "resume_stage": "targeted_repair",
+                    "started_at": targeted.get("created_at", utc_now()),
+                }
+                store.save(state)
+                events.emit(
+                    "task_requeued",
+                    run_id=run_id,
+                    task_id=task_id,
+                    phase="targeted_repair",
+                    outcome="ready",
+                    details={"resolution_note_recorded": bool(resolution), "targeted": True},
+                )
+                return RunOutcome(
+                    status="paused",
+                    summary=(
+                        "Task %s is ready for one targeted repair; its guide, run, and worktree "
+                        "were preserved." % task_id
+                    ),
+                    task_id=task_id,
+                    run_id=run_id,
+                    branch=branch,
+                    worktree=worktree,
+                    repair_cycles=int(runtime.get("repair_cycles", 0)),
+                )
             runtime.update(
                 {
                     "status": TASK_PENDING,
@@ -724,6 +848,7 @@ class RunEngine:
                     else "pending",
                     "error": None,
                     "questions": [],
+                    "resume_stage": None,
                     "updated_at": utc_now(),
                 }
             )
@@ -742,6 +867,45 @@ class RunEngine:
                 status="pending",
                 summary="Task %s is ready to retry; its isolated worktree was preserved." % task_id,
                 task_id=task_id,
+            )
+
+    def pause(self, task_id: str, note: str = "") -> RunOutcome:
+        workflow, plan, _, store, events = self._context()
+        if task_id not in plan.by_id():
+            raise LoopError("E_TASK_NOT_FOUND", "Unknown task: %s" % task_id)
+        with store.lock():
+            self._reconcile_child_processes(workflow)
+            state = store.load()
+            store.reconcile_plan(state, plan)
+            runtime = state["tasks"][task_id]
+            if runtime.get("status") == TASK_PAUSED:
+                return RunOutcome(
+                    status="paused",
+                    summary="Task %s is already paused and recoverable." % task_id,
+                    task_id=task_id,
+                    run_id=runtime.get("run_id"),
+                    branch=runtime.get("branch"),
+                    worktree=runtime.get("worktree"),
+                    repair_cycles=int(runtime.get("repair_cycles", 0)),
+                )
+            active = state.get("active_run") or {}
+            if runtime.get("status") != TASK_RUNNING or active.get("task_id") != task_id:
+                raise LoopError(
+                    "E_TASK_NOT_PAUSABLE",
+                    "%s is not the active running task" % task_id,
+                )
+            run_id = self._validated_run_id(active.get("run_id"))
+            self._pause_runtime(state, runtime, task_id, run_id, events, note=note)
+            store.save(state)
+            return RunOutcome(
+                status="paused",
+                summary="Task %s is paused; once %s will resume from %s."
+                % (task_id, task_id, runtime.get("resume_stage")),
+                task_id=task_id,
+                run_id=run_id,
+                branch=runtime.get("branch"),
+                worktree=runtime.get("worktree"),
+                repair_cycles=int(runtime.get("repair_cycles", 0)),
             )
 
     def _execute_task(
@@ -763,8 +927,11 @@ class RunEngine:
         verifier: Verifier,
         repairs: int,
         skip_implementation: bool,
+        targeted_repair: bool,
     ) -> RunOutcome:
         runtime = state["tasks"][task.id]
+        implementer_session = run_dir / "implementer-session.json"
+        reviewer_session = run_dir / "reviewer-session.json"
         guide_path = run_dir / "guide.json"
         guidance: Optional[Mapping[str, Any]] = None
         if guide_path.exists():
@@ -832,11 +999,54 @@ class RunEngine:
                     prompt=implement_prompt(workflow, task, guidance),
                     cwd=worktree,
                     run_dir=run_dir,
+                    session_path=implementer_session,
                 ),
                 workflow.turn_timeout_seconds,
             )
 
-        commands = self._verification_commands(workflow, task)
+        if targeted_repair:
+            targeted = runtime.get("targeted_repair")
+            if not isinstance(targeted, Mapping) or not isinstance(
+                targeted.get("feedback"), str
+            ):
+                raise RunFailed(
+                    "E_TARGETED_RETRY_STATE",
+                    "Targeted repair evidence is missing for %s" % task.id,
+                )
+            repairs += 1
+            runtime["stage"] = "repairing"
+            runtime["repair_cycles"] = repairs
+            state["active_run"]["stage"] = "repairing"
+            store.save(state)
+            events.emit(
+                "repair_started",
+                run_id=run_id,
+                task_id=task.id,
+                phase="repairing",
+                outcome="started",
+                details={"repair_cycle": repairs, "targeted": True},
+            )
+            self._run_agent_guarded(
+                git,
+                agent,
+                AgentRequest(
+                    role="implementer",
+                    profile=workflow.model_profiles[task.agent_profile],
+                    prompt=repair_prompt(
+                        workflow,
+                        task,
+                        guidance,
+                        str(targeted["feedback"]),
+                        repairs,
+                    ),
+                    cwd=worktree,
+                    run_dir=run_dir / ("repair-%02d" % repairs),
+                    session_path=implementer_session,
+                ),
+                workflow.turn_timeout_seconds,
+            )
+
+        repair_limit = min(workflow.max_repair_cycles, _MAX_AUTONOMOUS_REPAIR_CYCLES)
         while True:
             self._assert_agent_git_integrity(git, worktree, branch, start_commit, task.id)
             runtime["stage"] = "verifying"
@@ -872,13 +1082,34 @@ class RunEngine:
                         cwd=worktree,
                         run_dir=cycle_dir,
                         response_schema=REVIEW_SCHEMA,
+                        session_path=reviewer_session,
                     ),
                     workflow.turn_timeout_seconds,
                 )
                 review = review_response.output
-                self._validate_review(review)
+                self._validate_review(review, task)
+                blocking_findings = self._valid_blocking_findings(review, task)
+                deferred_findings = [
+                    finding
+                    for finding in review["findings"]
+                    if finding not in blocking_findings
+                ]
+                scope_deferred_count = sum(
+                    finding["severity"] == "blocking" for finding in deferred_findings
+                )
+                verdict = self._effective_review_verdict(review, task)
+                review_record = dict(review)
+                review_record.update(
+                    {
+                        "effective_verdict": verdict,
+                        "blocking_finding_count": len(blocking_findings),
+                        "deferred_finding_count": len(deferred_findings),
+                        "scope_deferred_finding_count": scope_deferred_count,
+                    }
+                )
                 (cycle_dir / "review.json").write_text(
-                    json.dumps(review, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+                    json.dumps(review_record, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
                 )
                 after_review_tree = git.stage_and_tree(worktree)
                 self._assert_allowed_changes(workflow, task, git, worktree, start_commit)
@@ -886,16 +1117,31 @@ class RunEngine:
                     raise GitSafetyError(
                         "E_REVIEW_MUTATED_TREE", "Read-only review changed the evidence tree"
                     )
-                verdict = review["verdict"]
                 events.emit(
                     "review_completed",
                     run_id=run_id,
                     task_id=task.id,
                     phase="reviewing",
                     outcome=verdict,
-                    details={"tree_digest": tree_digest, "repair_cycle": repairs},
+                    details={
+                        "tree_digest": tree_digest,
+                        "repair_cycle": repairs,
+                        "raw_verdict": review["verdict"],
+                        "blocking_findings": len(blocking_findings),
+                        "deferred_findings": len(deferred_findings),
+                        "scope_deferred_findings": scope_deferred_count,
+                    },
                 )
                 if verdict == "accept":
+                    if deferred_findings:
+                        runtime.setdefault("deferred_findings", []).append(
+                            {
+                                "run_id": run_id,
+                                "repair_cycle": repairs,
+                                "findings": deferred_findings,
+                                "recorded_at": utc_now(),
+                            }
+                        )
                     self._assert_agent_git_integrity(
                         git, worktree, branch, start_commit, task.id
                     )
@@ -931,6 +1177,7 @@ class RunEngine:
                         }
                     )
                     runtime.pop("checkpoint_intent", None)
+                    runtime.pop("targeted_repair", None)
                     state["active_run"]["stage"] = "checkpointed"
                     store.save(state)
                     integrated_commit = git.integrate_fast_forward(
@@ -1002,14 +1249,28 @@ class RunEngine:
                         "Reviewer rejected task %s: %s" % (task.id, review["summary"]),
                     )
                 feedback = "Reviewer requested repair:\n\n" + json.dumps(
-                    review["findings"], indent=2, sort_keys=True
+                    blocking_findings, indent=2, sort_keys=True
                 )
 
-            if repairs >= workflow.max_repair_cycles:
+            if repairs >= repair_limit:
+                runtime["targeted_repair"] = {
+                    "version": 1,
+                    "run_id": run_id,
+                    "base_commit": start_commit,
+                    "repair_cycle": repairs,
+                    "feedback": feedback,
+                    "created_at": utc_now(),
+                }
+                store.save(state)
                 raise RunFailed(
                     "E_REPAIR_EXHAUSTED",
                     "Task %s exhausted %d repair cycles"
-                    % (task.id, workflow.max_repair_cycles),
+                    % (task.id, repair_limit),
+                    details={
+                        "configured_limit": workflow.max_repair_cycles,
+                        "autonomous_limit": repair_limit,
+                        "targeted_retry_available": True,
+                    },
                 )
             repairs += 1
             runtime["stage"] = "repairing"
@@ -1033,6 +1294,7 @@ class RunEngine:
                     prompt=repair_prompt(workflow, task, guidance, feedback, repairs),
                     cwd=worktree,
                     run_dir=run_dir / ("repair-%02d" % repairs),
+                    session_path=implementer_session,
                 ),
                 workflow.turn_timeout_seconds,
             )
@@ -1215,7 +1477,10 @@ class RunEngine:
         tasks = plan.by_id()
         active = state.get("active_run") or {}
         active_task_id = active.get("task_id")
-        if active_task_id and state["tasks"].get(active_task_id, {}).get("status") == TASK_RUNNING:
+        if active_task_id and state["tasks"].get(active_task_id, {}).get("status") in {
+            TASK_RUNNING,
+            TASK_PAUSED,
+        }:
             if requested_id and requested_id != active_task_id:
                 raise LoopError(
                     "E_ACTIVE_RUN_CONFLICT",
@@ -1392,6 +1657,42 @@ class RunEngine:
         )
 
     @staticmethod
+    def _pause_runtime(
+        state: MutableMapping[str, Any],
+        runtime: MutableMapping[str, Any],
+        task_id: str,
+        run_id: str,
+        events: EventLog,
+        note: str = "",
+    ) -> None:
+        active = state.get("active_run") or {}
+        resume_stage = str(runtime.get("stage") or active.get("stage") or "guiding")
+        runtime.update(
+            {
+                "status": TASK_PAUSED,
+                "stage": "paused",
+                "resume_stage": resume_stage,
+                "updated_at": utc_now(),
+            }
+        )
+        if note.strip():
+            runtime.setdefault("pause_notes", []).append(
+                {"note": note.strip(), "recorded_at": utc_now()}
+            )
+        if active.get("task_id") == task_id:
+            active["stage"] = "paused"
+            active["resume_stage"] = resume_stage
+            state["active_run"] = active
+        events.emit(
+            "run_paused",
+            run_id=run_id,
+            task_id=task_id,
+            phase=resume_stage,
+            outcome="paused",
+            details={"resume_stage": resume_stage, "note_recorded": bool(note.strip())},
+        )
+
+    @staticmethod
     def _validate_guide(value: Any, task: Task) -> None:
         expected = {
             "decision",
@@ -1433,7 +1734,7 @@ class RunEngine:
             raise AgentError("E_AGENT_OUTPUT", "Guide needs_human requires questions")
 
     @staticmethod
-    def _validate_review(value: Any) -> None:
+    def _validate_review(value: Any, task: Task) -> None:
         expected = {"verdict", "summary", "findings", "questions"}
         if not isinstance(value, dict) or set(value) != expected:
             raise AgentError("E_AGENT_OUTPUT", "Review output has missing or extra fields")
@@ -1447,6 +1748,11 @@ class RunEngine:
             raise AgentError("E_AGENT_OUTPUT", "Review questions must be a string list")
         if not isinstance(value["findings"], list):
             raise AgentError("E_AGENT_OUTPUT", "Review findings must be a list")
+        if len(value["findings"]) > _MAX_REVIEW_FINDINGS:
+            raise AgentError(
+                "E_AGENT_OUTPUT",
+                "Review must consolidate findings to at most %d" % _MAX_REVIEW_FINDINGS,
+            )
         for finding in value["findings"]:
             if not isinstance(finding, dict) or set(finding) != {
                 "severity",
@@ -1460,9 +1766,7 @@ class RunEngine:
                 for key in ("criterion", "message", "repair")
             ):
                 raise AgentError("E_AGENT_OUTPUT", "Review finding fields are invalid")
-        if value["verdict"] == "accept" and any(
-            finding["severity"] == "blocking" for finding in value["findings"]
-        ):
+        if value["verdict"] == "accept" and RunEngine._valid_blocking_findings(value, task):
             raise AgentError("E_AGENT_OUTPUT", "Accept cannot include blocking findings")
         if value["verdict"] == "repair" and not value["findings"]:
             raise AgentError("E_AGENT_OUTPUT", "Repair verdict requires findings")
@@ -1470,8 +1774,28 @@ class RunEngine:
             raise AgentError("E_AGENT_OUTPUT", "needs_human verdict requires questions")
 
     @staticmethod
+    def _valid_blocking_findings(
+        review: Mapping[str, Any], task: Task
+    ) -> List[Mapping[str, Any]]:
+        allowed = set(task.acceptance).union(_REVIEW_GLOBAL_CRITERIA)
+        return [
+            finding
+            for finding in review["findings"]
+            if finding.get("severity") == "blocking" and finding.get("criterion") in allowed
+        ]
+
+    @staticmethod
+    def _effective_review_verdict(review: Mapping[str, Any], task: Task) -> str:
+        verdict = str(review["verdict"])
+        if verdict in {"repair", "reject"} and not RunEngine._valid_blocking_findings(
+            review, task
+        ):
+            return "accept"
+        return verdict
+
+    @staticmethod
     def _verification_commands(workflow: Workflow, task: Task) -> Tuple[str, ...]:
-        return tuple(dict.fromkeys(workflow.default_verification + task.verification))
+        return tuple(dict.fromkeys(task.verification + workflow.default_verification))
 
     @staticmethod
     def _validate_gate_attestation(
@@ -1604,6 +1928,7 @@ class RunEngine:
                 "branch": branch,
                 "worktree": str(worktree),
                 "repair_cycles": repair_cycles,
+                "resume_stage": None,
                 "questions": [],
                 "updated_at": utc_now(),
             }

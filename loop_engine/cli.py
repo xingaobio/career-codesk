@@ -53,6 +53,10 @@ def _parser() -> argparse.ArgumentParser:
     retry = commands.add_parser("retry", help="Requeue a blocked or failed task, preserving its worktree")
     retry.add_argument("task_id")
     retry.add_argument("--note", default="", help="Resolution for a blocked human question")
+
+    pause = commands.add_parser("pause", help="Mark an interrupted active task as paused and resumable")
+    pause.add_argument("task_id")
+    pause.add_argument("--note", default="", help="Optional operator note recorded in local evidence")
     return parser
 
 
@@ -101,6 +105,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             return _outcome_exit(outcome.status)
         if args.command == "retry":
             outcome = engine.retry(args.task_id, args.note)
+            _render(outcome.to_dict(), args.json)
+            return 0
+        if args.command == "pause":
+            outcome = engine.pause(args.task_id, args.note)
             _render(outcome.to_dict(), args.json)
             return 0
         parser.error("unknown command")

@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
 
 from loop_engine.engine import RunEngine
-from loop_engine.errors import GitSafetyError
+from loop_engine.errors import GitSafetyError, RunFailed
 from loop_engine.git_ops import GitRepository
+from loop_engine.models import AgentResponse
 
 from tests.helpers import (
     MINIMAL_PLAN,
@@ -40,6 +42,192 @@ class RunEngineTests(unittest.TestCase):
             self.assertEqual(original_main, git(root, "rev-parse", "main"))
             self.assertFalse((root / "output.txt").exists())
             self.assertTrue(Path(outcome.details["evidence"]).is_dir())
+            first_verification = json.loads(
+                (Path(outcome.details["evidence"]) / "cycle-00" / "verification.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            first_commands = first_verification["stability_passes"][0]["commands"]
+            self.assertEqual(1, len(first_commands))
+            self.assertIn("grep -q", first_commands[0]["command"])
+
+    def test_nonblocking_review_findings_are_deferred_without_repair(self) -> None:
+        class NonBlockingReviewAgent(RepairingFakeAgent):
+            def run(self, request, timeout_seconds):
+                response = super().run(request, timeout_seconds)
+                if request.role == "implementer":
+                    (request.cwd / "output.txt").write_text("fixed\n", encoding="utf-8")
+                if request.role != "reviewer":
+                    return response
+                output = {
+                    "verdict": "repair",
+                    "summary": "A future hardening improvement is available.",
+                    "findings": [
+                        {
+                            "severity": "important",
+                            "criterion": "output.txt contains fixed.",
+                            "message": "Add another defensive test later.",
+                            "repair": "Add the test in a later hardening task.",
+                        }
+                    ],
+                    "questions": [],
+                }
+                response.last_message_path.write_text(
+                    json.dumps(output), encoding="utf-8"
+                )
+                return AgentResponse(
+                    request.role,
+                    output,
+                    response.last_message_path,
+                    response.stdout_path,
+                    response.stderr_path,
+                )
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            initialise_repo(root, MINIMAL_PLAN, MINIMAL_WORKFLOW)
+            agent = NonBlockingReviewAgent()
+
+            outcome = RunEngine(root, agent=agent).run_once()
+
+            self.assertEqual("accepted", outcome.status)
+            self.assertEqual(1, agent.implementer_calls)
+            self.assertEqual(
+                ["guide", "implementer", "reviewer"],
+                [request.role for request in agent.requests],
+            )
+            review = json.loads(
+                (Path(outcome.details["evidence"]) / "cycle-00" / "review.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual("repair", review["verdict"])
+            self.assertEqual("accept", review["effective_verdict"])
+
+    def test_reject_without_valid_blocker_is_deferred_without_stopping_delivery(self) -> None:
+        class NonBlockingRejectAgent(RepairingFakeAgent):
+            def run(self, request, timeout_seconds):
+                response = super().run(request, timeout_seconds)
+                if request.role == "implementer":
+                    (request.cwd / "output.txt").write_text("fixed\n", encoding="utf-8")
+                if request.role != "reviewer":
+                    return response
+                output = {
+                    "verdict": "reject",
+                    "summary": "Reviewer attempted to expand into a future architecture audit.",
+                    "findings": [
+                        {
+                            "severity": "important",
+                            "criterion": "Add a future plugin security framework.",
+                            "message": "Not part of this delivery slice.",
+                            "repair": "Defer to a separately authorised task.",
+                        }
+                    ],
+                    "questions": [],
+                }
+                response.last_message_path.write_text(json.dumps(output), encoding="utf-8")
+                return AgentResponse(
+                    request.role,
+                    output,
+                    response.last_message_path,
+                    response.stdout_path,
+                    response.stderr_path,
+                )
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            initialise_repo(root, MINIMAL_PLAN, MINIMAL_WORKFLOW)
+            agent = NonBlockingRejectAgent()
+
+            outcome = RunEngine(root, agent=agent).run_once()
+
+            self.assertEqual("accepted", outcome.status)
+            self.assertEqual(1, agent.implementer_calls)
+            review = json.loads(
+                (Path(outcome.details["evidence"]) / "cycle-00" / "review.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual("reject", review["verdict"])
+            self.assertEqual("accept", review["effective_verdict"])
+
+    def test_autonomous_review_repair_is_capped_and_retry_is_targeted(self) -> None:
+        class BoundedReviewAgent(RepairingFakeAgent):
+            def __init__(self):
+                super().__init__()
+                self.reviewer_calls = 0
+
+            def run(self, request, timeout_seconds):
+                response = super().run(request, timeout_seconds)
+                if request.role == "implementer":
+                    (request.cwd / "output.txt").write_text("fixed\n", encoding="utf-8")
+                if request.role != "reviewer":
+                    return response
+                self.reviewer_calls += 1
+                if self.reviewer_calls <= 2:
+                    output = {
+                        "verdict": "repair",
+                        "summary": "The acceptance criterion still needs one bounded fix.",
+                        "findings": [
+                            {
+                                "severity": "blocking",
+                                "criterion": "output.txt contains fixed.",
+                                "message": "Simulated blocking acceptance gap.",
+                                "repair": "Apply the single bounded fix.",
+                            }
+                        ],
+                        "questions": [],
+                    }
+                else:
+                    output = {
+                        "verdict": "accept",
+                        "summary": "The targeted repair now satisfies acceptance.",
+                        "findings": [],
+                        "questions": [],
+                    }
+                response.last_message_path.write_text(
+                    json.dumps(output), encoding="utf-8"
+                )
+                return AgentResponse(
+                    request.role,
+                    output,
+                    response.last_message_path,
+                    response.stdout_path,
+                    response.stderr_path,
+                )
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            initialise_repo(root, MINIMAL_PLAN, MINIMAL_WORKFLOW)
+            agent = BoundedReviewAgent()
+            engine = RunEngine(root, agent=agent)
+
+            with self.assertRaises(RunFailed) as exhausted:
+                engine.run_once()
+
+            self.assertEqual("E_REPAIR_EXHAUSTED", exhausted.exception.code)
+            self.assertEqual(2, agent.implementer_calls)
+            self.assertEqual(2, agent.reviewer_calls)
+            first_run_id = engine.status()["tasks"][0]["run_id"]
+
+            retry = engine.retry("T001", "Authorise one targeted acceptance repair.")
+            outcome = engine.run_once()
+
+            self.assertIn("targeted", retry.summary.lower())
+            self.assertEqual("accepted", outcome.status)
+            self.assertEqual(first_run_id, outcome.run_id)
+            self.assertEqual(1, len([r for r in agent.requests if r.role == "guide"]))
+            self.assertEqual(3, agent.implementer_calls)
+            implementer_sessions = {
+                request.session_path for request in agent.requests if request.role == "implementer"
+            }
+            reviewer_sessions = {
+                request.session_path for request in agent.requests if request.role == "reviewer"
+            }
+            self.assertEqual(1, len(implementer_sessions))
+            self.assertNotIn(None, implementer_sessions)
+            self.assertEqual(1, len(reviewer_sessions))
+            self.assertNotIn(None, reviewer_sessions)
 
     def test_human_gate_verifies_and_commits_explicit_approval(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
