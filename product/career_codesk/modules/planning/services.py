@@ -35,7 +35,7 @@ from .contracts import (
     canonical_digest,
     canonical_json,
 )
-from .models import InterventionAllocation, Need, PlannerRun
+from .models import AdviserBrief, InterventionAllocation, Need, PlannerRun, WeeklyPlanEntry
 
 
 @dataclass(frozen=True)
@@ -668,3 +668,157 @@ class AllocationService:
         with _authorize_projection_state_change():
             allocation.state = state
             allocation.save(update_fields=("state",))
+
+
+class ExecutionPackageService:
+    """Build or replay the single executable package for an approved allocation.
+
+    This is intentionally a planning-owned orchestration boundary: it validates
+    the already-persisted approval, planner evidence, and reviewed records before
+    asking the export module to persist its local mock object.
+    """
+
+    payload_version = "weekly-plan-export-v1"
+
+    @transaction.atomic
+    def create_or_replay(self, *, decision):
+        from career_codesk.modules.decisions.models import ReviewedInput, SupportDecision
+        from career_codesk.modules.export.services import WritebackService
+
+        decision = (
+            SupportDecision.objects.select_for_update()
+            .select_related("allocation", "allocation__need")
+            .get(pk=decision.pk)
+        )
+        allocation = InterventionAllocation.objects.select_for_update().get(
+            pk=decision.allocation_id
+        )
+        if (
+            decision.action != "approve"
+            or allocation.state != "active"
+            or decision.case_id != allocation.case_id
+            or case_has_safety_exit(allocation.case_id)
+        ):
+            raise DomainInvariantError("Only a matching approved active allocation can execute")
+        existing = (
+            WeeklyPlanEntry.objects.filter(decision=decision)
+            .select_related("adviser_brief")
+            .first()
+        )
+        if existing:
+            export = WritebackService().create_or_replay_export(
+                weekly_entry=existing, decision=decision, allocation=allocation
+            )
+            return existing, existing.adviser_brief, export
+        if WeeklyPlanEntry.objects.filter(allocation=allocation).exists():
+            raise DomainInvariantError("An allocation already has an immutable execution package")
+        run = PlannerRun.objects.select_for_update().get(pk=allocation.planner_run_id)
+        if (
+            run.algorithm_version != allocation.planner_algorithm_version
+            or run.policy_version != allocation.planner_policy_version
+            or run.input_digest != canonical_digest(run.canonical_input)
+            or run.result_digest != canonical_digest(run.canonical_result)
+        ):
+            raise DomainInvariantError(
+                "Execution requires the exact valid allocation planner evidence"
+            )
+        demand = next(
+            (
+                item
+                for item in run.canonical_input["demands"]
+                if item["demand_id"] == allocation.demand_id
+            ),
+            None,
+        )
+        if demand is None:
+            raise DomainInvariantError("Execution allocation has no matching planner demand")
+        planned = next(
+            (
+                item
+                for item in run.canonical_result["primary"]["allocations"]
+                if item["demand_id"] == allocation.demand_id
+                and item["case_id"] == allocation.case_id
+                and item["resource_id"] == allocation.resource_id
+            ),
+            None,
+        )
+        if planned is None:
+            raise DomainInvariantError("Execution allocation is not in its approved planner result")
+        reviewed = list(
+            ReviewedInput.objects.filter(decision=decision).order_by("created_at", "id")
+        )
+        capture_ids = [item.record_id for item in reviewed if item.record_type == "capture"]
+        hypothesis_ids = [item.record_id for item in reviewed if item.record_type == "hypothesis"]
+        if not capture_ids:
+            raise DomainInvariantError("Execution requires reviewed source capture evidence")
+        captures = list(
+            NeedCapture.objects.filter(pk__in=capture_ids, case_id=allocation.case_id).order_by(
+                "created_at", "id"
+            )
+        )
+        if {capture.id for capture in captures} != set(capture_ids):
+            raise DomainInvariantError("Execution reviewed captures must belong to its case")
+        hypotheses = list(
+            NeedHypothesis.objects.filter(
+                pk__in=hypothesis_ids, case_id=allocation.case_id
+            ).order_by("created_at", "id")
+        )
+        if {hypothesis.id for hypothesis in hypotheses} != set(hypothesis_ids):
+            raise DomainInvariantError("Execution reviewed hypotheses must belong to its case")
+        capacity_effect = next(
+            (
+                item
+                for item in run.canonical_result["primary"]["resource_consumption"]
+                if item["resource_id"] == allocation.resource_id
+                and item["route_code"] == allocation.route_code
+                and item["scheduled_on"] == allocation.scheduled_on.isoformat()
+            ),
+            {},
+        )
+        entry = WeeklyPlanEntry.objects.create(
+            case_id=allocation.case_id,
+            need=allocation.need,
+            decision=decision,
+            allocation=allocation,
+            planner_run=run,
+            route_code=allocation.route_code,
+            resource_owner_id=allocation.resource_id,
+            scheduled_on=allocation.scheduled_on,
+            deadline=date.fromisoformat(demand["deadline"]),
+            effort_hours=allocation.effort_hours,
+            capacity_effect=capacity_effect,
+            reviewed_capture_ids=capture_ids,
+            reviewed_hypothesis_ids=hypothesis_ids,
+        )
+        known_facts = "\n".join(
+            f"Source capture {capture.id} ({capture.source_type}, {capture.source_version}): "
+            f"{capture.source_payload.get('statement', '')}"
+            for capture in captures
+        )
+        brief = AdviserBrief.objects.create(
+            weekly_entry=entry,
+            known_facts=known_facts or "No reviewed source statement is available.",
+            questions_to_ask=(
+                "Confirm that this scheduled local mock action is still useful and achievable. "
+                + (
+                    "Clarify the provisional interpretation and any stated unknowns."
+                    if hypotheses
+                    else ""
+                )
+            ),
+            assumptions_prohibited=(
+                "Do not treat provisional AI interpretation as fact. "
+                "Do not infer needs, readiness, "
+                "or outcomes beyond the reviewed source statements."
+            ),
+            intended_outcome=(
+                f"Complete the adviser-approved {allocation.route_code} action by "
+                f"{demand['deadline']} and retain the learner response for review."
+            ),
+            source_capture_ids=capture_ids,
+            provisional_hypothesis_ids=hypothesis_ids,
+        )
+        export = WritebackService().create_or_replay_export(
+            weekly_entry=entry, decision=decision, allocation=allocation
+        )
+        return entry, brief, export

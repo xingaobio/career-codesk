@@ -2,7 +2,7 @@
 
 from django.db import OperationalError
 from django.http import Http404, HttpResponse, HttpResponseNotAllowed
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from career_codesk.composition import compose_foundation
 from career_codesk.domain import DomainInvariantError
@@ -12,6 +12,9 @@ from career_codesk.modules.decisions.workbench import (
     StaleWorkbenchInput,
     WorkbenchQueryService,
 )
+from career_codesk.modules.delivery_feedback.services import DeliveryFeedbackService
+from career_codesk.modules.export.services import WritebackService
+from career_codesk.modules.planning.models import WeeklyPlanEntry
 
 
 def home(request):
@@ -137,3 +140,67 @@ def decide(request, allocation_id):
     except (DomainInvariantError, UnsupportedRoleError) as error:
         return render(request, "workbench/review.html", {**item, "error": str(error)}, status=400)
     return render(request, "workbench/result.html", {"outcome": outcome})
+
+
+def weekly_plans(request):
+    """Small staff inspection surface for immutable execution packages."""
+    entries = WeeklyPlanEntry.objects.select_related(
+        "need", "decision", "allocation", "planner_run", "adviser_brief", "structured_export"
+    ).order_by("scheduled_on", "id")
+    return render(request, "plans/list.html", {"entries": entries})
+
+
+def weekly_plan_detail(request, entry_id):
+    entry = get_object_or_404(
+        WeeklyPlanEntry.objects.select_related(
+            "need", "decision", "allocation", "planner_run", "adviser_brief", "structured_export"
+        ),
+        pk=entry_id,
+    )
+    export_state = WritebackService().reconcile_local_state(
+        structured_export=entry.structured_export
+    )
+    return render(request, "plans/detail.html", {"entry": entry, "export_state": export_state})
+
+
+def learner_next_action(request, case_id):
+    """One local, adviser-approved action, never a learner-facing AI response."""
+    entry = (
+        WeeklyPlanEntry.objects.select_related("allocation", "adviser_brief", "structured_export")
+        .filter(case_id=case_id, allocation__state="active")
+        .order_by("scheduled_on", "created_at", "id")
+        .first()
+    )
+    if entry is None:
+        raise Http404("No approved local action is available")
+    export_state = WritebackService().reconcile_local_state(
+        structured_export=entry.structured_export
+    )
+    return render(
+        request,
+        "learner/next_action.html",
+        {"entry": entry, "export_state": export_state},
+    )
+
+
+def learner_feedback(request, entry_id):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+    entry = get_object_or_404(WeeklyPlanEntry, pk=entry_id)
+    kind = request.POST.get("kind", "")
+    try:
+        feedback = DeliveryFeedbackService().record_learner_feedback(
+            weekly_entry=entry,
+            actor_id="synthetic-learner-local-view",
+            kind=kind,
+            exact_response=request.POST.get("response", ""),
+            correction_statement=request.POST.get("correction_statement"),
+        )
+    except DomainInvariantError as error:
+        return render(
+            request,
+            "learner/next_action.html",
+            {"entry": entry, "error": str(error), "export_state": "not_sent"},
+            status=400,
+        )
+    return render(request, "learner/feedback_recorded.html", {"feedback": feedback, "entry": entry})

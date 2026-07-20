@@ -6,7 +6,7 @@ from career_codesk.domain import DomainInvariantError, _authorize_projection_sta
 from career_codesk.identity import SimulatedActor, is_canonical_simulated_adviser
 from career_codesk.modules.intake_provenance.services import case_has_safety_exit
 
-from .models import Case, CaseTransition
+from .models import Case, CaseReviewRequest, CaseTransition
 
 
 class CaseWorkflowService:
@@ -74,6 +74,37 @@ class CaseWorkflowService:
             unresolved_outcome=outcome,
         )
         self._set_state(case, "open")
+        return case
+
+    @transaction.atomic
+    def open_review_from_feedback(self, *, case_id, actor_id, reason, feedback_id):
+        """Record feedback review evidence and leave/return the case to open.
+
+        Open cases receive a review-request record without a fictional state
+        transition.  Active and closed cases record their real transition back
+        to open, preserving the existing transition history.
+        """
+        case = Case.objects.select_for_update().get(pk=case_id)
+        if case_has_safety_exit(case_id):
+            raise DomainInvariantError(
+                "A safety-exited case cannot reopen in the ordinary workflow"
+            )
+        review, created = CaseReviewRequest.objects.get_or_create(
+            feedback_id=feedback_id,
+            defaults={"case": case, "reason": reason, "actor_id": actor_id},
+        )
+        if not created and review.case_id != case.id:
+            raise DomainInvariantError("Feedback review evidence belongs to another case")
+        if case.state != "open":
+            CaseTransition.objects.create(
+                case=case,
+                from_state=case.state,
+                to_state="open",
+                actor_id=actor_id,
+                actor_type="automated_feedback",
+                reason=reason,
+            )
+            self._set_state(case, "open")
         return case
 
     @staticmethod

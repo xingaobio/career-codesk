@@ -83,6 +83,12 @@ class SupportDecisionService:
         )
         if action == "approve":
             AllocationService().activate_for_approval(allocation, decision)
+            # Approval is the sole transition that may create an executable
+            # plan/export package.  The nested service shares this transaction,
+            # so a failed provenance check rolls the activation back as well.
+            from career_codesk.modules.planning.services import ExecutionPackageService
+
+            ExecutionPackageService().create_or_replay(decision=decision)
         else:
             AllocationService().retire_for_review(allocation, decision)
         return decision

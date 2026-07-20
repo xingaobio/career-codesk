@@ -606,14 +606,12 @@ class ProvenanceDomainTests(TestCase):
         first = WritebackService().record_attempt(
             allocation=active,
             decision=approved,
-            payload={"mock": "payload"},
             result="failed",
             failure_reason="local simulated failure",
         )
         retry = WritebackService().record_attempt(
             allocation=active,
             decision=approved,
-            payload={"mock": "payload"},
             result="succeeded",
         )
         self.assertEqual(first.idempotency_key, retry.idempotency_key)

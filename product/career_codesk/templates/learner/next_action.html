@@ -1,0 +1,17 @@
+{% extends "workbench/base.html" %}
+{% block title %}Your next action · Career CoDesk{% endblock %}
+{% block content %}
+  <section aria-labelledby="action-title">
+    <h2 id="action-title">Your one approved next action</h2>
+    {% if error %}<div class="error-summary" role="alert"><p>{{ error }}</p></div>{% endif %}
+    <p><strong>Action:</strong> {{ entry.route_code }} using the local mock resource/action with {{ entry.resource_owner_id }}.</p>
+    <p><strong>Why this action:</strong> {{ entry.decision.reason }} This is an adviser-approved explanation, not automated advice.</p>
+    <p><strong>Effort:</strong> about {{ entry.effort_hours }} hour{{ entry.effort_hours|pluralize }}. <strong>Deadline:</strong> {{ entry.deadline }}.</p>
+    <p class="muted">Local mock export status: {{ export_state }}. No message, booking, or external writeback is sent.</p>
+    <h3>Tell the careers team what happened</h3>
+    <form method="post" action="{% url 'learner-feedback' entry.id %}">{% csrf_token %}<input type="hidden" name="kind" value="helped"><label for="helped-response">Optional note</label><textarea id="helped-response" name="response"></textarea><button type="submit">This helped</button></form>
+    <form method="post" action="{% url 'learner-feedback' entry.id %}">{% csrf_token %}<input type="hidden" name="kind" value="unresolved"><label for="unresolved-response">What remains unresolved?</label><textarea id="unresolved-response" name="response" required></textarea><button type="submit">This is unresolved</button></form>
+    <form method="post" action="{% url 'learner-feedback' entry.id %}">{% csrf_token %}<input type="hidden" name="kind" value="human_help"><label for="help-response">What help would you like from a person?</label><textarea id="help-response" name="response" required></textarea><button type="submit">Request human help</button></form>
+    <form method="post" action="{% url 'learner-feedback' entry.id %}">{% csrf_token %}<input type="hidden" name="kind" value="correction"><label for="correction">Correct a source statement</label><textarea id="correction" name="correction_statement" required></textarea><label for="correction-response">Optional explanation</label><textarea id="correction-response" name="response"></textarea><button type="submit">Send correction for review</button></form>
+  </section>
+{% endblock %}

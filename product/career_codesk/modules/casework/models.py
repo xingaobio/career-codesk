@@ -63,3 +63,16 @@ class CaseTransition(AppendOnlyRecord):
                 check=~models.Q(from_state=models.F("to_state")), name="case_state_changes"
             )
         ]
+
+
+class CaseReviewRequest(AppendOnlyRecord):
+    """Append-only evidence that feedback requires staff review.
+
+    It exists for already-open cases where a same-state transition would be
+    misleading, and avoids manufacturing a CaseTransition merely for audit UI.
+    """
+
+    case = models.ForeignKey(Case, on_delete=models.PROTECT, related_name="review_requests")
+    feedback_id = models.CharField(max_length=32, unique=True)
+    reason = models.TextField()
+    actor_id = models.CharField(max_length=64)

@@ -7,6 +7,33 @@ from career_codesk.modules.decisions.models import SupportDecision
 from career_codesk.modules.planning.models import InterventionAllocation
 
 
+class StructuredExport(AppendOnlyRecord):
+    """Canonical local-only mock export produced from one weekly plan entry."""
+
+    weekly_entry = models.OneToOneField(
+        "planning.WeeklyPlanEntry", on_delete=models.PROTECT, related_name="structured_export"
+    )
+    allocation = models.ForeignKey(
+        InterventionAllocation, on_delete=models.PROTECT, related_name="structured_exports"
+    )
+    decision = models.ForeignKey(
+        SupportDecision, on_delete=models.PROTECT, related_name="structured_exports"
+    )
+    destination = models.CharField(max_length=64, default="local-mock-outbox")
+    payload_version = models.CharField(max_length=32)
+    canonical_payload = models.JSONField()
+    payload_digest = models.CharField(max_length=64, db_index=True)
+    idempotency_key = models.CharField(max_length=128, unique=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("decision", "allocation", "payload_version"),
+                name="structured_export_approval_once",
+            )
+        ]
+
+
 class WritebackAttempt(AppendOnlyRecord):
     RESULTS = (
         ("pending", "Pending"),
@@ -20,6 +47,13 @@ class WritebackAttempt(AppendOnlyRecord):
     )
     decision = models.ForeignKey(
         SupportDecision, on_delete=models.PROTECT, related_name="writeback_attempts"
+    )
+    structured_export = models.ForeignKey(
+        StructuredExport,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="attempts",
     )
     idempotency_key = models.CharField(max_length=128)
     payload_version = models.CharField(max_length=32)

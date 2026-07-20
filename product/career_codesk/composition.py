@@ -16,7 +16,11 @@ from career_codesk.modules.export.services import WritebackService
 from career_codesk.modules.intake_provenance.contracts import ProvenanceIntake
 from career_codesk.modules.intake_provenance.services import CaptureService
 from career_codesk.modules.planning.contracts import Planner
-from career_codesk.modules.planning.services import AllocationService, DeterministicPlanningService
+from career_codesk.modules.planning.services import (
+    AllocationService,
+    DeterministicPlanningService,
+    ExecutionPackageService,
+)
 
 
 @dataclass(frozen=True)
@@ -33,6 +37,7 @@ class Foundation:
     hypothesis_service: HypothesisService
     casework_service: CaseWorkflowService
     allocation_service: AllocationService
+    execution_package_service: ExecutionPackageService
     decision_service: SupportDecisionService
     delivery_service: DeliveryFeedbackService
     writeback_service: WritebackService
@@ -66,6 +71,7 @@ def compose_foundation() -> Foundation:
         hypothesis_service=HypothesisService(),
         casework_service=CaseWorkflowService(),
         allocation_service=AllocationService(),
+        execution_package_service=ExecutionPackageService(),
         decision_service=SupportDecisionService(),
         delivery_service=DeliveryFeedbackService(),
         writeback_service=WritebackService(),

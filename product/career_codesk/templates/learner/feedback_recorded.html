@@ -1,0 +1,3 @@
+{% extends "workbench/base.html" %}
+{% block title %}Feedback recorded · Career CoDesk{% endblock %}
+{% block content %}<section aria-labelledby="feedback-title"><h2 id="feedback-title">Feedback recorded</h2><p>Your {{ feedback.get_kind_display|lower }} response is local synthetic evidence.</p>{% if feedback.kind != "helped" %}<p>The case is open for staff review; earlier source, decision, delivery, and outcome records were not changed.</p>{% endif %}<p><a class="button-link" href="{% url 'learner-next-action' entry.case_id %}">Return to next action</a></p></section>{% endblock %}

@@ -93,3 +93,46 @@ class InterventionAllocation(DomainRecord):
                     "Allocation state must be changed through AllocationService"
                 )
         return super().save(*args, **kwargs)
+
+
+class WeeklyPlanEntry(AppendOnlyRecord):
+    """The immutable, approval-gated execution package for one allocation.
+
+    This deliberately copies the small set of operational facts a weekly plan
+    needs to remain inspectable when later planner runs create successor
+    proposals.  Source and hypothesis IDs remain links, never rewritten text.
+    """
+
+    case_id = models.CharField(max_length=32, db_index=True)
+    need = models.ForeignKey(Need, on_delete=models.PROTECT, related_name="weekly_entries")
+    decision = models.OneToOneField(
+        "decisions.SupportDecision", on_delete=models.PROTECT, related_name="weekly_plan_entry"
+    )
+    allocation = models.OneToOneField(
+        InterventionAllocation, on_delete=models.PROTECT, related_name="weekly_plan_entry"
+    )
+    planner_run = models.ForeignKey(
+        PlannerRun, on_delete=models.PROTECT, related_name="weekly_plan_entries"
+    )
+    route_code = models.CharField(max_length=64)
+    resource_owner_id = models.CharField(max_length=64)
+    scheduled_on = models.DateField()
+    deadline = models.DateField()
+    effort_hours = models.PositiveIntegerField()
+    capacity_effect = models.JSONField(default=dict)
+    reviewed_capture_ids = models.JSONField(default=list)
+    reviewed_hypothesis_ids = models.JSONField(default=list)
+
+
+class AdviserBrief(AppendOnlyRecord):
+    """A deterministic staff brief, not learner-facing generated advice."""
+
+    weekly_entry = models.OneToOneField(
+        WeeklyPlanEntry, on_delete=models.PROTECT, related_name="adviser_brief"
+    )
+    known_facts = models.TextField()
+    questions_to_ask = models.TextField()
+    assumptions_prohibited = models.TextField()
+    intended_outcome = models.TextField()
+    source_capture_ids = models.JSONField(default=list)
+    provisional_hypothesis_ids = models.JSONField(default=list)

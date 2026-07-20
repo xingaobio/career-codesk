@@ -41,6 +41,26 @@ earlier feasible route similarly creates a successor proposal and event instead
 of rewriting history. Every decision records a new deterministic planner run
 with the remaining capacity, waiting-time, and unmet-demand result.
 
+## Approved weekly execution and local feedback
+
+An approved active allocation creates exactly one immutable weekly plan entry, deterministic
+adviser brief, and canonical structured export record. The entry preserves the need, approval,
+allocation, planner run/capacity effect, owner, timing, effort, deadline, and exact reviewed source
+and provisional-hypothesis IDs. The brief separates known source-qualified facts, questions to ask,
+prohibited assumptions, and intended outcome.
+
+`StructuredExport` is a local mock-outbox object only. Its canonical payload and digest are stable,
+its idempotency key is derived from the approved decision/allocation and payload version, and
+append-only `WritebackAttempt` records are `pending`, `failed`, `succeeded`, or `not_sent`.
+Retries retain the key and increase the attempt number; a succeeded local attempt replays rather
+than writing another result. No connector, send, or live writeback exists.
+
+Staff can inspect `/plans/`. The local learner page at `/learner/<case-id>/` shows only one active,
+adviser-approved action with effort, deadline, a local mock resource/action, human-help, unresolved,
+and source-correction controls. Unresolved, human-help, and correction responses append feedback
+evidence and open staff review without modifying earlier source, decision, delivery, or outcome
+records. A correction creates a new linked capture.
+
 ## Prototype boundaries
 
 Every source must be labelled `Synthetic mock source — no MIS connection.` Fixtures are versioned,
