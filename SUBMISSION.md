@@ -55,19 +55,24 @@ The next step is not to connect real college data. It is to test the workflow wi
 
 Keep the finished video under three minutes. Record at 1080p if practical, enlarge the browser text enough to read, hide notifications, and speak from the screen rather than reading a script. Open the five-slide deck and the interactive reviewer walkthrough in two tabs so you can switch manually; the deck intentionally has no timer or demo-launch buttons.
 
-### 0:00 to 0:20 · Slide 1: the capacity problem
+### 0:00 to 0:18 · Slide 1: the capacity problem
 
 - England's 213 colleges prepare more than 1.6 million learners.
-- In Ofsted's 2024 research sample, all 25 colleges and 7 local authorities reported difficulty recruiting Level 6 careers advisers.
-- Say explicitly that these are separate capacity signals, not a claimed national learner-to-adviser ratio.
+- Say the practical point simply: compared with university careers services, FE colleges often have fewer specialist advisers and less capacity for individual support.
+- The source note gives the evidence behind that context: 25 colleges and 7 local authorities in Ofsted's research sample reported difficulty recruiting Level 6 advisers.
 
-### 0:20 to 0:40 · Slide 2: what Career CoDesk does
+### 0:18 to 0:35 · Slide 2: what Career CoDesk does
 
 - Say who it is for first: Career CoDesk is a weekly decision workspace for FE careers advisers.
 - Follow the four steps: learner need, evidence plus capacity, adviser decision, then support and feedback.
 - State the boundary clearly: it is not a job board, automated job-matching service, or learner-facing careers bot.
 
-### 0:40 to 1:35 · Reviewer site: one complete case
+### 0:35 to 0:52 · Slide 3: the adviser interface
+
+- Point to the three views: college context, evidence review, and capacity to action.
+- State that these are presentation-safe screens with fictional learner identities.
+
+### 0:52 to 1:38 · Reviewer site: one complete case
 
 - Switch to the reviewer walkthrough and speak as a careers adviser choosing Olivia K. or Muhammad R. for weekly support review.
 - Click `Evidence review`: point to the fictional source statement, provisional AI interpretation and visible unknown.
@@ -77,19 +82,19 @@ Keep the finished video under three minutes. Record at 1080p if practical, enlar
 - Click `Learner feedback`, then `I am still unsure` to show that feedback reopens review without deleting history.
 - State the boundary once: all visible identities are fictional composites and the controls reset on refresh.
 
-### 1:35 to 1:55 · Slide 3: human in the loop
+### 1:38 to 1:56 · Slide 4: human in the loop
 
 - The gateway is designed for an OpenAI API adapter that can organise evidence and suggest education support; it never activates a plan.
 - For a repeatable evaluation, this MVP runs a deterministic local adapter behind that same gateway boundary.
 - The careers adviser approves, amends or rejects with a reason; unresolved learner feedback returns the case to the team.
 
-### 1:55 to 2:18 · Slide 4: integration and privacy
+### 1:56 to 2:18 · Slide 5: integration and privacy
 
 - Show the MIS/CRM/CSV → adapter/core → approved-output architecture.
 - Name the safeguards: field allowlist, evidence/inference separation, human gate and traceability.
 - Do not claim GDPR compliance. Say that DPIA, retention, lawful basis and access control remain institutional responsibilities.
 
-### 2:18 to 2:42 · Slide 5: OpenAI workflow and team
+### 2:18 to 2:43 · Slide 6: OpenAI workflow and team
 
 - Name the method first: the engineering workflow adapts OpenAI's open-source Symphony orchestration pattern into isolated Codex implementation runs.
 - GPT-5.6 Sol with ultra reasoning guided and independently reviewed.
@@ -97,7 +102,7 @@ Keep the finished video under three minutes. Record at 1080p if practical, enlar
 - Deterministic tests and a human gate—not a model—decided completion.
 - Name the team: Xin Gao led product, research and AI workflow; Chelsea Li led marketing, testing and the demo.
 
-### 2:42 to 2:50 · close
+### 2:43 to 2:50 · close
 
 End on one sentence: "Career CoDesk tests whether a careers team can make a better capacity-aware decision without giving AI decision authority."
 
