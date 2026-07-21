@@ -49,7 +49,7 @@ The second challenge was keeping the automated development loop useful without l
 
 ### What is next
 
-The next step is not to connect real college data. It is to test the workflow with careers staff using synthetic scenarios, validate whether the review screen reduces preparation and coordination effort, and define the institutional policy and human process for any future restricted handoff. Live identity, privacy, security, accessibility, MIS integration, and pilot governance would each require separate approval and evidence.
+The immediate next step is to hold structured meetings with FE college careers teams, test the workflow with synthetic scenarios, and validate whether the review screen reduces preparation and coordination effort. We would then continue development of approved integrations and governance controls, and explore accessible learner-support features for adviser-approved follow-up and feedback. Live identity, privacy, security, accessibility, MIS integration, and pilot governance would each require separate approval and evidence.
 
 ## Three-minute demo talk track
 
@@ -69,8 +69,9 @@ Keep the finished video under three minutes. Record at 1080p if practical, enlar
 
 ### 0:35 to 0:52 · Slide 3: the adviser interface
 
-- Point to the three views: college context, evidence review, and capacity to action.
-- State that these are presentation-safe screens with fictional learner identities.
+- State that these are implemented Django product screens for the careers adviser—not screenshots of the public showcase.
+- Point to the three views: decision queue, evidence plus capacity review, and the approved execution package.
+- State that every visible record is synthetic.
 
 ### 0:52 to 1:38 · Reviewer site: one complete case
 
@@ -101,6 +102,7 @@ Keep the finished video under three minutes. Record at 1080p if practical, enlar
 - GPT-5.6 Terra and Luna handled design, implementation and verification in Codex CLI, with up to 16 subagents.
 - Deterministic tests and a human gate—not a model—decided completion.
 - Name the team: Xin Gao led product, research and AI workflow; Chelsea Li led marketing, testing and the demo.
+- Close the slide with the next steps: college meetings, continued development, and accessible learner-support features.
 
 ### 2:43 to 2:50 · close
 

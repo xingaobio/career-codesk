@@ -96,7 +96,7 @@ This workflow used Codex interfaces and GPT-5.6 model routing. It did not requir
 
 ## Three-minute demo
 
-Open the standalone [video presentation](docs/video-demo.html) in a browser. Its five concise slides cover the verified FE capacity problem, the product path, human control, the MIS adapter/privacy boundary, and the Codex/GPT-5.6 build workflow with the team. It uses only local assets and has deliberately simple arrow-key navigation with no timer or live-demo launcher. The recording order remains in [SUBMISSION.md](SUBMISSION.md). Session IDs belong in the Devpost form, not the public repository.
+Open the standalone [video presentation](docs/video-demo.html) in a browser. Its six concise slides cover the verified FE capacity problem, the product path, three implemented adviser-interface screens, human control, the MIS adapter/privacy boundary, and the Codex/GPT-5.6 build workflow, team, and next steps. It uses only local assets and has deliberately simple arrow-key navigation with no timer or live-demo launcher. The recording order remains in [SUBMISSION.md](SUBMISSION.md). Session IDs belong in the Devpost form, not the public repository.
 
 ## Repository map
 

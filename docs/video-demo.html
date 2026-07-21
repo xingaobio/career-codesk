@@ -216,6 +216,27 @@
     .handle { display: inline-block; margin-bottom: 7px; color: var(--teal); font-size: 12px; font-weight: 800; text-decoration: none; }
     .person-card p { margin-bottom: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.35; }
 
+    .next-steps {
+      display: grid;
+      grid-template-columns: 118px repeat(3, 1fr);
+      gap: 10px;
+      align-items: stretch;
+      margin-top: 13px;
+    }
+    .next-label {
+      display: grid;
+      place-items: center start;
+      margin: 0;
+      color: #05645b;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .next-step { padding: 10px 12px; border-radius: 13px; background: var(--mist); }
+    .next-step strong { display: block; margin-bottom: 3px; font-size: 14px; }
+    .next-step span { color: var(--ink-soft); font-size: 11px; line-height: 1.3; }
+
     .footer {
       position: fixed;
       z-index: 10;
@@ -245,6 +266,7 @@
       .feedback-story, .architecture, .interface-grid { grid-template-columns: 1fr; }
       .arrow, .arch-arrow { transform: rotate(90deg); }
       .rails { grid-template-columns: 1fr 1fr; }
+      .next-steps { grid-template-columns: 1fr; }
       .hint { display: none; }
     }
 
@@ -290,18 +312,18 @@
       <div>
         <p class="eyebrow">03 · The adviser interface</p>
         <h2>One clear workspace for <span class="accent">every adviser decision.</span></h2>
-        <p class="lede">Three project views keep evidence, capacity and human approval visible—using fictional learner identities only.</p>
+        <p class="lede">These are implemented Django product screens used by the careers adviser. Every visible record is synthetic.</p>
         <div class="interface-grid" aria-label="Career CoDesk interface views">
-          <article class="interface-card"><img src="showcase-assets/showcase-overview.png" alt="Career CoDesk overview screen"><div class="interface-copy"><h3>College overview</h3><p>Start from the FE careers context and see why capacity needs a plan.</p></div></article>
-          <article class="interface-card"><img src="showcase-assets/showcase-review.png" alt="Career CoDesk evidence review screen"><div class="interface-copy"><h3>Evidence review</h3><p>Compare source records with provisional AI interpretation.</p></div></article>
-          <article class="interface-card"><img src="showcase-assets/showcase-journey.png" alt="Career CoDesk support pathway screen"><div class="interface-copy"><h3>Capacity to action</h3><p>Follow the support path through decision and learner feedback.</p></div></article>
+          <article class="interface-card"><img src="../.design-qa/01-queue.png" alt="Career CoDesk adviser decision queue"><div class="interface-copy"><h3>Decision queue</h3><p>See which learner cases require adviser review.</p></div></article>
+          <article class="interface-card"><img src="../.design-qa/09-review-final.png" alt="Career CoDesk evidence and capacity review"><div class="interface-copy"><h3>Evidence + capacity</h3><p>Review the source, AI interpretation and feasible support.</p></div></article>
+          <article class="interface-card"><img src="../.design-qa/05-plan-detail.png" alt="Career CoDesk approved weekly execution package"><div class="interface-copy"><h3>Approved action</h3><p>Turn a human decision into an inspectable delivery package.</p></div></article>
         </div>
       </div>
     </section>
 
     <section class="slide" data-title="Human in the loop">
       <div>
-        <p class="eyebrow">03 · Human in the loop</p>
+        <p class="eyebrow">04 · Human in the loop</p>
         <h2>AI assists the workflow. <span class="accent">The careers adviser stays accountable.</span></h2>
         <p class="lede">An OpenAI API-ready assistance layer can organise evidence and suggest education support. It cannot activate a learner plan.</p>
         <div class="feedback-story">
@@ -317,7 +339,7 @@
 
     <section class="slide" data-title="Integration and privacy">
       <div>
-        <p class="eyebrow">04 · Integration + privacy</p>
+        <p class="eyebrow">05 · Integration + privacy</p>
         <h2>Fits existing college systems <span class="accent">without owning identity.</span></h2>
         <div class="architecture" aria-label="MIS adapter architecture">
           <article class="layer"><h3>MIS / CRM / CSV</h3><p>Institution-owned records.</p></article>
@@ -339,7 +361,7 @@
 
     <section class="slide" data-title="Built with OpenAI">
       <div>
-        <p class="eyebrow">05 · Built with OpenAI + Team</p>
+        <p class="eyebrow">06 · Built with OpenAI + Team</p>
         <h2>A small team. <span class="accent">An inspectable AI workflow.</span></h2>
         <div class="final-grid">
           <div class="build-stack" aria-label="Symphony-inspired Codex and GPT-5.6 engineering workflow">
@@ -353,6 +375,12 @@
             <article class="person-card"><img src="team/xin-gao.png" alt="Xin Gao"><div><h3>Xin Gao</h3><span class="handle">@xin-gao0801</span><p>Product · research · AI workflow</p></div></article>
             <article class="person-card"><img src="team/chelsea-li.png" alt="Chelsea Li"><div><h3>Chelsea Li</h3><a class="handle" href="https://devpost.com/chengxi689">@chengxi689</a><p>Marketing · testing · demo</p></div></article>
           </div>
+        </div>
+        <div class="next-steps" aria-label="Career CoDesk next steps">
+          <p class="next-label">Next steps</p>
+          <article class="next-step"><strong>College meetings</strong><span>Co-design with FE careers teams.</span></article>
+          <article class="next-step"><strong>Continue development</strong><span>Harden integrations and governance.</span></article>
+          <article class="next-step"><strong>Learner support</strong><span>Add accessible follow-up and feedback tools.</span></article>
         </div>
       </div>
     </section>
