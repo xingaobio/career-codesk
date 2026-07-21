@@ -1,0 +1,20 @@
+{% extends "workbench/base.html" %}
+{% block title %}Career CoDesk · Local prototype{% endblock %}
+{% block nav_queue %}is-active{% endblock %}
+{% block content %}
+  <header class="page-header">
+    <div class="page-header-copy">
+      <p class="eyebrow">Local synthetic foundation</p>
+      <h1>Career CoDesk prototype</h1>
+      <p class="page-summary">A bounded, deterministic workspace for reviewing career-support evidence, capacity, decisions, and follow-up.</p>
+    </div>
+    <span class="status status-local">No MIS connection</span>
+  </header>
+  <section class="surface">
+    <div class="surface-header"><div><h3>Available foundation seams</h3><p>Simulated identity only. This is not production authentication.</p></div></div>
+    <div class="surface-body">
+      <p>Consequential routing remains for meaningful adviser approval. Safety-like signals are reserved for restricted human handling and never become a score.</p>
+      <ul class="foundation-grid">{% for name in foundation.module_names %}<li>{{ name }}</li>{% endfor %}</ul>
+    </div>
+  </section>
+{% endblock %}

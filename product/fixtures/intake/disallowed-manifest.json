@@ -1,0 +1,1 @@
+{"schema_version":"intake-csv-v1","fixture_version":"synthetic-intake-fixtures-v1","source_version":"disallowed-fixture-v1","clock_utc":"2026-01-01T00:00:00Z","seed":20260101,"source_label":"Synthetic mock source — no MIS connection.","synthetic_data_attestation":true}

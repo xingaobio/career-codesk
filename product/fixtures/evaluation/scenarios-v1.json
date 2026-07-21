@@ -1,0 +1,15 @@
+{
+  "schema_version": "evaluation-scenarios-v1",
+  "fixture_attestation": "Synthetic aliases only; no real learner or mapped identity data.",
+  "source_label": "Synthetic mock source — no MIS connection.",
+  "scenarios": [
+    {"key": "happy-path", "expected": "approved allocation, local mock export, and helped outcome remain linked"},
+    {"key": "over-capacity", "expected": "one demand remains explicit unmet demand with no hard-constraint violation"},
+    {"key": "malformed-input", "expected": "intake rejects before learner, case, capture, or allocation creation"},
+    {"key": "ai-failure", "expected": "adapter error is recorded and creates no hypothesis or consequential record"},
+    {"key": "safety-exit", "expected": "restricted exit exists and no ordinary AI, allocation, decision, or export exists"},
+    {"key": "override", "expected": "amendment retires the proposal; a separate later approval activates the replacement"},
+    {"key": "failed-export", "expected": "failed local attempt and retry evidence preserve one canonical payload"},
+    {"key": "reopen", "expected": "an unresolved outcome causes open to active to closed to open history"}
+  ]
+}

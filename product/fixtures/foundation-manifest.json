@@ -1,0 +1,13 @@
+{
+  "fixture_version": "foundation-v1",
+  "schema_version": "1.0",
+  "clock_utc": "2026-01-01T00:00:00Z",
+  "seed": 20260101,
+  "fixed_ids": {
+    "manager": "actor-manager-001",
+    "adviser": "actor-adviser-001"
+  },
+  "synthetic_data_attestation": true,
+  "source_label": "Synthetic mock source — no MIS connection.",
+  "contains_learner_records": false
+}

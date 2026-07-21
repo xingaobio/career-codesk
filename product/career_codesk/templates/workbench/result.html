@@ -1,0 +1,45 @@
+{% extends "workbench/base.html" %}
+{% block title %}Decision recorded · Career CoDesk{% endblock %}
+{% block nav_queue %}is-active{% endblock %}
+{% block content %}
+  <div class="result-layout">
+    <header class="page-header">
+      <div class="page-header-copy">
+        <p class="eyebrow">Immutable event created</p>
+        <h1 id="result-title">Decision recorded</h1>
+        <p class="page-summary">The planner has recalculated the remaining capacity, waiting time, and explicit unmet demand using local synthetic evidence.</p>
+      </div>
+      <span class="status status-recorded">{{ outcome.decision.get_action_display }} event recorded</span>
+    </header>
+    <section class="confirmation-card" aria-labelledby="result-title">
+      <div class="surface-header">
+        <div><h3>Recalculation summary</h3><p>Planner run <span class="mono">{{ outcome.replanned_run.id }}</span></p></div>
+        <span class="status status-local">Local only</span>
+      </div>
+      <div class="surface-body">
+        <h3>Updated residual capacity</h3>
+        <ul>
+          {% for capacity in outcome.remaining_capacity %}
+            <li>{{ capacity.resource_id }} on {{ capacity.scheduled_on }} — {{ capacity.seats }} seat{{ capacity.seats|pluralize }} and {{ capacity.adviser_hours }} adviser hour{{ capacity.adviser_hours|pluralize }} remaining.</li>
+          {% empty %}<li>No capacity slots remain in this recalculation.</li>{% endfor %}
+        </ul>
+        <h3>Explicit unmet demand: {{ outcome.remaining_plan.unmet_demand|length }}</h3>
+        <ul>
+          {% for allocation in outcome.remaining_plan.allocations %}
+            <li>{{ allocation.demand_id }} — {{ allocation.waiting_days }} waiting day{{ allocation.waiting_days|pluralize }}</li>
+          {% empty %}<li>No unassigned demand remains in this recalculation.</li>{% endfor %}
+        </ul>
+        {% if outcome.next_proposal %}
+          <div class="error-summary">
+            <h2>Amendment follow-up</h2>
+            <p><a href="{% url 'workbench-review' outcome.next_proposal.id %}">Review the new proposed alternative</a>. It is not active until separately approved.</p>
+          </div>
+        {% endif %}
+        <div class="confirmation-actions">
+          <a class="button-link" href="{% url 'workbench-queue' %}">Return to decision queue</a>
+          <a href="{% url 'weekly-plan-list' %}">View approved weekly plans</a>
+        </div>
+      </div>
+    </section>
+  </div>
+{% endblock %}

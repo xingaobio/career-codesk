@@ -5,3 +5,6 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 
+# These two local submission references are intentionally excluded from every worktree.
+devpost.com-Devpost.pdf
+openai.devpost.com-OpenAI Build Week Join a global week of building with Codex.pdf

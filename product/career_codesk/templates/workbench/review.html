@@ -1,0 +1,160 @@
+{% extends "workbench/base.html" %}
+{% block title %}{% if allocation.state == 'active' %}Approval evidence{% else %}Review proposal{% endif %} · Career CoDesk{% endblock %}
+{% block nav_queue %}is-active{% endblock %}
+{% block content %}
+  <a class="back-link" href="{% url 'workbench-queue' %}">Back to decision queue</a>
+
+  <header class="case-header" aria-labelledby="review-title">
+    <div>
+      <p class="eyebrow">Case {{ allocation.case_id }}</p>
+      <h1 id="review-title">{% if allocation.state == 'active' %}Review approved{% else %}Review proposed{% endif %} {{ allocation.route_code }} route</h1>
+      <div class="case-meta">
+        <span><strong>Scheduled</strong> {{ allocation.scheduled_on }}</span>
+        <span><strong>Waiting</strong> {{ allocation.waiting_days }} day{{ allocation.waiting_days|pluralize }}</span>
+        <span><strong>Queue age</strong> {{ queue_age_days }} day{{ queue_age_days|pluralize }}</span>
+        <span><strong>Policy</strong> {{ run.policy_version }}</span>
+      </div>
+    </div>
+    <span class="status {% if allocation.state == 'active' %}status-recorded{% else %}status-proposed{% endif %}">
+      {% if allocation.state == 'active' %}Active — prior approval{% else %}Proposed — not active{% endif %}
+    </span>
+  </header>
+
+  {% if error %}
+    <section class="error-summary" role="alert" tabindex="-1">
+      <h2>Decision not recorded</h2>
+      <p>{{ error }}</p>
+      {% if stale %}<p>Nothing changed. Return to the queue and review the current evidence.</p>{% endif %}
+    </section>
+  {% endif %}
+
+  <div class="review-grid">
+    <section class="evidence-panel accent-cobalt" aria-labelledby="source-title">
+      <div class="surface-header">
+        <div>
+          <p class="eyebrow">Recorded evidence</p>
+          <h3 id="source-title">Source statements</h3>
+        </div>
+        <span class="status status-local">Immutable</span>
+      </div>
+      <div class="evidence-stack">
+        <p class="source-label">Synthetic mock source — no MIS connection.</p>
+        {% for capture in captures %}
+          <article class="evidence">
+            <h4>{{ capture.get_source_type_display }} source · {{ capture.source_version }}</h4>
+            <p class="statement">{{ capture.source_payload.statement }}</p>
+            <div class="evidence-meta">Immutable capture <span class="mono">{{ capture.id }}</span></div>
+          </article>
+        {% empty %}
+          <p class="muted">No ordinary source statement is available.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="evidence-panel accent-violet" aria-labelledby="inference-title">
+      <div class="surface-header">
+        <div>
+          <p class="eyebrow">Interpretation layer</p>
+          <h3 id="inference-title">Provisional AI inference</h3>
+        </div>
+        <span class="status status-provisional">No decision authority</span>
+      </div>
+      <div class="evidence-stack">
+        {% for hypothesis in hypotheses %}
+          <article class="evidence">
+            <span class="status status-provisional">Provisional — no decision authority</span>
+            <p class="statement">{{ hypothesis.explanation }}</p>
+            <p><strong>Confidence:</strong> {{ hypothesis.confidence_state|default:"unknown" }}{% if hypothesis.confidence %} ({{ hypothesis.confidence }}){% endif %}</p>
+            <div class="unknowns"><strong>Unknowns:</strong> {{ hypothesis.unknowns|join:", "|default:"None declared" }}</div>
+          </article>
+        {% empty %}
+          <p class="status status-provisional">No hypothesis is available; human review remains required.</p>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+
+  <section class="capacity-band" aria-label="Proposal and capacity summary">
+    <div class="capacity-item"><span>Adviser hours</span><strong>{% if capacity.slot %}{{ capacity.consumed.adviser_hours_consumed|default:0 }} / {{ capacity.slot.adviser_hours }}{% else %}Not available{% endif %}</strong><small>consumed in plan</small></div>
+    <div class="capacity-item"><span>Group seats</span><strong>{% if capacity.slot %}{{ capacity.consumed.seats_consumed|default:0 }} / {{ capacity.slot.seats }}{% else %}Not available{% endif %}</strong><small>consumed in plan</small></div>
+    <div class="capacity-item"><span>Remaining</span><strong>{% if capacity.slot %}{{ capacity.remaining_seats }} seats{% else %}Not available{% endif %}</strong><small>{% if capacity.slot %}{{ capacity.remaining_adviser_hours }} adviser hours{% endif %}</small></div>
+    <div class="capacity-item"><span>Unmet demand</span><strong>{{ unmet_demand|length }} explicit</strong><small>persisted in planner run</small></div>
+    <div class="capacity-item"><span>Alternatives</span><strong>{{ alternatives|length }} feasible</strong><small>still require approval</small></div>
+  </section>
+
+  <div class="proposal-grid">
+    <section class="detail-card" aria-labelledby="proposal-title">
+      <h3 id="proposal-title">Deterministic proposal and capacity effect</h3>
+      <dl>
+        <dt>Reason for proposal</dt>
+        <dd>Feasible under persisted {{ run.policy_version }} planning evidence; scheduled {{ allocation.scheduled_on }} for demand <span class="mono">{{ allocation.demand_id }}</span>.</dd>
+        <dt>Waiting time</dt><dd>{{ allocation.waiting_days }} day{{ allocation.waiting_days|pluralize }}</dd>
+        <dt>Queue age</dt><dd>{{ queue_age_days }} day{{ queue_age_days|pluralize }}</dd>
+        {% if capacity.slot %}
+          <dt>Capacity effect</dt>
+          <dd>{{ capacity.consumed.seats_consumed|default:0 }} of {{ capacity.slot.seats }} seats and {{ capacity.consumed.adviser_hours_consumed|default:0 }} of {{ capacity.slot.adviser_hours }} adviser hours consumed. {{ capacity.remaining_seats }} seat{{ capacity.remaining_seats|pluralize }} and {{ capacity.remaining_adviser_hours }} adviser hour{{ capacity.remaining_adviser_hours|pluralize }} remain.</dd>
+        {% endif %}
+      </dl>
+      <h4>Explicit unmet demand</h4>
+      <ul>
+        {% for unmet in unmet_demand %}
+          <li>{{ unmet.demand_id }} — {{ unmet.reason_code }}{% if unmet.minimum_entitlement %} (minimum demo entitlement){% endif %}</li>
+        {% empty %}<li>None in this planner run.</li>{% endfor %}
+      </ul>
+    </section>
+
+    <section class="detail-card" aria-labelledby="alternatives-title">
+      <h3 id="alternatives-title">Feasible alternatives</h3>
+      {% for alternative in alternatives %}
+        <article class="evidence">
+          <h4>Alternative {{ alternative.index }}</h4>
+          <p><strong>{{ alternative.allocation.route_code }}</strong> via {{ alternative.allocation.resource_id }}</p>
+          <p>{{ alternative.allocation.scheduled_on }} · {{ alternative.allocation.waiting_days }} waiting day{{ alternative.allocation.waiting_days|pluralize }}</p>
+        </article>
+      {% empty %}
+        <p class="muted">No persisted feasible alternative for this demand.</p>
+      {% endfor %}
+    </section>
+  </div>
+
+  <section class="decision-panel" aria-labelledby="decision-title">
+    {% if allocation.state == 'proposed' %}
+      <form class="decision-shell" method="post" action="{% url 'workbench-confirm' allocation.id %}">
+      {% csrf_token %}
+      <input type="hidden" name="actor" value="adviser">
+      <div class="decision-intro">
+        <h3 id="decision-title">Record an adviser decision</h3>
+        <p>A reason and confirmation are required. Simulated identity only; this is not authentication.</p>
+      </div>
+      <div class="decision-fields">
+        <div>
+          <label for="reason">Reason for this simulated adviser decision</label>
+          <input id="reason" name="reason" type="text" required value="{% if reason %}{{ reason }}{% endif %}" placeholder="Summarise what you reviewed">
+        </div>
+        <div>
+          <label for="alternative">Alternative when amending</label>
+          <select id="alternative" name="alternative_index">
+            <option value="">Choose if needed</option>
+            {% for alternative in alternatives %}<option value="{{ alternative.index }}">Alternative {{ alternative.index }} — {{ alternative.allocation.route_code }} on {{ alternative.allocation.scheduled_on }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      <div>
+        <span class="decision-label">Decision</span>
+        <div class="decision-actions">
+          <button class="button-danger" type="submit" name="action" value="reject">Reject</button>
+          <button class="button-secondary" type="submit" name="action" value="amend">Amend</button>
+          <button type="submit" name="action" value="approve">Approve</button>
+        </div>
+      </div>
+      </form>
+    {% else %}
+      <div class="decision-shell">
+        <div class="decision-intro">
+          <h3 id="decision-title">Decision already recorded</h3>
+          <p>This allocation is active under a prior adviser approval. The evidence remains available for inspection, but a second decision cannot be submitted from this view.</p>
+        </div>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

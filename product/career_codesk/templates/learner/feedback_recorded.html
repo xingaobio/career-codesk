@@ -1,0 +1,21 @@
+{% extends "workbench/base.html" %}
+{% block title %}Feedback recorded · Career CoDesk{% endblock %}
+{% block content %}
+  <div class="result-layout">
+    <header class="page-header">
+      <div class="page-header-copy">
+        <p class="eyebrow">Local evidence updated</p>
+        <h1 id="feedback-title">Feedback recorded</h1>
+        <p class="page-summary">Your {{ feedback.get_kind_display|lower }} response is now part of this synthetic case record.</p>
+      </div>
+      <span class="status status-recorded">Recorded</span>
+    </header>
+    <section class="confirmation-card" aria-labelledby="feedback-title">
+      <div class="surface-header"><div><h3>What happens next</h3><p>Earlier source, decision, delivery, and outcome records remain unchanged.</p></div></div>
+      <div class="surface-body">
+        {% if feedback.kind != "helped" %}<p>The case is open for staff review.</p>{% else %}<p>The careers team can now see that this action helped.</p>{% endif %}
+        <div class="confirmation-actions"><a class="button-link" href="{% url 'learner-next-action' entry.case_id %}">Return to next action</a></div>
+      </div>
+    </section>
+  </div>
+{% endblock %}

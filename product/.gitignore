@@ -1,0 +1,8 @@
+.venv/
+*.sqlite3
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+static-build/
+*.pyc
+evaluation-output/
