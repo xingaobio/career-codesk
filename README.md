@@ -73,7 +73,7 @@ Product verification covers 91 tests, Django system checks, migration consistenc
 
 ## How Codex and GPT-5.6 were used
 
-The repository includes a Symphony-inspired engineering loop in [loop_engine](loop_engine). [PLAN.yaml](PLAN.yaml) breaks the project into isolated implementation runs. [WORKFLOW.md](WORKFLOW.md) assigns GPT-5.6 Sol with ultra reasoning to read-only guidance and review, GPT-5.6 Terra to design and implementation, and GPT-5.6 Luna to explicitly selected low-risk work. Deterministic commands, rather than a model, decide whether verification passes.
+The repository includes an engineering loop inspired by OpenAI's [open-source Codex orchestration specification, Symphony](https://openai.com/index/open-source-codex-orchestration-symphony/), implemented locally in [loop_engine](loop_engine). It adapts Symphony's task-oriented orchestration and isolated-workspace pattern; it is not a claim that the complete Symphony service runs here. [PLAN.yaml](PLAN.yaml) breaks the project into isolated implementation runs. [WORKFLOW.md](WORKFLOW.md) assigns GPT-5.6 Sol with ultra reasoning to read-only guidance and review, GPT-5.6 Terra to design and implementation, and GPT-5.6 Luna to explicitly selected low-risk work. Deterministic commands, rather than a model, decide whether verification passes.
 
 Codex ran each agent implementation task in its own local branch and worktree. A high-level guide first narrowed the task to its acceptance criteria. An implementer then changed only the allowed paths. A separate reviewer checked the exact candidate tree, and the loop allowed one concentrated repair cycle before requiring human input. Human gates approved the product direction and the final synthetic demonstrator.
 

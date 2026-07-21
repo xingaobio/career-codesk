@@ -20,7 +20,7 @@ It is an operations workspace for FE careers advisers—not a job board, automat
 
 It imports fictional learner needs, keeps the original source separate from provisional AI interpretation, and uses deterministic code to test capacity and feasible alternatives. An adviser must approve, amend, or reject every proposal. Only an approved decision can create a weekly plan and a local mock export. Learner feedback can reopen the case without overwriting its history.
 
-The project also includes the engineering system used to build it. A Symphony-inspired loop gave GPT-5.6 Sol the read-only guide and reviewer roles, used GPT-5.6 Terra for implementation, and reserved GPT-5.6 Luna for explicitly selected low-risk work. Codex ran each agent implementation task in an isolated local worktree, checked deterministic acceptance commands, and stopped at human approval gates. This kept the model focused on a small product slice while preserving an inspectable record of decisions and validation.
+The project also includes the engineering system used to build it. We adapted the orchestration pattern from OpenAI's [open-source Symphony specification](https://openai.com/index/open-source-codex-orchestration-symphony/) into a local loop: GPT-5.6 Sol held the read-only guide and reviewer roles, GPT-5.6 Terra handled implementation, and GPT-5.6 Luna was reserved for explicitly selected low-risk work. Codex ran each agent implementation task in an isolated local worktree, checked deterministic acceptance commands, and stopped at human approval gates. This kept the model focused on a small product slice while preserving an inspectable record of decisions and validation.
 
 The evaluated product runs locally with synthetic data, SQLite, and a deterministic fake AI adapter. The public reviewer site uses fictional composite identities and resets every interaction on refresh. College connectors, external writeback, real learner data, and production safety claims remain outside this prototype.
 
@@ -39,7 +39,7 @@ The evaluated product runs locally with synthetic data, SQLite, and a determinis
 
 The product is a server-rendered Django modular monolith with SQLite. Its modules cover intake and provenance, casework, the AI gateway, planning, decisions, delivery and feedback, export, and audit. The interface is designed around a two-column evidence review so an adviser can compare source statements with provisional interpretation before deciding.
 
-The build workflow is part of the repository. `PLAN.yaml` defines small tasks and human gates. `WORKFLOW.md` assigns GPT-5.6 Sol to guidance and review and GPT-5.6 Terra or Luna to bounded implementation work. The local loop creates isolated branches and worktrees, limits repair cycles, verifies exact candidate trees, and records acceptance evidence before integrating a task.
+The build workflow is part of the repository and adapts OpenAI Symphony's task-oriented orchestration and isolated-workspace pattern rather than claiming to run the complete Symphony service. `PLAN.yaml` defines small tasks and human gates. `WORKFLOW.md` assigns GPT-5.6 Sol to guidance and review and GPT-5.6 Terra or Luna to bounded implementation work. The local loop creates isolated branches and worktrees, limits repair cycles, verifies exact candidate trees, and records acceptance evidence before integrating a task.
 
 ### Challenges
 
@@ -91,10 +91,10 @@ Keep the finished video under three minutes. Record at 1080p if practical, enlar
 
 ### 2:18 to 2:42 · Slide 5: OpenAI workflow and team
 
-- Say both product names clearly.
+- Name the method first: the engineering workflow adapts OpenAI's open-source Symphony orchestration pattern into isolated Codex implementation runs.
 - GPT-5.6 Sol with ultra reasoning guided and independently reviewed.
-- GPT-5.6 Terra and Luna handled design, implementation and verification in Codex CLI.
-- Codex could orchestrate up to 16 isolated subagents; deterministic tests and a human gate decided completion.
+- GPT-5.6 Terra and Luna handled design, implementation and verification in Codex CLI, with up to 16 subagents.
+- Deterministic tests and a human gate—not a model—decided completion.
 - Name the team: Xin Gao led product, research and AI workflow; Chelsea Li led marketing, testing and the demo.
 
 ### 2:42 to 2:50 · close
