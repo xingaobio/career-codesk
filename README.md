@@ -1,20 +1,30 @@
 # Career CoDesk
 
-Career CoDesk is a local decision workspace for further education careers teams. It turns synthetic learner needs into a capacity-feasible support proposal, keeps source evidence separate from provisional AI interpretation, and requires an adviser to approve, amend, or reject the proposal before anything becomes an active plan.
+Career CoDesk is a decision workspace for further education careers teams. It turns learner needs into a capacity-feasible support proposal, keeps source evidence separate from provisional AI interpretation, and requires an adviser to approve, amend, or reject the proposal before anything becomes an active plan.
 
-This repository contains a complete synthetic demonstrator and the local engineering loop used to build it. It does not use real learner data, connect to an MIS, or write to an external service.
+This repository contains the working synthetic demonstrator, a reviewer-safe walkthrough, and the local engineering loop used to build both. Every presentation profile uses a fictional composite name; technical identifiers remain available only where they help inspect the underlying product evidence.
 
-![Career CoDesk adviser review](.design-qa/09-review-final.png)
+![Career CoDesk reviewer showcase](docs/showcase-assets/showcase-overview.png)
 
-## Product tour
+**Interactive walkthrough:** [open Career CoDesk on ChatGPT Sites](https://career-codesk-review.workspace-790542.chatgpt.site/). The site is deployed, but this ChatGPT workspace currently requires sign-in because public-internet publishing is disabled. The same dependency-free walkthrough can be run locally with:
 
-| Synthetic decision queue | Evidence-first adviser review |
+```sh
+python3 -m http.server 8030 --directory showcase/public
+```
+
+Then open `http://127.0.0.1:8030/`. It does not read or write the product database and resets its presentation-only interactions on refresh.
+
+## Reviewer tour
+
+| One inspectable learner-support path | Evidence-first adviser review |
 | --- | --- |
-| ![Synthetic adviser decision queue](.design-qa/01-queue.png) | ![Source evidence and provisional AI interpretation](.design-qa/09-review-final.png) |
-| Approved weekly execution package | Learner action and feedback |
-| ![Approved weekly plan with local mock export](.design-qa/05-plan-detail.png) | ![Approved learner action and feedback controls](.design-qa/06-learner.png) |
+| ![Signal, evidence, capacity, decision, action and feedback path](docs/showcase-assets/showcase-journey.png) | ![Fictional learner case with source evidence and provisional AI interpretation](docs/showcase-assets/showcase-review.png) |
+| College-system adapter boundary | Human-approved product boundary |
+| ![MIS adapter, Career CoDesk core and approved execution package](docs/showcase-assets/showcase-architecture.png) | ![Career CoDesk social overview](showcase/public/og.png) |
 
-The screenshots use the checked-in fictional evaluation data. The complete desktop and mobile review is recorded in [design-qa.md](design-qa.md).
+These images come from the presentation-only showcase. It mirrors the implemented workflow with fictional composite identities, hides machine identifiers by default, and never mutates the product database. The original desktop and mobile product evidence remains unchanged in [design-qa.md](design-qa.md).
+
+The opening capacity context uses [Association of Colleges key facts](https://www.aoc.co.uk/about/college-key-facts) and [Ofsted's 2024 post-16 careers-guidance research](https://www.gov.uk/government/publications/navigating-post-16-careers-guidance-supporting-learners-from-lower-socioeconomic-backgrounds/navigating-post-16-careers-guidance-supporting-learners-from-lower-socioeconomic-backgrounds). These are separate national and qualitative-sample signals, not a claimed national learner-to-adviser ratio.
 
 ## What the demonstrator covers
 
@@ -26,7 +36,7 @@ The screenshots use the checked-in fictional evaluation data. The complete deskt
 - A restricted exit for safety-like input before ordinary case processing
 - Eight repeatable evaluation scenarios with no runtime network access
 
-Version `0.2.0` is approved only as a local synthetic prototype. It is not a production deployment, authentication system, live integration, safety process, or compliance claim. The full boundary is documented in [the product guide](product/README.md).
+Version `0.2.0` is approved only as a synthetic prototype. It is not a production authentication system, installed college connector, safety process, or compliance claim. The full boundary is documented in [the product guide](product/README.md).
 
 ## Quick start
 
@@ -79,16 +89,17 @@ This workflow used Codex interfaces and GPT-5.6 model routing. It did not requir
 
 ## Three-minute demo
 
-Open the standalone [video presentation](docs/video-demo.html) in a browser. It uses only local files, includes keyboard navigation and a three-minute timer, and links to the live local demo. Presenter cues can be shown while practising and hidden before recording. The detailed recording order and voiceover prompts remain in [SUBMISSION.md](SUBMISSION.md). Session IDs belong in the Devpost form, not the public repository.
+Open the standalone [video presentation](docs/video-demo.html) in a browser. Its six slides cover the verified FE capacity problem, the product path, evidence and capacity, human approval and feedback, the MIS adapter/privacy boundary, and the Codex/GPT-5.6 build loop. It uses only local assets and has deliberately simple arrow-key navigation with no timer or live-demo launcher. The recording order remains in [SUBMISSION.md](SUBMISSION.md). Session IDs belong in the Devpost form, not the public repository.
 
 ## Repository map
 
 - [product](product): Django demonstrator, tests, fixtures, and evaluation pack
+- [showcase](showcase): standalone interactive reviewer walkthrough using fictional composite identities
 - [docs/versions/v0.2.0-implementation-rfc.md](docs/versions/v0.2.0-implementation-rfc.md): approved prototype scope and decisions
 - [PLAN.yaml](PLAN.yaml): task graph and human gates
 - [WORKFLOW.md](WORKFLOW.md): model roles, safety boundaries, and completion rules
 - [docs/loop-engineering.md](docs/loop-engineering.md): loop operator guide
-- [docs/video-demo.html](docs/video-demo.html): offline three-minute presentation and live-demo launcher
+- [docs/video-demo.html](docs/video-demo.html): offline six-slide three-minute story
 - [design-qa.md](design-qa.md): desktop and mobile visual review
 - [SUBMISSION.md](SUBMISSION.md): Devpost copy, video script, and final checklist
 

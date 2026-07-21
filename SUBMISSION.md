@@ -20,7 +20,7 @@ It imports fictional learner needs, keeps the original source separate from prov
 
 The project also includes the engineering system used to build it. A Symphony-inspired loop gave GPT-5.6 Sol the read-only guide and reviewer roles, used GPT-5.6 Terra for implementation, and reserved GPT-5.6 Luna for explicitly selected low-risk work. Codex ran each agent implementation task in an isolated local worktree, checked deterministic acceptance commands, and stopped at human approval gates. This kept the model focused on a small product slice while preserving an inspectable record of decisions and validation.
 
-Everything runs locally with synthetic data, SQLite, and a deterministic fake AI adapter. There is no live MIS connection, external writeback, real learner data, or production safety claim.
+The evaluated product runs locally with synthetic data, SQLite, and a deterministic fake AI adapter. The public reviewer site uses fictional composite identities and resets every interaction on refresh. College connectors, external writeback, real learner data, and production safety claims remain outside this prototype.
 
 ### What it does
 
@@ -49,61 +49,61 @@ The second challenge was keeping the automated development loop useful without l
 
 The next step is not to connect real college data. It is to test the workflow with careers staff using synthetic scenarios, validate whether the review screen reduces preparation and coordination effort, and define the institutional policy and human process for any future restricted handoff. Live identity, privacy, security, accessibility, MIS integration, and pilot governance would each require separate approval and evidence.
 
-## Three-minute demo script
+## Three-minute demo talk track
 
-Keep the finished video under three minutes. Record at 1080p if practical, enlarge the browser text enough to read, hide notifications, and use the populated evaluation database described in the root README.
+Keep the finished video under three minutes. Record at 1080p if practical, enlarge the browser text enough to read, hide notifications, and speak from the screen rather than reading a script. Open the six-slide deck and the interactive reviewer walkthrough in two tabs so you can switch manually; the deck intentionally has no timer or demo-launch buttons.
 
-### 0:00 to 0:15, the problem
+### 0:00 to 0:25 · Slide 1: the capacity problem
 
-"Career CoDesk helps further education careers teams turn learner needs into a weekly support plan they can actually deliver. The problem is not a lack of career information. It is making a transparent decision when demand, adviser time, and available interventions do not line up."
+- England's 213 colleges prepare more than 1.6 million learners.
+- In Ofsted's 2024 research sample, all 25 colleges and 7 local authorities reported difficulty recruiting Level 6 careers advisers.
+- Say explicitly that these are separate capacity signals, not a claimed national learner-to-adviser ratio.
 
-Show the project title, then open the populated weekly plans and select the workshop plan.
+### 0:25 to 0:50 · Slide 2: what Career CoDesk does
 
-### 0:15 to 0:50, the boundary and evidence
+- Follow the six-node path with the cursor: signal, evidence, capacity, human decision, approved action, feedback.
+- One sentence is enough: Career CoDesk prepares the decision; the adviser owns it.
 
-"This is a local synthetic demonstrator. Every record is fictional, there is no MIS connection, and nothing is sent outside the app. On this case, the adviser can see the original learner statement on the left and the provisional AI interpretation on the right. Unknowns stay visible instead of being turned into facts."
+### 0:50 to 1:35 · Reviewer site: evidence and capacity
 
-From the plan, open `Review approval evidence`. Point to the synthetic-data banner, source evidence, AI label, and unknowns.
+- Switch to the reviewer walkthrough and choose Olivia K. or Muhammad R.
+- Click `Evidence review`: point to the fictional source statement, provisional AI interpretation and visible unknown.
+- Click `Capacity plan`: point to the one available slot, feasible workshop alternative and retained unmet demand.
+- Mention that machine identifiers are hidden in the presentation story but technical evidence remains inspectable.
 
-### 0:50 to 1:30, deterministic planning and human control
+### 1:35 to 2:05 · Reviewer site: human control and feedback
 
-"GPT output does not decide entitlement, capacity, or scheduling. Deterministic planning records the policy version, remaining capacity, waiting time, feasible alternatives, and unmet demand. If there is no capacity, the need remains visible."
+- Click `Human decision`, then `Amend route` to show that an amendment requires replanning and a second confirmation.
+- Click `Learner feedback`, then `I am still unsure` to show that feedback reopens review without deleting history.
+- State the boundary once: all visible identities are fictional composites and the controls reset on refresh.
 
-Point to the capacity band, rationale, alternatives, unmet-demand state, and recorded prior approval. Explain that a proposed route requires approve, amend, or reject plus a reason. Do not submit a new decision during the recording.
+### 2:05 to 2:30 · Slide 5: integration and privacy
 
-### 1:30 to 2:10, plan, export, and feedback
+- Show the MIS/CRM/CSV → adapter/core → approved-output architecture.
+- Name the safeguards: field allowlist, evidence/inference separation, human gate and traceability.
+- Do not claim GDPR compliance. Say that DPIA, retention, lawful basis and access control remain institutional responsibilities.
 
-"The approved plan keeps its source, decision, owner, timing, effort, and deadline together. Export is only a local mock outbox record with an idempotency key. The learner view shows one approved action and can record that it helped, remains unresolved, needs human help, or needs a source correction. Unresolved feedback reopens the case without deleting its history."
+### 2:30 to 2:55 · Slide 6: Codex and GPT-5.6
 
-Show the plan detail, local export state, learner action, and a prepared feedback result.
+- Say both product names clearly.
+- GPT-5.6 Sol with ultra reasoning guided and independently reviewed.
+- GPT-5.6 Terra handled the main design and implementation work; Luna was reserved for explicitly selected low-risk tasks.
+- Codex isolated each run; deterministic tests and human gates decided completion.
 
-### 2:10 to 2:45, Codex and GPT-5.6
+### 2:55 to 3:00 · close
 
-"I built the project with Codex and GPT-5.6 through the engineering loop included in this repository. GPT-5.6 Sol acted as the high-level guide and independent reviewer. GPT-5.6 Terra handled the main design and implementation work, while Luna was available for explicitly selected low-risk tasks. Each agent implementation task ran in an isolated worktree, deterministic tests decided whether it passed, and human gates approved the product direction and final demonstrator. No API integration or API credits were required."
-
-Briefly show `PLAN.yaml`, `WORKFLOW.md`, the task and gate commits in `git log`, and the generated evaluation report. Do not run the full tests during the recording.
-
-### 2:45 to 3:00, close
-
-"Career CoDesk is a small testable answer to one question: can a careers team make a better capacity-aware decision without giving AI decision authority? The next step is a staff walkthrough with synthetic scenarios."
-
-Return to the adviser review screen.
+End on one sentence: "Career CoDesk tests whether a careers team can make a better capacity-aware decision without giving AI decision authority."
 
 ## Recording runbook
 
-```sh
-bash product/scripts/run-demo-evaluation.sh
-CAREER_CODESK_EVALUATION_SQLITE_PATH="$PWD/product/evaluation-output/evaluation-v1.sqlite3" \
-  uv run --project product --locked --no-sync python product/manage.py runserver 127.0.0.1:8010 --noreload
-```
-
-Open `docs/video-demo.html` in a browser after starting the product. Use Left and Right Arrow or Space to move through the six sections, `T` to start the three-minute timer, and `N` to show or hide the short presenter cues. The deck opens the populated weekly plans at port 8010. From a plan, use the links to show its approval evidence and learner action. Practise once with cues visible, then hide them for the recording.
+Open `docs/video-demo.html` and use Left/Right Arrow or Space to navigate; press `F` for fullscreen. Keep the reviewer walkthrough open in the second tab and switch to it manually for the interactive middle section. The deployed Sites URL is `https://career-codesk-review.workspace-790542.chatgpt.site/`; this workspace currently requires ChatGPT sign-in, so record from the already-open page or run `python3 -m http.server 8030 --directory showcase/public` and use `http://127.0.0.1:8030/`.
 
 Before recording:
 
-- Open the populated weekly plans, one plan detail, its approval evidence, the learner view, `WORKFLOW.md`, and the evaluation report in separate tabs.
+- Put Slide 1 in the first tab and the reviewer walkthrough at `Evidence review` in the second.
+- Close unrelated tabs, hide notifications and zoom until every label is readable.
 - Check microphone level and record a ten-second sample.
-- Keep the voiceover continuous. Cut loading, typing, and navigation mistakes.
+- Keep the voiceover continuous. Cut loading, typing and navigation mistakes.
 - Watch the exported video once with headphones and once with sound low.
 - Confirm the video says both "Codex" and "GPT-5.6" and explains their different roles.
 - Upload to YouTube as public or unlisted, wait for processing, then test the link in a private browser window.
@@ -122,10 +122,12 @@ Before recording:
 - [ ] Read the project description aloud and edit any sentence that does not sound like you.
 - [ ] Save, submit, then open Devpost My Projects and confirm the project has a green `Submitted` label rather than draft status.
 - [ ] Test the repository and video links from a logged-out or private browser session.
+- [ ] Before using the Sites URL as a judge link, enable public-internet Sites access or move the checked-in static showcase to an approved public host; the current workspace blocks public publishing.
 
 ## Fields to collect
 
 - YouTube URL: `TODO`
+- Reviewer walkthrough: `https://career-codesk-review.workspace-790542.chatgpt.site/` (online; ChatGPT sign-in currently required)
 - Primary Codex `/feedback` Session ID: paste the saved implementation-session ID directly into Devpost; do not publish it in the repository.
 - Final repository URL: `https://github.com/xingaobio/career-codesk`
 - Team invitations accepted: `TODO`

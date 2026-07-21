@@ -1,0 +1,12 @@
+{
+  "name": "career-codesk-showcase",
+  "version": "0.2.0",
+  "private": true,
+  "description": "A static, reviewer-safe Career CoDesk walkthrough built from fictional composite learner cases.",
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 8030 --directory public",
+    "build": "node scripts/build-static.mjs",
+    "test": "npm run build && node --test tests/site.test.mjs"
+  }
+}

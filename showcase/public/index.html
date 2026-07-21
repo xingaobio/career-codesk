@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Career CoDesk is a capacity-aware, human-approved careers support workspace for further education teams.">
+  <meta name="theme-color" content="#102a43">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Career CoDesk">
+  <meta property="og:description" content="Capacity-aware careers support. Human-approved.">
+  <meta property="og:image" content="__SITE_ORIGIN__/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Career CoDesk">
+  <meta name="twitter:description" content="Capacity-aware careers support. Human-approved.">
+  <meta name="twitter:image" content="__SITE_ORIGIN__/og.png">
+  <title>Career CoDesk · Reviewer walkthrough</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #102a43;
+      --ink-soft: #3f5368;
+      --paper: #fbfaf6;
+      --surface: #ffffff;
+      --mist: #eef4f1;
+      --line: #dce5df;
+      --teal: #087f72;
+      --teal-dark: #05645b;
+      --mint: #c9f1df;
+      --lime: #daf17e;
+      --amber: #f5b44b;
+      --rose: #e6847a;
+      --blue: #dcecff;
+      --shadow: 0 24px 70px rgba(16, 42, 67, 0.12);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 4% 8%, rgba(218, 241, 126, 0.28), transparent 23rem),
+        radial-gradient(circle at 94% 19%, rgba(201, 241, 223, 0.54), transparent 27rem),
+        var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    button, a { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; }
+    img { max-width: 100%; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { text-wrap: balance; }
+    section { scroll-margin-top: 92px; }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      left: 16px;
+      top: -80px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: white;
+      background: var(--ink);
+      transition: top 160ms ease;
+    }
+    .skip-link:focus { top: 16px; }
+
+    .demo-notice {
+      padding: 9px 20px;
+      color: #dff9ee;
+      background: var(--ink);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 690;
+      letter-spacing: 0.015em;
+    }
+
+    .site-header {
+      position: sticky;
+      z-index: 30;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 74px;
+      padding: 0 max(24px, calc((100vw - 1240px) / 2));
+      border-bottom: 1px solid rgba(16, 42, 67, 0.1);
+      background: rgba(251, 250, 246, 0.9);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 820;
+      letter-spacing: -0.025em;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px 12px 12px 4px;
+      color: white;
+      background: var(--teal);
+      box-shadow: 0 8px 18px rgba(8, 127, 114, 0.22);
+    }
+
+    .site-nav { display: flex; align-items: center; gap: 26px; }
+    .site-nav a {
+      color: var(--ink-soft);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 680;
+    }
+    .site-nav a:hover, .site-nav a:focus-visible { color: var(--teal-dark); }
+
+    .button {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 17px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      background: white;
+      text-decoration: none;
+      font-weight: 760;
+      cursor: pointer;
+      transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+    }
+    .button:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(16, 42, 67, 0.12); }
+    .button:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid rgba(8, 127, 114, 0.28); outline-offset: 3px; }
+    .button.primary { border-color: var(--teal); color: white; background: var(--teal); }
+    .button.primary:hover { background: var(--teal-dark); }
+    .button.ghost { background: transparent; }
+    .button.small { min-height: 38px; padding-inline: 14px; font-size: 13px; }
+
+    .container { width: min(1240px, calc(100% - 40px)); margin: 0 auto; }
+    .section { padding: 96px 0; }
+    .section.soft { background: rgba(238, 244, 241, 0.72); }
+    .eyebrow {
+      margin-bottom: 14px;
+      color: var(--teal-dark);
+      font-size: 13px;
+      font-weight: 820;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+    .section-title {
+      max-width: 820px;
+      margin-bottom: 18px;
+      font-size: clamp(34px, 4vw, 58px);
+      line-height: 1.03;
+      letter-spacing: -0.045em;
+    }
+    .section-lede { max-width: 760px; color: var(--ink-soft); font-size: 19px; }
+
+    .hero {
+      min-height: 710px;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: clamp(52px, 7vw, 100px);
+      align-items: center;
+      padding: 88px 0 78px;
+    }
+    .hero h1 {
+      max-width: 720px;
+      margin-bottom: 25px;
+      font-size: clamp(52px, 6.4vw, 92px);
+      line-height: 0.94;
+      letter-spacing: -0.065em;
+    }
+    .hero h1 span { color: var(--teal); }
+    .hero .lede { max-width: 660px; margin-bottom: 30px; color: var(--ink-soft); font-size: clamp(20px, 2vw, 27px); line-height: 1.42; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .hero-note { margin-top: 20px; color: #66788a; font-size: 13px; }
+
+    .evidence-board {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 18px;
+      border: 1px solid rgba(16, 42, 67, 0.1);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.74);
+      box-shadow: var(--shadow);
+    }
+    .evidence-board::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      right: -22px;
+      bottom: -22px;
+      width: 128px;
+      height: 128px;
+      border-radius: 50%;
+      background: var(--lime);
+      filter: blur(2px);
+    }
+    .stat-card {
+      min-height: 174px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 22px;
+      border-radius: 19px;
+      background: var(--mist);
+    }
+    .stat-card:nth-child(2) { background: var(--blue); }
+    .stat-card:nth-child(3) { grid-column: 1 / -1; min-height: 152px; background: var(--ink); color: white; }
+    .stat-value { display: block; font-size: clamp(38px, 4vw, 58px); line-height: 1; letter-spacing: -0.05em; }
+    .stat-label { margin: 10px 0 0; color: var(--ink-soft); font-weight: 690; }
+    .stat-card:nth-child(3) .stat-label { color: #c9d6df; }
+    .stat-source { margin-top: 14px; color: #607386; font-size: 12px; }
+    .stat-card:nth-child(3) .stat-source { color: #9eb1c0; }
+    .stat-source a { text-underline-offset: 3px; }
+
+    .problem-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: -28px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: white;
+      box-shadow: 0 18px 48px rgba(16, 42, 67, 0.08);
+    }
+    .problem-item { display: grid; grid-template-columns: 42px 1fr; gap: 13px; }
+    .problem-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: var(--mint);
+      font-weight: 900;
+    }
+    .problem-item h3 { margin-bottom: 4px; font-size: 16px; }
+    .problem-item p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+
+    .journey-map {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 44px;
+    }
+    .journey-node {
+      position: relative;
+      min-height: 196px;
+      padding: 20px 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: white;
+    }
+    .journey-node:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      z-index: 2;
+      right: -17px;
+      top: 76px;
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--teal-dark);
+      background: var(--paper);
+      font-weight: 900;
+    }
+    .journey-number { display: block; margin-bottom: 28px; color: var(--teal); font-size: 12px; font-weight: 900; letter-spacing: 0.11em; }
+    .journey-node h3 { margin-bottom: 8px; font-size: 18px; }
+    .journey-node p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+    .journey-node.human { border-color: rgba(8, 127, 114, 0.45); background: var(--mint); }
+
+    .walkthrough-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 34px; }
+    .walkthrough-heading .section-lede { margin-bottom: 0; }
+    .reset-note { max-width: 300px; color: #637486; font-size: 13px; text-align: right; }
+
+    .stage-tabs {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: white;
+    }
+    .stage-tab {
+      min-height: 50px;
+      padding: 9px 12px;
+      border: 0;
+      border-radius: 11px;
+      color: var(--ink-soft);
+      background: transparent;
+      font-weight: 760;
+      cursor: pointer;
+    }
+    .stage-tab[aria-selected="true"] { color: white; background: var(--ink); }
+
+    .demo-shell {
+      min-height: 690px;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      overflow: hidden;
+      border: 1px solid #d6e0dc;
+      border-radius: 24px;
+      background: white;
+      box-shadow: var(--shadow);
+    }
+    .demo-sidebar { padding: 22px 14px; border-right: 1px solid var(--line); background: #f4f7f5; }
+    .sidebar-title { display: flex; align-items: center; justify-content: space-between; padding: 0 8px 13px; }
+    .sidebar-title h3 { margin: 0; font-size: 16px; }
+    .count-pill { padding: 3px 8px; border-radius: 999px; color: var(--teal-dark); background: var(--mint); font-size: 12px; font-weight: 850; }
+    .case-list { display: grid; gap: 7px; max-height: 617px; overflow-x: hidden; overflow-y: auto; padding: 2px; }
+    .case-card {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 40px 1fr auto;
+      gap: 11px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid transparent;
+      border-radius: 13px;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+    }
+    .case-card:hover { background: white; }
+    .case-card.active { border-color: #b8d8cc; background: white; box-shadow: 0 7px 20px rgba(16, 42, 67, 0.07); }
+    .case-card > span:nth-child(2) { min-width: 0; }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--ink);
+      background: var(--avatar, var(--mint));
+      font-weight: 900;
+    }
+    .case-name { display: block; font-weight: 820; }
+    .case-course { display: block; overflow: hidden; color: #68798a; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .urgency-dot { width: 9px; height: 9px; border-radius: 50%; background: #a9b7b1; }
+    .urgency-dot.high { background: var(--amber); box-shadow: 0 0 0 4px rgba(245, 180, 75, 0.18); }
+
+    .demo-main { min-width: 0; background: white; }
+    .demo-topbar {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--line);
+    }
+    .demo-mode { display: inline-flex; align-items: center; gap: 8px; color: var(--teal-dark); font-size: 13px; font-weight: 820; }
+    .demo-mode::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--teal); }
+    .case-reference { color: #6b7b89; font-size: 12px; font-variant-numeric: tabular-nums; }
+    .demo-panel { padding: 30px; }
+    .panel-kicker { margin-bottom: 9px; color: var(--teal-dark); font-size: 12px; font-weight: 850; letter-spacing: 0.1em; text-transform: uppercase; }
+    .panel-title { margin-bottom: 8px; font-size: clamp(28px, 3vw, 42px); line-height: 1.06; letter-spacing: -0.04em; }
+    .panel-subtitle { max-width: 730px; margin-bottom: 26px; color: var(--ink-soft); font-size: 16px; }
+
+    .metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+    .mini-metric { padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: #fbfcfb; }
+    .mini-metric strong { display: block; font-size: 24px; letter-spacing: -0.04em; }
+    .mini-metric span { color: var(--ink-soft); font-size: 12px; }
+
+    .summary-card { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: var(--mist); }
+    .summary-card h3 { font-size: 20px; }
+    .summary-list { display: grid; gap: 12px; margin: 0; }
+    .summary-row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; font-size: 14px; }
+    .summary-row dt { color: #667987; }
+    .summary-row dd { margin: 0; font-weight: 720; }
+    .signal-card { padding: 20px; border-radius: 15px; background: white; }
+    .signal-card .label { color: var(--teal-dark); font-size: 12px; font-weight: 820; text-transform: uppercase; }
+    .signal-card blockquote { margin: 14px 0 0; font-size: 18px; line-height: 1.45; font-weight: 650; }
+
+    .evidence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .evidence-card { min-height: 300px; padding: 24px; border: 1px solid var(--line); border-radius: 18px; }
+    .evidence-card.source { background: #f8faf8; }
+    .evidence-card.ai { background: #edf5ff; }
+    .card-label { display: inline-flex; margin-bottom: 18px; padding: 5px 9px; border-radius: 999px; color: var(--teal-dark); background: var(--mint); font-size: 11px; font-weight: 850; letter-spacing: 0.06em; text-transform: uppercase; }
+    .evidence-card.ai .card-label { color: #315479; background: #d4e7fc; }
+    .evidence-card h3 { font-size: 20px; }
+    .evidence-card p, .evidence-card li { color: var(--ink-soft); }
+    .evidence-card ul { padding-left: 20px; }
+    .unknown { margin-top: 20px; padding: 13px 15px; border-left: 3px solid var(--amber); background: #fff9ed; font-size: 13px; }
+    details.technical { margin-top: 16px; border-top: 1px dashed #cbd7d2; padding-top: 13px; color: #617384; font-size: 12px; }
+    details.technical summary { cursor: pointer; font-weight: 760; }
+
+    .capacity-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 18px; }
+    .capacity-board, .resource-board { padding: 22px; border: 1px solid var(--line); border-radius: 18px; }
+    .capacity-board h3, .resource-board h3 { font-size: 19px; }
+    .demand-line { display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: center; padding: 15px 0; border-top: 1px solid var(--line); }
+    .demand-line:first-of-type { border-top: 0; }
+    .demand-person { display: flex; align-items: center; gap: 11px; }
+    .demand-person .avatar { width: 34px; height: 34px; font-size: 12px; }
+    .allocation { padding: 5px 10px; border-radius: 999px; color: #176244; background: #dff5e9; font-size: 12px; font-weight: 780; }
+    .allocation.wait { color: #8a5a07; background: #fff0d2; }
+    .capacity-scale { display: grid; gap: 9px; margin-top: 18px; }
+    .scale-bar { height: 11px; overflow: hidden; border-radius: 999px; background: #e8efec; }
+    .scale-bar span { display: block; height: 100%; width: var(--fill); border-radius: inherit; background: var(--teal); }
+    .option-card { padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: #fbfcfb; }
+    .option-card + .option-card { margin-top: 10px; }
+    .option-card strong { display: block; }
+    .option-card span { color: var(--ink-soft); font-size: 13px; }
+
+    .decision-layout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .decision-card { padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: #fbfcfb; }
+    .decision-card.selected { border-color: var(--teal); box-shadow: inset 0 0 0 1px var(--teal); background: #f1fbf7; }
+    .decision-card h3 { font-size: 20px; }
+    .decision-card p { min-height: 72px; color: var(--ink-soft); font-size: 14px; }
+    .decision-result { margin-top: 18px; padding: 18px 20px; border-radius: 15px; background: var(--ink); color: white; }
+    .decision-result strong { color: var(--lime); }
+
+    .feedback-layout { display: grid; grid-template-columns: 1fr 0.9fr; gap: 18px; }
+    .action-card { padding: 26px; border-radius: 20px; color: white; background: var(--ink); }
+    .action-card .card-label { color: var(--ink); background: var(--lime); }
+    .action-card h3 { font-size: 28px; }
+    .action-card p { color: #c6d5df; }
+    .action-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 22px; }
+    .action-meta div { padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); }
+    .action-meta span { display: block; color: #9fb2c1; font-size: 11px; text-transform: uppercase; }
+    .feedback-card { padding: 24px; border: 1px solid var(--line); border-radius: 20px; }
+    .feedback-options { display: grid; gap: 9px; }
+    .feedback-option { min-height: 46px; padding: 0 15px; border: 1px solid var(--line); border-radius: 12px; background: white; text-align: left; font-weight: 720; cursor: pointer; }
+    .feedback-option:hover { border-color: var(--teal); background: #f3faf7; }
+    .feedback-message { min-height: 49px; margin-top: 14px; padding: 13px 15px; border-radius: 12px; color: var(--ink-soft); background: var(--mist); font-size: 13px; }
+
+    .architecture {
+      display: grid;
+      grid-template-columns: 1fr auto 1.2fr auto 1fr;
+      gap: 12px;
+      align-items: stretch;
+      margin-top: 42px;
+    }
+    .arch-layer { padding: 24px; border: 1px solid var(--line); border-radius: 20px; background: white; }
+    .arch-layer.core { color: white; background: var(--ink); }
+    .arch-layer h3 { font-size: 20px; }
+    .arch-layer p, .arch-layer li { color: var(--ink-soft); font-size: 14px; }
+    .arch-layer.core p, .arch-layer.core li { color: #c4d2dc; }
+    .arch-layer ul { margin-bottom: 0; padding-left: 18px; }
+    .arch-arrow { display: grid; place-items: center; color: var(--teal); font-size: 26px; font-weight: 900; }
+    .privacy-rails { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; margin-top: 16px; }
+    .privacy-rail { padding: 18px; border-radius: 16px; background: var(--mist); }
+    .privacy-rail strong { display: block; margin-bottom: 6px; }
+    .privacy-rail span { color: var(--ink-soft); font-size: 13px; }
+    .governance-note { margin-top: 20px; padding: 18px 20px; border-left: 4px solid var(--amber); background: #fff8e9; color: var(--ink-soft); font-size: 14px; }
+
+    .build-loop { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 40px; }
+    .loop-card { position: relative; min-height: 190px; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: white; }
+    .loop-card:not(:last-child)::after { content: "+"; position: absolute; right: -13px; top: 78px; z-index: 2; color: var(--teal); font-weight: 900; }
+    .model-tag { display: inline-block; margin-bottom: 28px; padding: 4px 8px; border-radius: 6px; color: var(--teal-dark); background: var(--mint); font-size: 11px; font-weight: 850; text-transform: uppercase; }
+    .loop-card h3 { font-size: 18px; }
+    .loop-card p { margin-bottom: 0; color: var(--ink-soft); font-size: 13px; }
+    .proof-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
+    .proof { padding: 20px; border-radius: 16px; color: white; background: var(--ink); }
+    .proof strong { display: block; color: var(--lime); font-size: 35px; }
+    .proof span { color: #c5d4de; font-size: 13px; }
+
+    .site-footer { padding: 44px 0; color: #c8d6df; background: var(--ink); }
+    .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
+    .footer-grid h2 { color: white; font-size: 25px; }
+    .footer-grid p, .footer-grid li { font-size: 13px; }
+    .footer-grid a { color: var(--mint); text-underline-offset: 3px; }
+    .source-list { margin: 0; padding-left: 18px; }
+    .source-list li + li { margin-top: 8px; }
+
+    @media (max-width: 1040px) {
+      .site-nav a:not(.button) { display: none; }
+      .hero { grid-template-columns: 1fr; }
+      .evidence-board { max-width: 720px; }
+      .journey-map { grid-template-columns: repeat(3, 1fr); }
+      .journey-node:not(:last-child)::after { display: none; }
+      .demo-shell { grid-template-columns: 260px 1fr; }
+      .metric-row { grid-template-columns: 1fr 1fr; }
+      .summary-card, .capacity-layout, .feedback-layout { grid-template-columns: 1fr; }
+      .architecture { grid-template-columns: 1fr; }
+      .arch-arrow { transform: rotate(90deg); }
+      .privacy-rails, .build-loop { grid-template-columns: 1fr 1fr; }
+      .loop-card:not(:last-child)::after { display: none; }
+    }
+
+    @media (max-width: 760px) {
+      .container { width: min(100% - 28px, 1240px); }
+      .site-header { padding: 0 14px; }
+      .site-nav .button { display: none; }
+      .hero { min-height: auto; padding-top: 68px; }
+      .hero h1 { font-size: clamp(47px, 15vw, 70px); }
+      .evidence-board, .problem-strip, .journey-map, .stage-tabs, .decision-layout, .privacy-rails, .build-loop, .proof-row, .footer-grid { grid-template-columns: 1fr; }
+      .stat-card:nth-child(3) { grid-column: auto; }
+      .problem-strip { margin-top: 20px; }
+      .section { padding: 72px 0; }
+      .walkthrough-heading { align-items: start; flex-direction: column; }
+      .reset-note { text-align: left; }
+      .stage-tabs { display: flex; overflow-x: auto; }
+      .stage-tab { min-width: 150px; }
+      .demo-shell { grid-template-columns: 1fr; }
+      .demo-sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
+      .case-list { display: flex; max-height: none; overflow-x: auto; overflow-y: hidden; }
+      .case-card { min-width: 230px; }
+      .demo-topbar { padding: 0 18px; }
+      .demo-panel { padding: 23px 18px; }
+      .evidence-grid, .metric-row, .action-meta { grid-template-columns: 1fr; }
+      .summary-row { grid-template-columns: 1fr; gap: 2px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="demo-notice">Public demo · 100% simulated learner records · All profiles are fictional composites</div>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Career CoDesk home">
+      <span class="brand-mark" aria-hidden="true">C</span>
+      <span>Career CoDesk</span>
+    </a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="#journey">How it works</a>
+      <a href="#walkthrough">Reviewer walkthrough</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#build">Built with OpenAI</a>
+      <a class="button primary small" href="#walkthrough">Start walkthrough <span aria-hidden="true">→</span></a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="container hero" id="top">
+      <div>
+        <p class="eyebrow">Careers operations for further education</p>
+        <h1>Every learner needs a next step. Every adviser needs a <span>workable plan.</span></h1>
+        <p class="lede">Career CoDesk turns fragmented learner signals into a capacity-aware support proposal, keeps evidence separate from AI interpretation, and stops for a human decision.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#walkthrough">Try the reviewer journey</a>
+          <a class="button ghost" href="#architecture">See the integration boundary</a>
+        </div>
+        <p class="hero-note">Interactive walkthrough · choices reset on refresh and never alter the project’s evaluation evidence.</p>
+      </div>
+
+      <aside class="evidence-board" aria-label="Further education capacity signals">
+        <article class="stat-card">
+          <div><strong class="stat-value">1.6m+</strong><p class="stat-label">learners prepared by England’s colleges</p></div>
+          <p class="stat-source">AoC College Key Facts 2025/26 · <a href="https://www.aoc.co.uk/about/college-key-facts" rel="noreferrer">source</a></p>
+        </article>
+        <article class="stat-card">
+          <div><strong class="stat-value">213</strong><p class="stat-label">colleges serving those learners</p></div>
+          <p class="stat-source">AoC College Key Facts 2025/26 · <a href="https://www.aoc.co.uk/about/college-key-facts" rel="noreferrer">source</a></p>
+        </article>
+        <article class="stat-card">
+          <div><strong class="stat-value">25 + 7</strong><p class="stat-label">colleges and local authorities in Ofsted’s 2024 study all reported difficulty recruiting Level 6 careers advisers.</p></div>
+          <p class="stat-source">Ofsted research sample, not a national staffing ratio · <a href="https://www.gov.uk/government/publications/navigating-post-16-careers-guidance-supporting-learners-from-lower-socioeconomic-backgrounds/navigating-post-16-careers-guidance-supporting-learners-from-lower-socioeconomic-backgrounds" rel="noreferrer">source</a></p>
+        </article>
+      </aside>
+    </section>
+
+    <div class="container problem-strip" aria-label="The operational challenge">
+      <article class="problem-item"><span class="problem-icon" aria-hidden="true">1</span><div><h3>Evidence is fragmented</h3><p>Deadlines, preferences and earlier actions arrive in different shapes and at different times.</p></div></article>
+      <article class="problem-item"><span class="problem-icon" aria-hidden="true">2</span><div><h3>Capacity is finite</h3><p>A good recommendation is not useful if the team cannot schedule or deliver it.</p></div></article>
+      <article class="problem-item"><span class="problem-icon" aria-hidden="true">3</span><div><h3>Consequences need a human</h3><p>AI can prepare evidence, but an adviser must approve, amend or reject the action.</p></div></article>
+    </div>
+
+    <section class="section" id="journey">
+      <div class="container">
+        <p class="eyebrow">One inspectable path</p>
+        <h2 class="section-title">From a learner signal to an approved action—and back when it did not help.</h2>
+        <p class="section-lede">The workflow makes the scarce decision visible: who needs which support, what the service can actually deliver, and who takes responsibility for the final choice.</p>
+        <div class="journey-map" aria-label="Career CoDesk learner support journey">
+          <article class="journey-node"><span class="journey-number">01 · SIGNAL</span><h3>Intake</h3><p>Allowed fields enter with a source snapshot and simulated identity.</p></article>
+          <article class="journey-node"><span class="journey-number">02 · EVIDENCE</span><h3>Interpret</h3><p>Source statements remain separate from provisional AI hypotheses.</p></article>
+          <article class="journey-node"><span class="journey-number">03 · REALITY</span><h3>Plan capacity</h3><p>Deterministic rules test slots, alternatives and unmet demand.</p></article>
+          <article class="journey-node human"><span class="journey-number">04 · HUMAN GATE</span><h3>Decide</h3><p>An adviser approves, amends or rejects with a recorded reason.</p></article>
+          <article class="journey-node"><span class="journey-number">05 · ACTION</span><h3>Deliver</h3><p>Only the approved action enters the weekly execution package.</p></article>
+          <article class="journey-node"><span class="journey-number">06 · LEARNING</span><h3>Feedback</h3><p>Helped, unresolved, correction and human-help signals remain visible.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section soft" id="walkthrough">
+      <div class="container">
+        <div class="walkthrough-heading">
+          <div>
+            <p class="eyebrow">Interactive reviewer walkthrough</p>
+            <h2 class="section-title">Review a fictional case without touching the product database.</h2>
+            <p class="section-lede">Choose a learner, follow the evidence and try a human decision. This facade mirrors the implemented product journey using story-safe labels.</p>
+          </div>
+          <p class="reset-note">Simulation mode: controls update only this browser view and reset on refresh.</p>
+        </div>
+
+        <div class="stage-tabs" role="tablist" aria-label="Reviewer journey stages">
+          <button class="stage-tab" type="button" role="tab" aria-selected="true" data-stage="triage">1 · Triage</button>
+          <button class="stage-tab" type="button" role="tab" aria-selected="false" data-stage="evidence">2 · Evidence review</button>
+          <button class="stage-tab" type="button" role="tab" aria-selected="false" data-stage="capacity">3 · Capacity plan</button>
+          <button class="stage-tab" type="button" role="tab" aria-selected="false" data-stage="decision">4 · Human decision</button>
+          <button class="stage-tab" type="button" role="tab" aria-selected="false" data-stage="feedback">5 · Learner feedback</button>
+        </div>
+
+        <div class="demo-shell">
+          <aside class="demo-sidebar" aria-label="Fictional learner cases">
+            <div class="sidebar-title"><h3>Support cases</h3><span class="count-pill">10 fictional</span></div>
+            <div class="case-list" data-case-list></div>
+          </aside>
+          <div class="demo-main">
+            <div class="demo-topbar">
+              <span class="demo-mode">Simulation mode</span>
+              <span class="case-reference" data-case-reference>SIM-001 · Fictional display identity</span>
+            </div>
+            <div class="demo-panel" role="tabpanel" tabindex="0" data-demo-panel></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="architecture">
+      <div class="container">
+        <p class="eyebrow">Integration and privacy by boundary</p>
+        <h2 class="section-title">Designed to sit beside a college MIS, not replace it.</h2>
+        <p class="section-lede">The product interface isolates partner-specific field mapping from the decision workflow. A college can adopt the same core model while keeping its own identity, permissions, retention and governance controls.</p>
+
+        <div class="architecture" aria-label="MIS adapter architecture">
+          <article class="arch-layer"><p class="panel-kicker">College systems</p><h3>MIS / CRM / CSV</h3><ul><li>Identity and enrolment</li><li>Existing learner signals</li><li>Institution-owned permissions</li></ul></article>
+          <div class="arch-arrow" aria-hidden="true">→</div>
+          <article class="arch-layer core"><p class="panel-kicker" style="color: var(--mint);">Career CoDesk boundary</p><h3>Adapt, interpret, plan, approve</h3><ul><li>Versioned adapter contract</li><li>Allowed-field normalisation</li><li>Evidence / inference separation</li><li>Deterministic capacity checks</li><li>Recorded human decision</li></ul></article>
+          <div class="arch-arrow" aria-hidden="true">→</div>
+          <article class="arch-layer"><p class="panel-kicker">Approved output</p><h3>Execution package</h3><ul><li>One approved action</li><li>Versioned local export</li><li>Feedback and reopen signal</li></ul><p style="margin-top: 15px;"><strong>MIS adapter boundary:</strong> connector not enabled in this public demo.</p></article>
+        </div>
+
+        <div class="privacy-rails">
+          <article class="privacy-rail"><strong>Data minimisation</strong><span>Only allowed decision fields cross the adapter boundary.</span></article>
+          <article class="privacy-rail"><strong>Human authority</strong><span>AI cannot activate a plan or write an external outcome.</span></article>
+          <article class="privacy-rail"><strong>Traceability</strong><span>Source, model version, capacity run and adviser reason stay linked.</span></article>
+          <article class="privacy-rail"><strong>Restricted path</strong><span>Safety-like signals leave ordinary prioritisation immediately.</span></article>
+        </div>
+        <p class="governance-note"><strong>Public-demo boundary.</strong> No real learner names, contact details, dates of birth, addresses or institutional records are used. The design supports data minimisation and traceability; production DPIA, retention, lawful basis, access control and connector acceptance remain the institution’s responsibility.</p>
+      </div>
+    </section>
+
+    <section class="section soft" id="build">
+      <div class="container">
+        <p class="eyebrow">How it was built with OpenAI</p>
+        <h2 class="section-title">Codex turned the repository into a bounded delivery system.</h2>
+        <p class="section-lede">GPT-5.6 roles were separated so the model that guides and reviews does not silently become the model that decides completion. Tests and human gates own that decision.</p>
+        <div class="build-loop" aria-label="Codex and GPT-5.6 engineering loop">
+          <article class="loop-card"><span class="model-tag">GPT-5.6 Sol · ultra</span><h3>Guide</h3><p>Reads the task and narrows work to acceptance criteria and the highest-risk edge.</p></article>
+          <article class="loop-card"><span class="model-tag">GPT-5.6 Terra / Luna</span><h3>Implement</h3><p>Designs and codes inside an isolated branch and task worktree.</p></article>
+          <article class="loop-card"><span class="model-tag">Deterministic</span><h3>Verify</h3><p>Tests, format, lint and scenario checks decide whether the candidate passes.</p></article>
+          <article class="loop-card"><span class="model-tag">GPT-5.6 Sol · ultra</span><h3>Review</h3><p>Checks the exact candidate tree against the task boundary, read-only.</p></article>
+          <article class="loop-card"><span class="model-tag">Human gate</span><h3>Accept</h3><p>Product direction, sensitive boundaries and final release stay human-owned.</p></article>
+        </div>
+        <div class="proof-row" aria-label="Project verification results">
+          <article class="proof"><strong>91</strong><span>product tests</span></article>
+          <article class="proof"><strong>43</strong><span>loop-engine tests</span></article>
+          <article class="proof"><strong>8</strong><span>repeatable scenarios</span></article>
+          <article class="proof"><strong>0</strong><span>external runtime calls in the evaluated product</span></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div><h2>Career CoDesk</h2><p>A fictional, reviewer-safe walkthrough of a working local prototype for capacity-aware, adviser-approved careers support.</p><p>All learner profiles and institutions shown here are simulated composites.</p></div>
+      <div><h2>Evidence behind the problem</h2><ul class="source-list"><li><a href="https://www.aoc.co.uk/about/college-key-facts" rel="noreferrer">Association of Colleges, College Key Facts 2025/26</a></li><li><a href="https://www.gov.uk/government/publications/navigating-post-16-careers-guidance-supporting-learners-from-lower-socioeconomic-backgrounds/navigating-post-16-careers-guidance-supporting-learners-from-lower-socioeconomic-backgrounds" rel="noreferrer">Ofsted, Navigating post-16 careers guidance (2024 research)</a></li><li><a href="https://www.gov.uk/government/publications/careers-guidance-provision-for-young-people-in-schools/careers-guidance-and-access-for-education-and-training-providers" rel="noreferrer">DfE, careers guidance for schools and colleges</a></li></ul></div>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      const learners = [
+        { id: "SIM-001", name: "Olivia K.", initials: "OK", colour: "#c9f1df", course: "Level 3 Health & Social Care", target: "BSc Nursing or NHS degree apprenticeship", need: "Compare routes before a Friday choice deadline and check placement timetable fit.", urgency: "High", reason: "Simulated deadline within five days", route: "1:1 route-comparison session", duration: "30 minutes", outcome: "Approved · learner said it helped", unknown: "Whether evening placement travel is workable" },
+        { id: "SIM-002", name: "Muhammad R.", initials: "MR", colour: "#dcecff", course: "T Level Digital Production", target: "Level 4 Software Developer apprenticeship", need: "Prioritise a portfolio review and interview-preparation action.", urgency: "High", reason: "Simulated application deadline", route: "1:1 route-comparison session", duration: "30 minutes", outcome: "Allocated in capacity plan", unknown: "Whether a final portfolio project is publishable" },
+        { id: "SIM-003", name: "Amelia J.", initials: "AJ", colour: "#fbe4d7", course: "A Levels: Biology, Chemistry, Psychology", target: "Biomedical Science or Pharmacy", need: "Compare entry requirements before confirming a route.", urgency: "High", reason: "Simulated choice deadline", route: "Waitlist + adviser follow-up", duration: "15 minutes", outcome: "Unmet demand retained visibly", unknown: "Preferred commute radius" },
+        { id: "SIM-004", name: "Noah P.", initials: "NP", colour: "#ede1ff", course: "Level 3 Engineering", target: "Mechanical engineering higher apprenticeship", need: "Check travel and shift fit, then compare two employer routes.", urgency: "Standard", reason: "No source-backed near deadline", route: "Pathway comparison workshop", duration: "45 minutes", outcome: "Adviser amended, then approved", unknown: "Shift availability during term time" },
+        { id: "SIM-005", name: "Isla M.", initials: "IM", colour: "#ffe9a9", course: "T Level Education & Early Years", target: "Early-years educator higher apprenticeship", need: "Complete the application checklist and identify one missing reference.", urgency: "Standard", reason: "No source-backed near deadline", route: "1:1 route-comparison session", duration: "30 minutes", outcome: "Approved · local export retried", unknown: "Reference availability" },
+        { id: "SIM-006", name: "Oliver T.", initials: "OT", colour: "#d8ead4", course: "Level 3 Business", target: "Level 4 business higher apprenticeship", need: "Build an employer shortlist and confirm the next application action.", urgency: "Standard", reason: "No source-backed near deadline", route: "Human follow-up requested", duration: "20 minutes", outcome: "Learner unresolved · review reopened", unknown: "Preferred business function" },
+        { id: "SIM-007", name: "Ava S.", initials: "AS", colour: "#f7d4db", course: "Level 3 Creative Media", target: "Digital content apprenticeship", need: "Review portfolio gaps before a simulated submission deadline.", urgency: "High", reason: "Simulated portfolio deadline", route: "Pathway comparison workshop", duration: "45 minutes", outcome: "Showcase scenario", unknown: "Which portfolio format the employer accepts" },
+        { id: "SIM-008", name: "Leo B.", initials: "LB", colour: "#d8eef2", course: "Level 3 Construction", target: "Civil engineering technician apprenticeship", need: "Check day-release travel radius and employer shortlist.", urgency: "Standard", reason: "No source-backed near deadline", route: "1:1 route-comparison session", duration: "30 minutes", outcome: "Showcase scenario", unknown: "Maximum weekly travel time" },
+        { id: "SIM-009", name: "Sophia D.", initials: "SD", colour: "#f0ddf0", course: "T Level Accounting", target: "Professional or higher-apprenticeship route", need: "Compare qualification sequence, cost and workplace learning.", urgency: "Standard", reason: "No source-backed near deadline", route: "Pathway comparison workshop", duration: "45 minutes", outcome: "Showcase scenario", unknown: "Preferred professional body" },
+        { id: "SIM-010", name: "George H.", initials: "GH", colour: "#e6edbd", course: "Access to HE Computing", target: "Cyber-security higher apprenticeship", need: "Find an evening-compatible support action and shortlist routes.", urgency: "Standard", reason: "No source-backed near deadline", route: "1:1 route-comparison session", duration: "30 minutes", outcome: "Showcase scenario", unknown: "Evening availability after work" }
+      ];
+
+      const state = { selected: learners[0], stage: "triage", decision: null };
+      const panel = document.querySelector("[data-demo-panel]");
+      const reference = document.querySelector("[data-case-reference]");
+      const caseList = document.querySelector("[data-case-list]");
+      const tabs = [...document.querySelectorAll("[data-stage]")];
+
+      const avatar = learner => `<span class="avatar" style="--avatar:${learner.colour}">${learner.initials}</span>`;
+
+      function renderCases() {
+        caseList.innerHTML = learners.map(learner => `
+          <button class="case-card ${state.selected.id === learner.id ? "active" : ""}" type="button" data-case="${learner.id}" aria-pressed="${state.selected.id === learner.id}">
+            ${avatar(learner)}
+            <span><span class="case-name">${learner.name}</span><span class="case-course">${learner.course}</span></span>
+            <span class="urgency-dot ${learner.urgency === "High" ? "high" : ""}" title="${learner.urgency} service urgency"></span>
+          </button>`).join("");
+        caseList.querySelectorAll("[data-case]").forEach(button => button.addEventListener("click", () => {
+          state.selected = learners.find(learner => learner.id === button.dataset.case);
+          state.decision = null;
+          render();
+        }));
+      }
+
+      function triage(learner) {
+        return `
+          <p class="panel-kicker">Triage · capacity overview</p>
+          <h2 class="panel-title">Good morning, simulated adviser.</h2>
+          <p class="panel-subtitle">Ten fictional records have been translated into a readable decision queue. Service urgency below is based only on a simulated source-backed deadline—not vulnerability or risk scoring.</p>
+          <div class="metric-row">
+            <article class="mini-metric"><strong>10</strong><span>fictional cases</span></article>
+            <article class="mini-metric"><strong>3</strong><span>near-deadline signals</span></article>
+            <article class="mini-metric"><strong>2.5h</strong><span>adviser capacity this view</span></article>
+            <article class="mini-metric"><strong>1</strong><span>unmet demand retained</span></article>
+          </div>
+          <div class="summary-card">
+            <div>
+              <h3>${learner.name} · ${learner.course}</h3>
+              <dl class="summary-list">
+                <div class="summary-row"><dt>Target</dt><dd>${learner.target}</dd></div>
+                <div class="summary-row"><dt>Service urgency</dt><dd>${learner.urgency} · ${learner.reason}</dd></div>
+                <div class="summary-row"><dt>Current route</dt><dd>${learner.route}</dd></div>
+                <div class="summary-row"><dt>Story status</dt><dd>${learner.outcome}</dd></div>
+              </dl>
+            </div>
+            <div class="signal-card"><span class="label">Synthetic MIS-style source snapshot</span><blockquote>“${learner.need}”</blockquote></div>
+          </div>`;
+      }
+
+      function evidence(learner) {
+        return `
+          <p class="panel-kicker">Evidence review</p>
+          <h2 class="panel-title">Evidence first. Interpretation second.</h2>
+          <p class="panel-subtitle">The adviser can inspect what the learner record actually says before considering a provisional AI summary.</p>
+          <div class="evidence-grid">
+            <article class="evidence-card source">
+              <span class="card-label">Synthetic MIS-style source snapshot</span>
+              <h3>${learner.name} · ${learner.course}</h3>
+              <p>${learner.need}</p>
+              <ul><li>Target: ${learner.target}</li><li>Service urgency: ${learner.urgency}</li><li>Evidence rule: ${learner.reason}</li></ul>
+              <details class="technical"><summary>Technical audit reference</summary><p>Display ref ${learner.id} · source snapshot v1 · fictional identity mapping · underlying machine identifier is not shown.</p></details>
+            </article>
+            <article class="evidence-card ai">
+              <span class="card-label">Provisional AI interpretation · human decision required</span>
+              <h3>Suggested support hypothesis</h3>
+              <p>${learner.name} may benefit from a <strong>${learner.route.toLowerCase()}</strong> focused on ${learner.target.toLowerCase()}.</p>
+              <ul><li>Suggested duration: ${learner.duration}</li><li>Do not infer readiness from a deadline alone</li><li>Check capacity before presenting an action</li></ul>
+              <p class="unknown"><strong>Unknown remains unknown:</strong> ${learner.unknown}.</p>
+            </article>
+          </div>`;
+      }
+
+      function capacity(learner) {
+        return `
+          <p class="panel-kicker">Capacity plan</p>
+          <h2 class="panel-title">A support idea must survive contact with the timetable.</h2>
+          <p class="panel-subtitle">Deterministic rules allocate available sessions, retain alternatives, and keep unmet demand visible instead of quietly dropping it.</p>
+          <div class="capacity-layout">
+            <article class="capacity-board">
+              <h3>Thursday route-comparison capacity</h3>
+              <div class="demand-line"><div class="demand-person">${avatar(learners[1])}<span><strong>${learners[1].name}</strong><br><small>${learners[1].target}</small></span></div><span class="allocation">Allocated 10:00</span></div>
+              <div class="demand-line"><div class="demand-person">${avatar(learners[2])}<span><strong>${learners[2].name}</strong><br><small>${learners[2].target}</small></span></div><span class="allocation wait">Unmet · follow-up</span></div>
+              <div class="capacity-scale"><small>1 of 1 guide slots used</small><div class="scale-bar"><span style="--fill:100%"></span></div><small>Workshop has 3 places available</small><div class="scale-bar"><span style="--fill:40%"></span></div></div>
+            </article>
+            <aside class="resource-board">
+              <h3>Feasible alternatives</h3>
+              <div class="option-card"><strong>${learner.route}</strong><span>${learner.duration} · first feasible choice for ${learner.name}</span></div>
+              <div class="option-card"><strong>Pathway comparison workshop</strong><span>Group route · adviser can amend and request a fresh plan</span></div>
+              <div class="option-card"><strong>Visible follow-up</strong><span>Preserves unmet demand and the learner’s human-help request</span></div>
+            </aside>
+          </div>`;
+      }
+
+      function decision(learner) {
+        const selected = state.decision;
+        return `
+          <p class="panel-kicker">Human decision</p>
+          <h2 class="panel-title">The proposal stops here until an adviser owns the choice.</h2>
+          <p class="panel-subtitle">Try any decision. The interaction is local to this page and does not change product evidence.</p>
+          <div class="decision-layout">
+            <article class="decision-card ${selected === "Approve" ? "selected" : ""}"><h3>Approve</h3><p>Accept ${learner.route.toLowerCase()} as feasible and supported by the visible evidence.</p><button class="button primary small" type="button" data-decision="Approve">Approve plan</button></article>
+            <article class="decision-card ${selected === "Amend" ? "selected" : ""}"><h3>Amend</h3><p>Change the support route, record a reason and require a fresh capacity check.</p><button class="button small" type="button" data-decision="Amend">Amend route</button></article>
+            <article class="decision-card ${selected === "Reject" ? "selected" : ""}"><h3>Reject</h3><p>Reject the proposal without deleting the evidence, alternatives or unmet demand.</p><button class="button small" type="button" data-decision="Reject">Reject proposal</button></article>
+          </div>
+          <div class="decision-result" aria-live="polite">${selected ? `<strong>${selected} recorded in this walkthrough.</strong> ${selected === "Approve" ? "The approved action can now appear in the weekly execution package." : selected === "Amend" ? "A changed route would trigger replanning and a second human confirmation." : "No learner action is activated; the reason remains inspectable."}` : "Choose an option to see the approval-gate result."}</div>`;
+      }
+
+      function feedback(learner) {
+        return `
+          <p class="panel-kicker">Approved action and learner feedback</p>
+          <h2 class="panel-title">One clear action, followed by a way back.</h2>
+          <p class="panel-subtitle">The learner sees only the adviser-approved action—not the provisional AI work behind it.</p>
+          <div class="feedback-layout">
+            <article class="action-card"><span class="card-label">Approved by simulated adviser</span><h3>${learner.route}</h3><p>Compare ${learner.target.toLowerCase()}, write down one remaining question, and bring it to the scheduled support session.</p><div class="action-meta"><div><span>Expected effort</span><strong>About 2 hours</strong></div><div><span>Support slot</span><strong>${learner.duration}</strong></div></div></article>
+            <article class="feedback-card"><h3>Did this move you forward?</h3><p style="color:var(--ink-soft);">Feedback never erases the original decision.</p><div class="feedback-options"><button class="feedback-option" type="button" data-feedback="helped">Yes, this helped</button><button class="feedback-option" type="button" data-feedback="unresolved">I am still unsure</button><button class="feedback-option" type="button" data-feedback="human">Request human help</button><button class="feedback-option" type="button" data-feedback="correction">Correct a source statement</button></div><div class="feedback-message" data-feedback-message>Choose a response to see how the workflow reacts.</div></article>
+          </div>`;
+      }
+
+      function renderPanel() {
+        const views = { triage, evidence, capacity, decision, feedback };
+        panel.innerHTML = views[state.stage](state.selected);
+        panel.querySelectorAll("[data-decision]").forEach(button => button.addEventListener("click", () => { state.decision = button.dataset.decision; renderPanel(); }));
+        panel.querySelectorAll("[data-feedback]").forEach(button => button.addEventListener("click", () => {
+          const messages = {
+            helped: "Helped is recorded as an outcome signal; the approved action remains in history.",
+            unresolved: "Unresolved feedback reopens the case for adviser review without erasing the earlier approval.",
+            human: "A human-help request becomes visible unmet demand until the service can respond.",
+            correction: "The correction is stored as new source evidence and the case returns to review."
+          };
+          panel.querySelector("[data-feedback-message]").textContent = messages[button.dataset.feedback];
+        }));
+      }
+
+      function render() {
+        renderCases();
+        reference.textContent = `${state.selected.id} · Fictional display identity`;
+        tabs.forEach(tab => tab.setAttribute("aria-selected", String(tab.dataset.stage === state.stage)));
+        renderPanel();
+      }
+
+      tabs.forEach(tab => tab.addEventListener("click", () => { state.stage = tab.dataset.stage; render(); }));
+      render();
+    })();
+  </script>
+</body>
+</html>
