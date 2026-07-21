@@ -6,13 +6,15 @@ This project uses versioned product snapshots during its exploratory phase. Chan
 
 ### Added
 
-- Added a candidate implementation RFC for the smallest synthetic-data Career CoDesk vertical slice.
+- Added the approved implementation RFC and complete local synthetic Career CoDesk vertical slice.
 - Separated source evidence, assumptions, candidate recommendations, recorded human decisions, and open questions.
-- Recorded recommended answers to the eight direction-setting questions while preserving the required adviser-approval, safety-exit, provenance, and deterministic-capacity boundaries.
+- Added synthetic intake, bounded AI interpretation, deterministic capacity planning, adviser decisions, weekly plans, local mock export, learner feedback, and an eight-scenario evaluation pack.
+- Added the Symphony-inspired local engineering loop, model routing, isolated worktrees, bounded repair, exact-tree review, and human gates.
+- Added the redesigned adviser workspace and desktop/mobile design QA evidence.
 
 ### Important status note
 
-This is a **Candidate / Awaiting human approval** snapshot. It grants no implementation authority until the named `G001` human approval gate records an approval or amendment. The existing `0.1.0-early` snapshot remains the unapproved exploration baseline.
+The core vertical slice was accepted by the local `G001` and `G002` human gates as a bounded synthetic demonstrator. The later interface redesign passed its separate product and design QA checks. These results do not authorise real learner data, deployment, authentication claims, live MIS integration, external writes, or production use. The existing `0.1.0-early` snapshot remains the preserved exploration baseline.
 
 ## [0.1.0-early] - 2026-07-17
 
