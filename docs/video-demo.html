@@ -118,13 +118,13 @@
 
     .path {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 11px;
-      margin-top: 34px;
+      margin-top: 28px;
     }
     .path-card {
       position: relative;
-      min-height: 132px;
+      min-height: 172px;
       padding: 18px;
       border: 1px solid var(--line);
       border-radius: 18px;
@@ -135,14 +135,28 @@
       position: absolute;
       z-index: 2;
       right: -15px;
-      top: 48px;
+      top: 66px;
       color: var(--teal);
       font-size: 23px;
       font-weight: 900;
     }
     .path-card.human { border-color: #86cbb1; background: var(--mint); }
     .path-no { display: block; margin-bottom: 18px; color: var(--teal); font-size: 11px; font-weight: 900; letter-spacing: 0.11em; }
-    .path-card p { margin-bottom: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.42; }
+    .path-card p { margin-bottom: 0; color: var(--ink-soft); font-size: 14px; line-height: 1.42; }
+
+    .scope-note, .api-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 16px 0 0;
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: #05645b;
+      background: var(--mist);
+      font-size: 13px;
+      font-weight: 780;
+    }
+    .scope-note::before, .api-note::before { content: "✓"; font-weight: 950; }
 
     .feedback-story { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 13px; align-items: stretch; margin-top: 34px; }
     .story-card { padding: 23px; border: 1px solid var(--line); border-radius: 19px; background: white; }
@@ -232,34 +246,34 @@
       </div>
     </section>
 
-    <section class="slide" data-title="What we built">
+    <section class="slide" data-title="Built for FE careers advisers">
       <div>
-        <p class="eyebrow">02 · What we built</p>
-        <h2>From learner signal to <span class="accent">human-approved action.</span></h2>
-        <p class="lede">AI prepares. Advisers decide.</p>
+        <p class="eyebrow">02 · Built for FE careers advisers</p>
+        <h2>A weekly decision workspace for <span class="accent">FE careers advisers.</span></h2>
+        <p class="lede">Career CoDesk brings fragmented learner evidence and limited team capacity into one reviewable support plan.</p>
         <div class="path" aria-label="Career CoDesk support pathway">
-          <article class="path-card"><span class="path-no">01</span><h3>Signal</h3></article>
-          <article class="path-card"><span class="path-no">02</span><h3>Evidence</h3></article>
-          <article class="path-card"><span class="path-no">03</span><h3>Capacity</h3></article>
-          <article class="path-card human"><span class="path-no">04</span><h3>Human decision</h3></article>
-          <article class="path-card"><span class="path-no">05</span><h3>Action</h3></article>
-          <article class="path-card"><span class="path-no">06</span><h3>Feedback</h3></article>
+          <article class="path-card"><span class="path-no">01</span><h3>Learner need</h3><p>Study choice, transition, apprenticeship or uncertainty.</p></article>
+          <article class="path-card"><span class="path-no">02</span><h3>Evidence + capacity</h3><p>What is known and what the careers team can deliver.</p></article>
+          <article class="path-card human"><span class="path-no">03</span><h3>Adviser decision</h3><p>Approve, amend or reject the proposed support.</p></article>
+          <article class="path-card"><span class="path-no">04</span><h3>Support + feedback</h3><p>One approved action, followed by the learner response.</p></article>
         </div>
+        <p class="scope-note">Education careers operations—not job search or automated job matching.</p>
       </div>
     </section>
 
-    <section class="slide" data-title="Human decision and feedback">
+    <section class="slide" data-title="Human in the loop">
       <div>
-        <p class="eyebrow">03 · Human control</p>
-        <h2>AI prepares the choice. <span class="accent">Advisers decide.</span></h2>
-        <p class="lede">No plan becomes active until an adviser confirms it.</p>
+        <p class="eyebrow">03 · Human in the loop</p>
+        <h2>AI assists the workflow. <span class="accent">The careers adviser stays accountable.</span></h2>
+        <p class="lede">An OpenAI API-ready assistance layer can organise evidence and suggest education support. It cannot activate a learner plan.</p>
         <div class="feedback-story">
-          <article class="story-card human"><h3>Approve · Amend · Reject</h3><p>Every decision keeps a human reason.</p></article>
+          <article class="story-card"><h3>OpenAI API-ready gateway</h3><p>Structures evidence and proposes education support—not a job match.</p></article>
           <div class="arrow" aria-hidden="true">→</div>
-          <article class="story-card"><h3>One approved action</h3><p>Only confirmed work enters the plan.</p></article>
+          <article class="story-card human"><h3>Career adviser gate</h3><p>Approve, amend or reject with a recorded reason.</p></article>
           <div class="arrow" aria-hidden="true">→</div>
-          <article class="story-card"><h3>Feedback can reopen review</h3><p>Unresolved cases return without erasing history.</p></article>
+          <article class="story-card"><h3>Learner feedback</h3><p>Unresolved cases return to the careers team without erasing history.</p></article>
         </div>
+        <p class="api-note">Evaluated MVP: deterministic local adapter behind the same gateway boundary.</p>
       </div>
     </section>
 
@@ -307,7 +321,7 @@
   </main>
 
   <footer class="footer">
-    <span class="counter" aria-live="polite">1 / 6</span>
+    <span class="counter" aria-live="polite">1 / 5</span>
     <span class="hint">Arrow keys or Space: next · F: fullscreen</span>
     <nav class="nav" aria-label="Slide navigation"><button type="button" data-prev aria-label="Previous slide">←</button><button type="button" data-next aria-label="Next slide">→</button></nav>
   </footer>

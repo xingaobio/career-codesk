@@ -1,6 +1,6 @@
 # Career CoDesk
 
-Career CoDesk is a decision workspace for further education careers teams. It turns learner needs into a capacity-feasible support proposal, keeps source evidence separate from provisional AI interpretation, and requires an adviser to approve, amend, or reject the proposal before anything becomes an active plan.
+Career CoDesk is a decision workspace for further education careers teams. It turns learner needs into a capacity-feasible support proposal, keeps source evidence separate from provisional AI interpretation, and requires an adviser to approve, amend, or reject the proposal before anything becomes an active plan. It is built for FE careers operations—not job search, automated job matching, or a learner-facing careers bot.
 
 This repository contains the working synthetic demonstrator, a reviewer-safe walkthrough, and the local engineering loop used to build both. Every presentation profile uses a fictional composite name; technical identifiers remain available only where they help inspect the underlying product evidence.
 

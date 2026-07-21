@@ -16,6 +16,8 @@ A local decision workspace that turns synthetic learner needs into capacity-feas
 
 Further education careers teams often have learner requests, limited adviser capacity, and several disconnected tools, but no clear way to turn those inputs into a reviewable weekly plan. Career CoDesk is a synthetic demonstrator for that decision point.
 
+It is an operations workspace for FE careers advisers—not a job board, automated job-matching service, or learner-facing careers bot.
+
 It imports fictional learner needs, keeps the original source separate from provisional AI interpretation, and uses deterministic code to test capacity and feasible alternatives. An adviser must approve, amend, or reject every proposal. Only an approved decision can create a weekly plan and a local mock export. Learner feedback can reopen the case without overwriting its history.
 
 The project also includes the engineering system used to build it. A Symphony-inspired loop gave GPT-5.6 Sol the read-only guide and reviewer roles, used GPT-5.6 Terra for implementation, and reserved GPT-5.6 Luna for explicitly selected low-risk work. Codex ran each agent implementation task in an isolated local worktree, checked deterministic acceptance commands, and stopped at human approval gates. This kept the model focused on a small product slice while preserving an inspectable record of decisions and validation.
@@ -61,12 +63,13 @@ Keep the finished video under three minutes. Record at 1080p if practical, enlar
 
 ### 0:20 to 0:40 · Slide 2: what Career CoDesk does
 
-- Follow the six-node path with the cursor: signal, evidence, capacity, human decision, approved action, feedback.
-- One sentence is enough: Career CoDesk prepares the decision; the adviser owns it.
+- Say who it is for first: Career CoDesk is a weekly decision workspace for FE careers advisers.
+- Follow the four steps: learner need, evidence plus capacity, adviser decision, then support and feedback.
+- State the boundary clearly: it is not a job board, automated job-matching service, or learner-facing careers bot.
 
-### 0:40 to 1:45 · Reviewer site: one complete case
+### 0:40 to 1:35 · Reviewer site: one complete case
 
-- Switch to the reviewer walkthrough and choose Olivia K. or Muhammad R.
+- Switch to the reviewer walkthrough and speak as a careers adviser choosing Olivia K. or Muhammad R. for weekly support review.
 - Click `Evidence review`: point to the fictional source statement, provisional AI interpretation and visible unknown.
 - Click `Capacity plan`: point to the available slot, feasible alternative and retained unmet demand.
 - Mention that machine identifiers are hidden in the presentation story but technical evidence remains inspectable.
@@ -74,18 +77,19 @@ Keep the finished video under three minutes. Record at 1080p if practical, enlar
 - Click `Learner feedback`, then `I am still unsure` to show that feedback reopens review without deleting history.
 - State the boundary once: all visible identities are fictional composites and the controls reset on refresh.
 
-### 1:45 to 2:05 · Slide 3: human control
+### 1:35 to 1:55 · Slide 3: human in the loop
 
-- Say one sentence: AI prepares the choice; advisers approve, amend or reject it.
-- Point out that unresolved feedback can reopen review without deleting history.
+- The gateway is designed for an OpenAI API adapter that can organise evidence and suggest education support; it never activates a plan.
+- For a repeatable evaluation, this MVP runs a deterministic local adapter behind that same gateway boundary.
+- The careers adviser approves, amends or rejects with a reason; unresolved learner feedback returns the case to the team.
 
-### 2:05 to 2:30 · Slide 4: integration and privacy
+### 1:55 to 2:18 · Slide 4: integration and privacy
 
 - Show the MIS/CRM/CSV → adapter/core → approved-output architecture.
 - Name the safeguards: field allowlist, evidence/inference separation, human gate and traceability.
 - Do not claim GDPR compliance. Say that DPIA, retention, lawful basis and access control remain institutional responsibilities.
 
-### 2:30 to 2:52 · Slide 5: OpenAI workflow and team
+### 2:18 to 2:42 · Slide 5: OpenAI workflow and team
 
 - Say both product names clearly.
 - GPT-5.6 Sol with ultra reasoning guided and independently reviewed.
@@ -93,7 +97,7 @@ Keep the finished video under three minutes. Record at 1080p if practical, enlar
 - Codex could orchestrate up to 16 isolated subagents; deterministic tests and a human gate decided completion.
 - Name the team: Xin Gao led product, research and AI workflow; Chelsea Li led marketing, testing and the demo.
 
-### 2:52 to 3:00 · close
+### 2:42 to 2:50 · close
 
 End on one sentence: "Career CoDesk tests whether a careers team can make a better capacity-aware decision without giving AI decision authority."
 
