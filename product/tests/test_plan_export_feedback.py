@@ -142,6 +142,13 @@ class PlanExportFeedbackTests(TestCase):
         replay = ExecutionPackageService().create_or_replay(decision=entry.decision)
         self.assertEqual(replay[0].id, entry.id)
         self.assertEqual(WeeklyPlanEntry.objects.count(), 1)
+        detail = self.client.get(f"/plans/{entry.id}/")
+        self.assertContains(detail, f"/workbench/{entry.allocation_id}/")
+        self.assertContains(detail, f"/learner/{entry.case_id}/")
+        approval_evidence = self.client.get(f"/workbench/{entry.allocation_id}/")
+        self.assertContains(approval_evidence, "Review approved guide route")
+        self.assertContains(approval_evidence, "Decision already recorded")
+        self.assertNotContains(approval_evidence, "Record an adviser decision")
 
     def test_export_is_canonical_retryable_and_terminal_success_replays(self):
         self.client.post(f"/workbench/{self.proposal.id}/decide/", self._approval_data())

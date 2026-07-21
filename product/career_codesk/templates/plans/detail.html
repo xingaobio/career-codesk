@@ -17,6 +17,11 @@
     <span class="status status-recorded">Adviser approved</span>
   </header>
 
+  <div class="confirmation-actions section-gap" aria-label="Plan evidence and learner views">
+    <a class="button-link button-secondary" href="{% url 'workbench-review' entry.allocation_id %}">Review approval evidence</a>
+    <a class="button-link" href="{% url 'learner-next-action' entry.case_id %}">Open learner action</a>
+  </div>
+
   <div class="two-column">
     <section class="surface" aria-labelledby="package-detail-title">
       <div class="surface-header"><div><h3 id="package-detail-title">Package provenance</h3><p>The records that justify this approved action.</p></div></div>

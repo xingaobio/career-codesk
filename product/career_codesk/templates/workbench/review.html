@@ -1,5 +1,5 @@
 {% extends "workbench/base.html" %}
-{% block title %}Review proposal · Career CoDesk{% endblock %}
+{% block title %}{% if allocation.state == 'active' %}Approval evidence{% else %}Review proposal{% endif %} · Career CoDesk{% endblock %}
 {% block nav_queue %}is-active{% endblock %}
 {% block content %}
   <a class="back-link" href="{% url 'workbench-queue' %}">Back to decision queue</a>
@@ -7,7 +7,7 @@
   <header class="case-header" aria-labelledby="review-title">
     <div>
       <p class="eyebrow">Case {{ allocation.case_id }}</p>
-      <h1 id="review-title">Review proposed {{ allocation.route_code }} route</h1>
+      <h1 id="review-title">{% if allocation.state == 'active' %}Review approved{% else %}Review proposed{% endif %} {{ allocation.route_code }} route</h1>
       <div class="case-meta">
         <span><strong>Scheduled</strong> {{ allocation.scheduled_on }}</span>
         <span><strong>Waiting</strong> {{ allocation.waiting_days }} day{{ allocation.waiting_days|pluralize }}</span>
@@ -118,7 +118,8 @@
   </div>
 
   <section class="decision-panel" aria-labelledby="decision-title">
-    <form class="decision-shell" method="post" action="{% url 'workbench-confirm' allocation.id %}">
+    {% if allocation.state == 'proposed' %}
+      <form class="decision-shell" method="post" action="{% url 'workbench-confirm' allocation.id %}">
       {% csrf_token %}
       <input type="hidden" name="actor" value="adviser">
       <div class="decision-intro">
@@ -143,9 +144,17 @@
         <div class="decision-actions">
           <button class="button-danger" type="submit" name="action" value="reject">Reject</button>
           <button class="button-secondary" type="submit" name="action" value="amend">Amend</button>
-          {% if allocation.state == 'proposed' %}<button type="submit" name="action" value="approve">Approve</button>{% endif %}
+          <button type="submit" name="action" value="approve">Approve</button>
         </div>
       </div>
-    </form>
+      </form>
+    {% else %}
+      <div class="decision-shell">
+        <div class="decision-intro">
+          <h3 id="decision-title">Decision already recorded</h3>
+          <p>This allocation is active under a prior adviser approval. The evidence remains available for inspection, but a second decision cannot be submitted from this view.</p>
+        </div>
+      </div>
+    {% endif %}
   </section>
 {% endblock %}

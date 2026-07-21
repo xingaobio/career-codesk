@@ -91,7 +91,7 @@ os._exit(0)
 
     def test_agent_role_session_is_persisted_then_resumed_with_same_safety_policy(self) -> None:
         commands = []
-        thread_id = "019f7f8d-15a6-7e01-9b04-c1edc2965c2c"
+        thread_id = "00000000-0000-7000-8000-000000000001"
 
         class FakeProcess:
             pid = 4242

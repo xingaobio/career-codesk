@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Career CoDesk | Three-minute demo</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --navy: #07152e;
+      --navy-2: #0b2146;
+      --paper: #f6f2e9;
+      --ink: #14223b;
+      --muted: #9eb0ca;
+      --line: rgba(255, 255, 255, 0.14);
+      --cobalt: #4f7cff;
+      --violet: #9a78ff;
+      --emerald: #40d49a;
+      --amber: #f2bd59;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--navy);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      color: white;
+      background:
+        radial-gradient(circle at 85% 10%, rgba(79, 124, 255, 0.2), transparent 32%),
+        radial-gradient(circle at 12% 90%, rgba(154, 120, 255, 0.13), transparent 28%),
+        var(--navy);
+    }
+
+    button, a { font: inherit; }
+
+    .chrome {
+      position: fixed;
+      z-index: 10;
+      inset: 0 0 auto 0;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(7, 21, 46, 0.9);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 760;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: white;
+      background: var(--cobalt);
+      box-shadow: 0 8px 28px rgba(79, 124, 255, 0.35);
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 5px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .progress-bar {
+      width: 16.6667%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cobalt), var(--violet));
+      transition: width 220ms ease;
+    }
+
+    .counter, .timer {
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .timer {
+      min-width: 58px;
+      color: white;
+      font-weight: 750;
+    }
+
+    .timer.warning { color: var(--amber); }
+    .timer.over { color: #ff7985; }
+
+    .slides { position: relative; width: 100%; height: 100%; }
+
+    .slide {
+      position: absolute;
+      inset: 62px 0 58px;
+      display: grid;
+      align-items: center;
+      padding: clamp(28px, 4vw, 68px) clamp(34px, 6vw, 96px);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(24px);
+      transition: opacity 220ms ease, transform 220ms ease, visibility 220ms;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      color: #b8c7df;
+      font-size: 13px;
+      font-weight: 760;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 920px;
+      margin-bottom: 22px;
+      font-size: clamp(48px, 6.6vw, 102px);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+    }
+
+    h2 {
+      max-width: 920px;
+      margin-bottom: 18px;
+      font-size: clamp(36px, 4.5vw, 70px);
+      line-height: 1.02;
+      letter-spacing: -0.045em;
+    }
+
+    h3 {
+      margin-bottom: 8px;
+      font-size: clamp(18px, 1.7vw, 26px);
+      letter-spacing: -0.02em;
+    }
+
+    .lede {
+      max-width: 820px;
+      margin-bottom: 28px;
+      color: #c5d1e4;
+      font-size: clamp(20px, 2.2vw, 32px);
+      line-height: 1.38;
+    }
+
+    .accent { color: #8ca9ff; }
+    .violet { color: #b9a3ff; }
+    .green { color: #65dfae; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    .button {
+      min-height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 18px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: white;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+    }
+
+    .button.primary { border-color: transparent; background: var(--cobalt); }
+    .button:hover, .button:focus-visible { outline: 2px solid white; outline-offset: 2px; }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.78fr) minmax(500px, 1.35fr);
+      gap: clamp(28px, 4vw, 64px);
+      align-items: center;
+    }
+
+    .shot {
+      width: 100%;
+      max-height: 67vh;
+      object-fit: cover;
+      object-position: top;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      box-shadow: 0 26px 70px rgba(0, 0, 0, 0.34);
+      background: var(--paper);
+    }
+
+    .shot.contain { object-fit: contain; background: #0d1f3c; }
+
+    .points {
+      display: grid;
+      gap: 14px;
+      margin: 24px 0 28px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .points li {
+      position: relative;
+      padding-left: 25px;
+      color: #d6deec;
+      font-size: clamp(17px, 1.7vw, 25px);
+      line-height: 1.35;
+    }
+
+    .points li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--emerald);
+    }
+
+    .image-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .image-pair figure { margin: 0; min-width: 0; }
+    .image-pair .shot { height: 58vh; }
+
+    figcaption {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin: 32px 0 28px;
+    }
+
+    .flow-card {
+      position: relative;
+      min-height: 170px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .flow-card:not(:last-child)::after {
+      content: "›";
+      position: absolute;
+      right: -12px;
+      top: 62px;
+      z-index: 2;
+      color: #7892bc;
+      font-size: 28px;
+    }
+
+    .role {
+      display: inline-block;
+      margin-bottom: 18px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      color: #dce5f4;
+      background: rgba(79, 124, 255, 0.18);
+      font-size: 12px;
+      font-weight: 760;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .flow-card p { margin: 0; color: var(--muted); line-height: 1.45; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin: 30px 0;
+    }
+
+    .metric {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 6px;
+      color: white;
+      font-size: clamp(30px, 3vw, 48px);
+    }
+
+    .metric span { color: var(--muted); }
+
+    .boundary {
+      max-width: 1040px;
+      padding: 18px 22px;
+      border-left: 4px solid var(--amber);
+      color: #d3ddec;
+      background: rgba(242, 189, 89, 0.08);
+      font-size: clamp(16px, 1.55vw, 22px);
+      line-height: 1.45;
+    }
+
+    .footer {
+      position: fixed;
+      z-index: 10;
+      inset: auto 0 0 0;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 24px;
+      border-top: 1px solid var(--line);
+      background: rgba(7, 21, 46, 0.94);
+    }
+
+    .hint { color: var(--muted); font-size: 13px; }
+
+    .nav { display: flex; align-items: center; gap: 8px; }
+
+    .nav button {
+      width: 38px;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: white;
+      background: rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+    }
+
+    .nav button:disabled { opacity: 0.3; cursor: default; }
+
+    .notes {
+      position: fixed;
+      z-index: 20;
+      left: 50%;
+      bottom: 72px;
+      width: min(760px, calc(100% - 40px));
+      padding: 14px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 10px;
+      color: #eaf0fa;
+      background: rgba(8, 21, 44, 0.96);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 10px);
+      transition: opacity 160ms ease, transform 160ms ease;
+    }
+
+    body.show-notes .notes { opacity: 1; transform: translate(-50%, 0); }
+    .notes strong { color: var(--amber); }
+
+    @media (max-width: 900px) {
+      .chrome { gap: 10px; padding: 0 14px; }
+      .brand span:last-child { display: none; }
+      .slide { padding: 28px 24px; overflow-y: auto; }
+      .split { grid-template-columns: 1fr; }
+      .split .shot { max-height: 40vh; }
+      .image-pair { grid-template-columns: 1fr; }
+      .image-pair .shot { height: 30vh; }
+      .flow { grid-template-columns: 1fr 1fr; }
+      .flow-card:not(:last-child)::after { display: none; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .hint { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.001ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="chrome">
+    <div class="brand"><span class="brand-mark">C</span><span>Career CoDesk</span></div>
+    <div class="progress-track" aria-hidden="true"><div class="progress-bar"></div></div>
+    <div class="counter" aria-live="polite">1 / 6</div>
+    <div class="timer" aria-label="Presentation timer">00:00</div>
+  </header>
+
+  <main class="slides">
+    <section class="slide active" data-title="The decision problem" data-note="15 seconds. Explain the operational decision problem, then open the populated weekly plans. Do not describe every feature.">
+      <div>
+        <p class="eyebrow">0:00 to 0:15 | The problem</p>
+        <h1>Turn learner needs into a plan the team can <span class="accent">actually deliver.</span></h1>
+        <p class="lede">Career CoDesk is a local, synthetic decision workspace for capacity-aware and adviser-approved careers support.</p>
+        <div class="actions">
+          <a class="button primary" href="http://127.0.0.1:8010/plans/" target="career-codesk-demo">Open populated live demo</a>
+          <button class="button" type="button" data-start-timer>Start 3-minute timer</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Evidence before inference" data-note="35 seconds. In the live app, point to the synthetic banner, source statement, provisional AI interpretation and visible unknowns. Return here only if navigation fails.">
+      <div class="split">
+        <div>
+          <p class="eyebrow">0:15 to 0:50 | Live demo</p>
+          <h2>Evidence stays separate from <span class="violet">AI interpretation.</span></h2>
+          <ul class="points">
+            <li>Original synthetic statement remains visible</li>
+            <li>AI output is provisional and versioned</li>
+            <li>Unknowns cannot silently become facts</li>
+          </ul>
+          <a class="button primary" href="http://127.0.0.1:8010/plans/" target="career-codesk-demo">Open a plan, then approval evidence</a>
+        </div>
+        <img class="shot" src="../.design-qa/09-review-final.png" alt="Career CoDesk evidence review screen">
+      </div>
+    </section>
+
+    <section class="slide" data-title="Capacity and human control" data-note="40 seconds. Show capacity, waiting time, alternatives and unmet demand. Then show Approve, Amend and Reject. Say that only approval activates a plan.">
+      <div class="split">
+        <div>
+          <p class="eyebrow">0:50 to 1:30 | Live demo</p>
+          <h2>Models propose. Code checks. <span class="green">Advisers decide.</span></h2>
+          <ul class="points">
+            <li>Deterministic capacity and policy checks</li>
+            <li>Feasible alternatives and unmet demand stay visible</li>
+            <li>Approve, amend or reject with a recorded reason</li>
+          </ul>
+        </div>
+        <img class="shot" src="../.design-qa/03-confirm.png" alt="Career CoDesk adviser decision confirmation screen">
+      </div>
+    </section>
+
+    <section class="slide" data-title="Plan and feedback" data-note="40 seconds. Show a prepared approved plan, local mock export and learner feedback controls. Mention that unresolved feedback reopens the case without erasing history.">
+      <div>
+        <p class="eyebrow">1:30 to 2:10 | Live demo</p>
+        <h2>Approval becomes an inspectable plan, not an invisible handoff.</h2>
+        <div class="image-pair">
+          <figure>
+            <img class="shot" src="../.design-qa/05-plan-detail.png" alt="Approved weekly plan and local mock export">
+            <figcaption>Weekly execution package and local mock export</figcaption>
+          </figure>
+          <figure>
+            <img class="shot" src="../.design-qa/06-learner.png" alt="Learner action and feedback controls">
+            <figcaption>One approved action, human help, correction and outcome feedback</figcaption>
+          </figure>
+        </div>
+        <div class="actions" style="margin-top: 14px;">
+          <a class="button primary" href="http://127.0.0.1:8010/plans/" target="career-codesk-demo">Open live weekly plans</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Codex and GPT-5.6" data-note="35 seconds. Name Codex and GPT-5.6 explicitly. Sol guides and reviews. Terra implements. Luna is an explicit fast profile. Deterministic checks and human gates decide completion.">
+      <div>
+        <p class="eyebrow">2:10 to 2:45 | How it was built</p>
+        <h2>A repository-owned loop made every run <span class="accent">bounded and inspectable.</span></h2>
+        <div class="flow" aria-label="Codex engineering workflow">
+          <article class="flow-card"><span class="role">GPT-5.6 Sol</span><h3>Guide</h3><p>Narrows the task to its acceptance criteria.</p></article>
+          <article class="flow-card"><span class="role">Terra or Luna</span><h3>Implement</h3><p>Works only inside an isolated task worktree.</p></article>
+          <article class="flow-card"><span class="role">Deterministic</span><h3>Verify</h3><p>Tests and checks decide whether code passes.</p></article>
+          <article class="flow-card"><span class="role">GPT-5.6 Sol</span><h3>Review</h3><p>Checks the exact candidate tree, read-only.</p></article>
+          <article class="flow-card"><span class="role">Human gate</span><h3>Accept</h3><p>Product direction and final scope stay human-owned.</p></article>
+        </div>
+        <p class="lede" style="font-size: clamp(17px, 1.7vw, 23px);">Codex ran the workflow locally. No application API integration or API credits were required.</p>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Evidence and boundary" data-note="15 seconds. Give the numbers, state the prototype boundary, and end with the one question the project tests.">
+      <div>
+        <p class="eyebrow">2:45 to 3:00 | Evidence and close</p>
+        <h2>A small demonstrator with a deliberately hard boundary.</h2>
+        <div class="metrics">
+          <div class="metric"><strong>91</strong><span>product tests</span></div>
+          <div class="metric"><strong>43</strong><span>loop-engine tests</span></div>
+          <div class="metric"><strong>8</strong><span>repeatable scenarios</span></div>
+          <div class="metric"><strong>0</strong><span>external runtime calls</span></div>
+        </div>
+        <p class="boundary">Synthetic data only. No live MIS, real learner data, external writeback, production authentication or compliance claim. The project tests whether careers teams can make a better capacity-aware decision without giving AI decision authority.</p>
+      </div>
+    </section>
+  </main>
+
+  <aside class="notes" aria-live="polite"><strong>Presenter cue:</strong> <span></span></aside>
+
+  <footer class="footer">
+    <span class="hint">Arrow keys or Space: navigate | T: timer | N: presenter cue | F: fullscreen</span>
+    <nav class="nav" aria-label="Slide navigation">
+      <button type="button" data-prev aria-label="Previous slide">←</button>
+      <button type="button" data-next aria-label="Next slide">→</button>
+    </nav>
+  </footer>
+
+  <script>
+    (() => {
+      const slides = [...document.querySelectorAll('.slide')];
+      const progress = document.querySelector('.progress-bar');
+      const counter = document.querySelector('.counter');
+      const notesText = document.querySelector('.notes span');
+      const timer = document.querySelector('.timer');
+      const prev = document.querySelector('[data-prev]');
+      const next = document.querySelector('[data-next]');
+      let index = 0;
+      let startedAt = null;
+      let timerFrame = null;
+
+      function show(nextIndex) {
+        index = Math.max(0, Math.min(slides.length - 1, nextIndex));
+        slides.forEach((slide, slideIndex) => slide.classList.toggle('active', slideIndex === index));
+        progress.style.width = `${((index + 1) / slides.length) * 100}%`;
+        counter.textContent = `${index + 1} / ${slides.length}`;
+        notesText.textContent = slides[index].dataset.note;
+        prev.disabled = index === 0;
+        next.disabled = index === slides.length - 1;
+        document.title = `Career CoDesk | ${slides[index].dataset.title}`;
+      }
+
+      function updateTimer() {
+        if (startedAt === null) return;
+        const elapsed = Math.floor((performance.now() - startedAt) / 1000);
+        const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const seconds = String(elapsed % 60).padStart(2, '0');
+        timer.textContent = `${minutes}:${seconds}`;
+        timer.classList.toggle('warning', elapsed >= 165 && elapsed < 180);
+        timer.classList.toggle('over', elapsed >= 180);
+        timerFrame = requestAnimationFrame(updateTimer);
+      }
+
+      function startTimer() {
+        if (timerFrame) cancelAnimationFrame(timerFrame);
+        startedAt = performance.now();
+        timer.classList.remove('warning', 'over');
+        updateTimer();
+      }
+
+      async function toggleFullscreen() {
+        if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+        else await document.exitFullscreen();
+      }
+
+      prev.addEventListener('click', () => show(index - 1));
+      next.addEventListener('click', () => show(index + 1));
+      document.querySelector('[data-start-timer]').addEventListener('click', startTimer);
+      document.addEventListener('keydown', (event) => {
+        const key = event.key.toLowerCase();
+        if (key === 'arrowright' || key === ' ' || key === 'pagedown') { event.preventDefault(); show(index + 1); }
+        if (key === 'arrowleft' || key === 'pageup') { event.preventDefault(); show(index - 1); }
+        if (key === 'home') show(0);
+        if (key === 'end') show(slides.length - 1);
+        if (key === 'n') document.body.classList.toggle('show-notes');
+        if (key === 't') startTimer();
+        if (key === 'f') toggleFullscreen();
+      });
+
+      show(0);
+    })();
+  </script>
+</body>
+</html>

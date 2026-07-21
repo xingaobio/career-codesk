@@ -10,8 +10,7 @@ and a bottom decision bar. All existing product routes use the same visual syste
 
 ## Comparison evidence
 
-- Selected design target:
-  /Users/user/.codex/generated_images/019f80a3-a79b-7161-92c1-b8e8dbf519a9/exec-78c70d75-8765-4d50-8dc6-83cf29ff2aad.png
+- Selected design target and implementation comparison: .design-qa/comparison-review.png
 - Final implementation state: .design-qa/09-review-final.png
 - Same-input side-by-side comparison: .design-qa/comparison-review-final.png
 - Desktop browser viewport: 1493 × 963 CSS pixels, device pixel ratio 2.
@@ -59,7 +58,7 @@ intentionally less vertically dense without inventing source evidence.
 - **Responsive layout:** Passed. At a 375 px rendered width, document scroll width equals client
   width, the two-column evidence and decision layouts collapse to one column, navigation becomes
   horizontally scrollable, and all decision buttons measure 313 × 44 px.
-- **Accessibility:** Passed. Semantic headings, tables, labels, skip-link, visible keyboard focus,
+- **Accessibility smoke checks:** Passed. Semantic headings, tables, labels, skip-link, visible keyboard focus,
   reduced-motion handling, 44 px mobile actions, status text independent of colour, and text
   wrapping are present.
 
