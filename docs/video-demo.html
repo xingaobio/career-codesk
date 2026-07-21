@@ -124,7 +124,7 @@
     }
     .path-card {
       position: relative;
-      min-height: 192px;
+      min-height: 132px;
       padding: 18px;
       border: 1px solid var(--line);
       border-radius: 18px;
@@ -135,29 +135,14 @@
       position: absolute;
       z-index: 2;
       right: -15px;
-      top: 72px;
+      top: 48px;
       color: var(--teal);
       font-size: 23px;
       font-weight: 900;
     }
     .path-card.human { border-color: #86cbb1; background: var(--mint); }
-    .path-no { display: block; margin-bottom: 25px; color: var(--teal); font-size: 11px; font-weight: 900; letter-spacing: 0.11em; }
+    .path-no { display: block; margin-bottom: 18px; color: var(--teal); font-size: 11px; font-weight: 900; letter-spacing: 0.11em; }
     .path-card p { margin-bottom: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.42; }
-
-    .detail-grid { display: grid; grid-template-columns: 0.72fr 1.28fr; gap: 36px; align-items: center; }
-    .points { display: grid; gap: 13px; margin: 24px 0 0; padding: 0; list-style: none; }
-    .points li { position: relative; padding-left: 26px; color: var(--ink-soft); font-size: clamp(16px, 1.55vw, 23px); line-height: 1.36; }
-    .points li::before { content: ""; position: absolute; left: 0; top: 0.55em; width: 10px; height: 10px; border-radius: 50%; background: var(--teal); }
-    .shot {
-      width: 100%;
-      max-height: 68vh;
-      object-fit: cover;
-      object-position: top;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: white;
-      box-shadow: 0 24px 65px rgba(16, 42, 67, 0.15);
-    }
 
     .feedback-story { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 13px; align-items: stretch; margin-top: 34px; }
     .story-card { padding: 23px; border: 1px solid var(--line); border-radius: 19px; background: white; }
@@ -166,9 +151,7 @@
     .story-card h3 { font-size: 23px; }
     .story-card p { margin-bottom: 0; color: var(--ink-soft); }
     .arrow { display: grid; place-items: center; color: var(--teal); font-size: 28px; font-weight: 900; }
-    .branch { margin-top: 17px; padding: 15px 18px; border-left: 4px solid var(--amber); color: var(--ink-soft); background: #fff7e7; font-size: 15px; }
-
-    .architecture { display: grid; grid-template-columns: 1fr auto 1.15fr auto 1fr; gap: 12px; margin-top: 28px; }
+    .architecture { display: grid; grid-template-columns: 0.9fr auto 0.9fr auto 1.15fr auto 0.9fr; gap: 10px; margin-top: 28px; }
     .layer { padding: 23px; border: 1px solid var(--line); border-radius: 19px; background: white; }
     .layer.core { color: white; background: var(--ink); }
     .layer p, .layer li { color: var(--ink-soft); font-size: 14px; }
@@ -180,14 +163,19 @@
     .rail strong { display: block; margin-bottom: 4px; }
     .rail span { color: var(--ink-soft); font-size: 12px; }
 
-    .loop { display: grid; grid-template-columns: repeat(5, 1fr); gap: 11px; margin: 30px 0 16px; }
-    .loop-card { min-height: 180px; padding: 19px; border: 1px solid var(--line); border-radius: 17px; background: white; }
-    .role { display: inline-block; margin-bottom: 24px; padding: 4px 7px; border-radius: 6px; color: #05645b; background: var(--mint); font-size: 10px; font-weight: 900; text-transform: uppercase; }
-    .loop-card p { margin-bottom: 0; color: var(--ink-soft); font-size: 13px; }
-    .proof { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .proof-item { padding: 16px 18px; border-radius: 14px; color: white; background: var(--ink); }
-    .proof-item strong { display: block; color: var(--lime); font-size: 30px; }
-    .proof-item span { color: #c5d4de; font-size: 12px; }
+    .final-grid { display: grid; grid-template-columns: 1.12fr 0.88fr; gap: 24px; margin-top: 24px; align-items: stretch; }
+    .build-stack, .team-grid { display: grid; gap: 11px; }
+    .build-step { display: grid; grid-template-columns: 170px 1fr; gap: 16px; align-items: center; padding: 17px 19px; border: 1px solid var(--line); border-radius: 16px; background: white; }
+    .build-step .role { color: #05645b; font-size: 11px; font-weight: 900; line-height: 1.35; text-transform: uppercase; }
+    .build-step strong { font-size: clamp(17px, 1.55vw, 23px); }
+    .build-proof { padding: 15px 18px; border-radius: 14px; color: white; background: var(--ink); font-size: 14px; font-weight: 750; }
+    .build-proof span { color: var(--lime); }
+    .team-label { margin-bottom: 0; color: #05645b; font-size: 12px; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
+    .person-card { display: grid; grid-template-columns: 92px 1fr; gap: 16px; align-items: center; padding: 15px; border: 1px solid var(--line); border-radius: 18px; background: white; }
+    .person-card img { width: 92px; height: 92px; object-fit: cover; border-radius: 50%; border: 4px solid var(--mint); }
+    .person-card h3 { margin-bottom: 3px; font-size: 20px; }
+    .handle { display: inline-block; margin-bottom: 7px; color: var(--teal); font-size: 12px; font-weight: 800; text-decoration: none; }
+    .person-card p { margin-bottom: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.35; }
 
     .footer {
       position: fixed;
@@ -212,13 +200,12 @@
 
     @media (max-width: 950px) {
       .slide { padding: 76px 25px 28px; overflow-y: auto; }
-      .split, .detail-grid { grid-template-columns: 1fr; }
+      .split, .final-grid { grid-template-columns: 1fr; }
       .path { grid-template-columns: 1fr 1fr; }
       .path-card:not(:last-child)::after { display: none; }
       .feedback-story, .architecture { grid-template-columns: 1fr; }
       .arrow, .arch-arrow { transform: rotate(90deg); }
-      .rails, .loop, .proof { grid-template-columns: 1fr 1fr; }
-      .shot { max-height: 44vh; }
+      .rails { grid-template-columns: 1fr 1fr; }
       .hint { display: none; }
     }
 
@@ -233,14 +220,14 @@
     <section class="slide active" data-title="The capacity problem">
       <div class="split">
         <div>
-          <p class="eyebrow">01 · The further-education problem</p>
-          <h1>High expectations. <span class="accent">Finite adviser time.</span></h1>
-          <p class="lede">The problem is not a lack of commitment. It is limited capacity, fragmented evidence and too little time to decide who needs help first.</p>
+          <p class="eyebrow">01 · The FE capacity problem</p>
+          <h1>More learners. <span class="accent">Too little adviser capacity.</span></h1>
+          <p class="lede">Careers teams need a faster way to turn fragmented signals into fair, workable decisions.</p>
         </div>
         <div class="stats">
-          <article class="stat"><div><strong>1.6m+</strong><span>learners prepared by England’s colleges</span></div><p class="source">AoC College Key Facts 2025/26 · <a href="https://www.aoc.co.uk/about/college-key-facts">source</a></p></article>
-          <article class="stat"><div><strong>213</strong><span>colleges serving those learners</span></div><p class="source">AoC College Key Facts 2025/26 · <a href="https://www.aoc.co.uk/about/college-key-facts">source</a></p></article>
-          <article class="stat wide"><div><strong>25 + 7</strong><span>colleges and local authorities in Ofsted’s 2024 study all reported difficulty recruiting Level 6 careers advisers.</span></div><p class="source">Research sample, not a national staffing ratio · <a href="https://www.gov.uk/government/publications/navigating-post-16-careers-guidance-supporting-learners-from-lower-socioeconomic-backgrounds/navigating-post-16-careers-guidance-supporting-learners-from-lower-socioeconomic-backgrounds">source</a></p></article>
+          <article class="stat"><div><strong>1.6m+</strong><span>learners in England’s colleges</span></div><p class="source">AoC College Key Facts 2025/26 · <a href="https://www.aoc.co.uk/about/college-key-facts">source</a></p></article>
+          <article class="stat"><div><strong>213</strong><span>colleges supporting them</span></div><p class="source">AoC College Key Facts 2025/26 · <a href="https://www.aoc.co.uk/about/college-key-facts">source</a></p></article>
+          <article class="stat wide"><div><strong>25 + 7</strong><span>colleges and local authorities in Ofsted’s study reported difficulty recruiting Level 6 advisers.</span></div><p class="source">Research sample, not a national staffing ratio · <a href="https://www.gov.uk/government/publications/navigating-post-16-careers-guidance-supporting-learners-from-lower-socioeconomic-backgrounds/navigating-post-16-careers-guidance-supporting-learners-from-lower-socioeconomic-backgrounds">source</a></p></article>
         </div>
       </div>
     </section>
@@ -248,59 +235,46 @@
     <section class="slide" data-title="What we built">
       <div>
         <p class="eyebrow">02 · What we built</p>
-        <h2>One inspectable path from learner signal to <span class="accent">approved action.</span></h2>
-        <p class="lede">Career CoDesk prepares a capacity-aware proposal, preserves what is unknown and stops for a human decision.</p>
+        <h2>From learner signal to <span class="accent">human-approved action.</span></h2>
+        <p class="lede">AI prepares. Advisers decide.</p>
         <div class="path" aria-label="Career CoDesk support pathway">
-          <article class="path-card"><span class="path-no">01 · SIGNAL</span><h3>Intake</h3><p>Allowed fields and source snapshot.</p></article>
-          <article class="path-card"><span class="path-no">02 · EVIDENCE</span><h3>Interpret</h3><p>Source remains separate from AI.</p></article>
-          <article class="path-card"><span class="path-no">03 · REALITY</span><h3>Plan</h3><p>Capacity, alternatives and unmet demand.</p></article>
-          <article class="path-card human"><span class="path-no">04 · HUMAN GATE</span><h3>Decide</h3><p>Approve, amend or reject with a reason.</p></article>
-          <article class="path-card"><span class="path-no">05 · ACTION</span><h3>Deliver</h3><p>Only approved work enters the plan.</p></article>
-          <article class="path-card"><span class="path-no">06 · LEARNING</span><h3>Feedback</h3><p>Helped, unresolved or human help.</p></article>
+          <article class="path-card"><span class="path-no">01</span><h3>Signal</h3></article>
+          <article class="path-card"><span class="path-no">02</span><h3>Evidence</h3></article>
+          <article class="path-card"><span class="path-no">03</span><h3>Capacity</h3></article>
+          <article class="path-card human"><span class="path-no">04</span><h3>Human decision</h3></article>
+          <article class="path-card"><span class="path-no">05</span><h3>Action</h3></article>
+          <article class="path-card"><span class="path-no">06</span><h3>Feedback</h3></article>
         </div>
-      </div>
-    </section>
-
-    <section class="slide" data-title="Evidence and capacity">
-      <div class="detail-grid">
-        <div>
-          <p class="eyebrow">03 · The path, in detail</p>
-          <h2>Evidence first. Capacity before promises.</h2>
-          <ul class="points">
-            <li>Fictional learner aliases replace machine codes in the public story.</li>
-            <li>The original statement remains separate from provisional AI interpretation.</li>
-            <li>Deterministic rules expose feasible alternatives and unmet demand.</li>
-          </ul>
-        </div>
-        <img class="shot" src="showcase-assets/showcase-review.png" alt="Career CoDesk fictional case evidence review">
       </div>
     </section>
 
     <section class="slide" data-title="Human decision and feedback">
       <div>
-        <p class="eyebrow">04 · The path, in detail</p>
-        <h2>AI prepares the choice. <span class="accent">People own the consequence.</span></h2>
+        <p class="eyebrow">03 · Human control</p>
+        <h2>AI prepares the choice. <span class="accent">Advisers decide.</span></h2>
+        <p class="lede">No plan becomes active until an adviser confirms it.</p>
         <div class="feedback-story">
-          <article class="story-card human"><h3>Adviser decision</h3><p>Approve, amend or reject. A reason is recorded and amendments require replanning.</p></article>
+          <article class="story-card human"><h3>Approve · Amend · Reject</h3><p>Every decision keeps a human reason.</p></article>
           <div class="arrow" aria-hidden="true">→</div>
-          <article class="story-card"><h3>One approved action</h3><p>The weekly package and learner view contain only the action the adviser approved.</p></article>
+          <article class="story-card"><h3>One approved action</h3><p>Only confirmed work enters the plan.</p></article>
           <div class="arrow" aria-hidden="true">→</div>
-          <article class="story-card"><h3>Feedback with a way back</h3><p>Unresolved, correction and human-help responses reopen review without erasing history.</p></article>
+          <article class="story-card"><h3>Feedback can reopen review</h3><p>Unresolved cases return without erasing history.</p></article>
         </div>
-        <p class="branch"><strong>Capacity matters twice:</strong> before approval, so the plan is deliverable; after feedback, so unmet demand remains visible until the team can respond.</p>
       </div>
     </section>
 
     <section class="slide" data-title="Integration and privacy">
       <div>
-        <p class="eyebrow">05 · Integration and privacy</p>
-        <h2>A stable core behind a <span class="accent">college-specific adapter.</span></h2>
+        <p class="eyebrow">04 · Integration + privacy</p>
+        <h2>Fits existing college systems <span class="accent">without owning identity.</span></h2>
         <div class="architecture" aria-label="MIS adapter architecture">
-          <article class="layer"><h3>MIS / CRM / CSV</h3><p>Institution-owned identity, enrolment, permissions and retention.</p></article>
+          <article class="layer"><h3>MIS / CRM / CSV</h3><p>Institution-owned records.</p></article>
           <div class="arch-arrow" aria-hidden="true">→</div>
-          <article class="layer core"><h3>Career CoDesk boundary</h3><ul><li>Versioned adapter contract</li><li>Allowed-field normalisation</li><li>Evidence / inference separation</li><li>Human approval gate</li></ul></article>
+          <article class="layer"><h3>College adapter</h3><p>Allowed fields and local permissions.</p></article>
           <div class="arch-arrow" aria-hidden="true">→</div>
-          <article class="layer"><h3>Approved output</h3><p>One versioned execution package ready for a future partner connector.</p></article>
+          <article class="layer core"><h3>Career CoDesk</h3><p>Evidence → capacity → human decision.</p></article>
+          <div class="arch-arrow" aria-hidden="true">→</div>
+          <article class="layer"><h3>Approved action</h3><p>One versioned execution package.</p></article>
         </div>
         <div class="rails">
           <article class="rail"><strong>Minimise</strong><span>Only needed fields cross the boundary.</span></article>
@@ -313,16 +287,21 @@
 
     <section class="slide" data-title="Built with OpenAI">
       <div>
-        <p class="eyebrow">06 · How it was built with OpenAI</p>
-        <h2>Codex made the build <span class="accent">bounded, testable and reviewable.</span></h2>
-        <div class="loop" aria-label="Codex and GPT-5.6 engineering workflow">
-          <article class="loop-card"><span class="role">GPT-5.6 Sol · ultra</span><h3>Guide</h3><p>Narrows each task to acceptance criteria.</p></article>
-          <article class="loop-card"><span class="role">Terra / Luna</span><h3>Implement</h3><p>Codes inside an isolated task worktree.</p></article>
-          <article class="loop-card"><span class="role">Deterministic</span><h3>Verify</h3><p>Tests and checks decide whether code passes.</p></article>
-          <article class="loop-card"><span class="role">GPT-5.6 Sol · ultra</span><h3>Review</h3><p>Inspects the exact candidate tree, read-only.</p></article>
-          <article class="loop-card"><span class="role">Human gate</span><h3>Accept</h3><p>Product direction and final scope stay human-owned.</p></article>
+        <p class="eyebrow">05 · Built with OpenAI + Team</p>
+        <h2>A small team. <span class="accent">An inspectable AI workflow.</span></h2>
+        <div class="final-grid">
+          <div class="build-stack" aria-label="Codex and GPT-5.6 engineering workflow">
+            <article class="build-step"><span class="role">GPT-5.6 Sol · ultra</span><strong>Guide + independent review</strong></article>
+            <article class="build-step"><span class="role">Codex CLI · GPT-5.6 Terra / Luna</span><strong>Design · implement · verify</strong></article>
+            <article class="build-step"><span class="role">Up to 16 subagents</span><strong>Parallel, isolated tasks</strong></article>
+            <p class="build-proof"><span>134 deterministic tests</span> · 8 repeatable scenarios · human acceptance gate</p>
+          </div>
+          <div class="team-grid" aria-label="Career CoDesk team">
+            <p class="team-label">Team</p>
+            <article class="person-card"><img src="team/xin-gao.png" alt="Xin Gao"><div><h3>Xin Gao</h3><span class="handle">@xin-gao0801</span><p>Product · research · AI workflow</p></div></article>
+            <article class="person-card"><img src="team/chelsea-li.png" alt="Chelsea Li"><div><h3>Chelsea Li</h3><a class="handle" href="https://devpost.com/chengxi689">@chengxi689</a><p>Marketing · testing · demo</p></div></article>
+          </div>
         </div>
-        <div class="proof"><article class="proof-item"><strong>91</strong><span>product tests</span></article><article class="proof-item"><strong>43</strong><span>loop-engine tests</span></article><article class="proof-item"><strong>8</strong><span>repeatable scenarios</span></article><article class="proof-item"><strong>0</strong><span>external runtime calls in the evaluated product</span></article></div>
       </div>
     </section>
   </main>

@@ -465,17 +465,6 @@
     .privacy-rail span { color: var(--ink-soft); font-size: 13px; }
     .governance-note { margin-top: 20px; padding: 18px 20px; border-left: 4px solid var(--amber); background: #fff8e9; color: var(--ink-soft); font-size: 14px; }
 
-    .build-loop { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 40px; }
-    .loop-card { position: relative; min-height: 190px; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: white; }
-    .loop-card:not(:last-child)::after { content: "+"; position: absolute; right: -13px; top: 78px; z-index: 2; color: var(--teal); font-weight: 900; }
-    .model-tag { display: inline-block; margin-bottom: 28px; padding: 4px 8px; border-radius: 6px; color: var(--teal-dark); background: var(--mint); font-size: 11px; font-weight: 850; text-transform: uppercase; }
-    .loop-card h3 { font-size: 18px; }
-    .loop-card p { margin-bottom: 0; color: var(--ink-soft); font-size: 13px; }
-    .proof-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
-    .proof { padding: 20px; border-radius: 16px; color: white; background: var(--ink); }
-    .proof strong { display: block; color: var(--lime); font-size: 35px; }
-    .proof span { color: #c5d4de; font-size: 13px; }
-
     .site-footer { padding: 44px 0; color: #c8d6df; background: var(--ink); }
     .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
     .footer-grid h2 { color: white; font-size: 25px; }
@@ -495,8 +484,7 @@
       .summary-card, .capacity-layout, .feedback-layout { grid-template-columns: 1fr; }
       .architecture { grid-template-columns: 1fr; }
       .arch-arrow { transform: rotate(90deg); }
-      .privacy-rails, .build-loop { grid-template-columns: 1fr 1fr; }
-      .loop-card:not(:last-child)::after { display: none; }
+      .privacy-rails { grid-template-columns: 1fr 1fr; }
     }
 
     @media (max-width: 760px) {
@@ -505,7 +493,7 @@
       .site-nav .button { display: none; }
       .hero { min-height: auto; padding-top: 68px; }
       .hero h1 { font-size: clamp(47px, 15vw, 70px); }
-      .evidence-board, .problem-strip, .journey-map, .stage-tabs, .decision-layout, .privacy-rails, .build-loop, .proof-row, .footer-grid { grid-template-columns: 1fr; }
+      .evidence-board, .problem-strip, .journey-map, .stage-tabs, .decision-layout, .privacy-rails, .footer-grid { grid-template-columns: 1fr; }
       .stat-card:nth-child(3) { grid-column: auto; }
       .problem-strip { margin-top: 20px; }
       .section { padding: 72px 0; }
@@ -541,7 +529,6 @@
       <a href="#journey">How it works</a>
       <a href="#walkthrough">Reviewer walkthrough</a>
       <a href="#architecture">Architecture</a>
-      <a href="#build">Built with OpenAI</a>
       <a class="button primary small" href="#walkthrough">Start walkthrough <span aria-hidden="true">→</span></a>
     </nav>
   </header>
@@ -656,26 +643,6 @@
       </div>
     </section>
 
-    <section class="section soft" id="build">
-      <div class="container">
-        <p class="eyebrow">How it was built with OpenAI</p>
-        <h2 class="section-title">Codex turned the repository into a bounded delivery system.</h2>
-        <p class="section-lede">GPT-5.6 roles were separated so the model that guides and reviews does not silently become the model that decides completion. Tests and human gates own that decision.</p>
-        <div class="build-loop" aria-label="Codex and GPT-5.6 engineering loop">
-          <article class="loop-card"><span class="model-tag">GPT-5.6 Sol · ultra</span><h3>Guide</h3><p>Reads the task and narrows work to acceptance criteria and the highest-risk edge.</p></article>
-          <article class="loop-card"><span class="model-tag">GPT-5.6 Terra / Luna</span><h3>Implement</h3><p>Designs and codes inside an isolated branch and task worktree.</p></article>
-          <article class="loop-card"><span class="model-tag">Deterministic</span><h3>Verify</h3><p>Tests, format, lint and scenario checks decide whether the candidate passes.</p></article>
-          <article class="loop-card"><span class="model-tag">GPT-5.6 Sol · ultra</span><h3>Review</h3><p>Checks the exact candidate tree against the task boundary, read-only.</p></article>
-          <article class="loop-card"><span class="model-tag">Human gate</span><h3>Accept</h3><p>Product direction, sensitive boundaries and final release stay human-owned.</p></article>
-        </div>
-        <div class="proof-row" aria-label="Project verification results">
-          <article class="proof"><strong>91</strong><span>product tests</span></article>
-          <article class="proof"><strong>43</strong><span>loop-engine tests</span></article>
-          <article class="proof"><strong>8</strong><span>repeatable scenarios</span></article>
-          <article class="proof"><strong>0</strong><span>external runtime calls in the evaluated product</span></article>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer class="site-footer">

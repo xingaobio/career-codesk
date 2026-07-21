@@ -6,7 +6,7 @@ This repository contains the working synthetic demonstrator, a reviewer-safe wal
 
 ![Career CoDesk reviewer showcase](docs/showcase-assets/showcase-overview.png)
 
-**Interactive walkthrough:** [open Career CoDesk on ChatGPT Sites](https://career-codesk-review.workspace-790542.chatgpt.site/). The site is deployed, but this ChatGPT workspace currently requires sign-in because public-internet publishing is disabled. The same dependency-free walkthrough can be run locally with:
+**Interactive walkthrough:** [open the public reviewer site](https://career-codesk-review.vercel.app/). It opens without an account and contains only the synthetic MVP walkthrough. A workspace-gated copy is also retained on [ChatGPT Sites](https://career-codesk-review.workspace-790542.chatgpt.site/). The same dependency-free walkthrough can be run locally with:
 
 ```sh
 python3 -m http.server 8030 --directory showcase/public
@@ -87,9 +87,16 @@ This workflow used Codex interfaces and GPT-5.6 model routing. It did not requir
 | Delivery design | Built the coding plan and introduced the Codex guide, implementation, verification, and review loop. |
 | Implementation | Ran the main loop-driven build in Codex CLI. The corresponding `/feedback` ID is supplied directly to Devpost rather than published in this repository. |
 
+## Team
+
+| Xin Gao | [Chelsea Li](https://devpost.com/chengxi689) |
+| --- | --- |
+| <img src="docs/team/xin-gao.png" alt="Xin Gao" width="160"> | <img src="docs/team/chelsea-li.png" alt="Chelsea Li" width="160"> |
+| `@xin-gao0801` · Product, research and AI workflow | `@chengxi689` · Marketing, testing and demo |
+
 ## Three-minute demo
 
-Open the standalone [video presentation](docs/video-demo.html) in a browser. Its six slides cover the verified FE capacity problem, the product path, evidence and capacity, human approval and feedback, the MIS adapter/privacy boundary, and the Codex/GPT-5.6 build loop. It uses only local assets and has deliberately simple arrow-key navigation with no timer or live-demo launcher. The recording order remains in [SUBMISSION.md](SUBMISSION.md). Session IDs belong in the Devpost form, not the public repository.
+Open the standalone [video presentation](docs/video-demo.html) in a browser. Its five concise slides cover the verified FE capacity problem, the product path, human control, the MIS adapter/privacy boundary, and the Codex/GPT-5.6 build workflow with the team. It uses only local assets and has deliberately simple arrow-key navigation with no timer or live-demo launcher. The recording order remains in [SUBMISSION.md](SUBMISSION.md). Session IDs belong in the Devpost form, not the public repository.
 
 ## Repository map
 
@@ -99,7 +106,7 @@ Open the standalone [video presentation](docs/video-demo.html) in a browser. Its
 - [PLAN.yaml](PLAN.yaml): task graph and human gates
 - [WORKFLOW.md](WORKFLOW.md): model roles, safety boundaries, and completion rules
 - [docs/loop-engineering.md](docs/loop-engineering.md): loop operator guide
-- [docs/video-demo.html](docs/video-demo.html): offline six-slide three-minute story
+- [docs/video-demo.html](docs/video-demo.html): offline five-slide three-minute story
 - [design-qa.md](design-qa.md): desktop and mobile visual review
 - [SUBMISSION.md](SUBMISSION.md): Devpost copy, video script, and final checklist
 

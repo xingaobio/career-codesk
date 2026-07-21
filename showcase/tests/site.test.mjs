@@ -13,6 +13,7 @@ test("the public walkthrough is plainly simulated and human-readable", () => {
   assert.match(html, /Muhammad R\./);
   assert.doesNotMatch(html, /no MIS connection/i);
   assert.doesNotMatch(html, /UUID/i);
+  assert.doesNotMatch(html, /How it was built with OpenAI/i);
   assert.doesNotMatch(html, /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
 });
 
@@ -22,6 +23,13 @@ test("the reviewer journey and evidence sources are present", () => {
   }
   assert.match(html, /www\.aoc\.co\.uk\/about\/college-key-facts/);
   assert.match(html, /gov\.uk\/government\/publications\/navigating-post-16-careers-guidance/);
+});
+
+test("the site stays focused on the MVP and its integration boundary", () => {
+  assert.match(html, /id="architecture"/i);
+  assert.match(html, /Adapt, interpret, plan, approve/i);
+  assert.doesNotMatch(html, /href="#build"|id="build"/i);
+  assert.doesNotMatch(html, /built with OpenAI|external runtime calls/i);
 });
 
 test("the generated worker serves the walkthrough without a backend", async () => {

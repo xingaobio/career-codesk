@@ -51,52 +51,55 @@ The next step is not to connect real college data. It is to test the workflow wi
 
 ## Three-minute demo talk track
 
-Keep the finished video under three minutes. Record at 1080p if practical, enlarge the browser text enough to read, hide notifications, and speak from the screen rather than reading a script. Open the six-slide deck and the interactive reviewer walkthrough in two tabs so you can switch manually; the deck intentionally has no timer or demo-launch buttons.
+Keep the finished video under three minutes. Record at 1080p if practical, enlarge the browser text enough to read, hide notifications, and speak from the screen rather than reading a script. Open the five-slide deck and the interactive reviewer walkthrough in two tabs so you can switch manually; the deck intentionally has no timer or demo-launch buttons.
 
-### 0:00 to 0:25 · Slide 1: the capacity problem
+### 0:00 to 0:20 · Slide 1: the capacity problem
 
 - England's 213 colleges prepare more than 1.6 million learners.
 - In Ofsted's 2024 research sample, all 25 colleges and 7 local authorities reported difficulty recruiting Level 6 careers advisers.
 - Say explicitly that these are separate capacity signals, not a claimed national learner-to-adviser ratio.
 
-### 0:25 to 0:50 · Slide 2: what Career CoDesk does
+### 0:20 to 0:40 · Slide 2: what Career CoDesk does
 
 - Follow the six-node path with the cursor: signal, evidence, capacity, human decision, approved action, feedback.
 - One sentence is enough: Career CoDesk prepares the decision; the adviser owns it.
 
-### 0:50 to 1:35 · Reviewer site: evidence and capacity
+### 0:40 to 1:45 · Reviewer site: one complete case
 
 - Switch to the reviewer walkthrough and choose Olivia K. or Muhammad R.
 - Click `Evidence review`: point to the fictional source statement, provisional AI interpretation and visible unknown.
-- Click `Capacity plan`: point to the one available slot, feasible workshop alternative and retained unmet demand.
+- Click `Capacity plan`: point to the available slot, feasible alternative and retained unmet demand.
 - Mention that machine identifiers are hidden in the presentation story but technical evidence remains inspectable.
-
-### 1:35 to 2:05 · Reviewer site: human control and feedback
-
 - Click `Human decision`, then `Amend route` to show that an amendment requires replanning and a second confirmation.
 - Click `Learner feedback`, then `I am still unsure` to show that feedback reopens review without deleting history.
 - State the boundary once: all visible identities are fictional composites and the controls reset on refresh.
 
-### 2:05 to 2:30 · Slide 5: integration and privacy
+### 1:45 to 2:05 · Slide 3: human control
+
+- Say one sentence: AI prepares the choice; advisers approve, amend or reject it.
+- Point out that unresolved feedback can reopen review without deleting history.
+
+### 2:05 to 2:30 · Slide 4: integration and privacy
 
 - Show the MIS/CRM/CSV → adapter/core → approved-output architecture.
 - Name the safeguards: field allowlist, evidence/inference separation, human gate and traceability.
 - Do not claim GDPR compliance. Say that DPIA, retention, lawful basis and access control remain institutional responsibilities.
 
-### 2:30 to 2:55 · Slide 6: Codex and GPT-5.6
+### 2:30 to 2:52 · Slide 5: OpenAI workflow and team
 
 - Say both product names clearly.
 - GPT-5.6 Sol with ultra reasoning guided and independently reviewed.
-- GPT-5.6 Terra handled the main design and implementation work; Luna was reserved for explicitly selected low-risk tasks.
-- Codex isolated each run; deterministic tests and human gates decided completion.
+- GPT-5.6 Terra and Luna handled design, implementation and verification in Codex CLI.
+- Codex could orchestrate up to 16 isolated subagents; deterministic tests and a human gate decided completion.
+- Name the team: Xin Gao led product, research and AI workflow; Chelsea Li led marketing, testing and the demo.
 
-### 2:55 to 3:00 · close
+### 2:52 to 3:00 · close
 
 End on one sentence: "Career CoDesk tests whether a careers team can make a better capacity-aware decision without giving AI decision authority."
 
 ## Recording runbook
 
-Open `docs/video-demo.html` and use Left/Right Arrow or Space to navigate; press `F` for fullscreen. Keep the reviewer walkthrough open in the second tab and switch to it manually for the interactive middle section. The deployed Sites URL is `https://career-codesk-review.workspace-790542.chatgpt.site/`; this workspace currently requires ChatGPT sign-in, so record from the already-open page or run `python3 -m http.server 8030 --directory showcase/public` and use `http://127.0.0.1:8030/`.
+Open `docs/video-demo.html` and use Left/Right Arrow or Space to navigate; press `F` for fullscreen. Keep `https://career-codesk-review.vercel.app/` open in the second tab and switch to it manually for the interactive middle section. The public reviewer page opens without an account. For an offline recording fallback, run `python3 -m http.server 8030 --directory showcase/public` and use `http://127.0.0.1:8030/`.
 
 Before recording:
 
@@ -121,13 +124,13 @@ Before recording:
 - [ ] Add every team member and confirm that each invitation is accepted.
 - [ ] Read the project description aloud and edit any sentence that does not sound like you.
 - [ ] Save, submit, then open Devpost My Projects and confirm the project has a green `Submitted` label rather than draft status.
-- [ ] Test the repository and video links from a logged-out or private browser session.
-- [ ] Before using the Sites URL as a judge link, enable public-internet Sites access or move the checked-in static showcase to an approved public host; the current workspace blocks public publishing.
+- [x] Test the public reviewer link without a login and confirm the interactive evidence stage loads.
+- [ ] Test the repository and final YouTube link from a logged-out or private browser session.
 
 ## Fields to collect
 
 - YouTube URL: `TODO`
-- Reviewer walkthrough: `https://career-codesk-review.workspace-790542.chatgpt.site/` (online; ChatGPT sign-in currently required)
+- Reviewer walkthrough: `https://career-codesk-review.vercel.app/` (public; no login required)
 - Primary Codex `/feedback` Session ID: paste the saved implementation-session ID directly into Devpost; do not publish it in the repository.
 - Final repository URL: `https://github.com/xingaobio/career-codesk`
 - Team invitations accepted: `TODO`

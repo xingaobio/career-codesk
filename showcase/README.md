@@ -2,6 +2,8 @@
 
 This standalone site presents the implemented Career CoDesk workflow with readable, fictional composite learner identities. It is a presentation facade, not a second product backend: every interaction is client-side, resets on refresh, and leaves the Django product database and evaluation evidence untouched.
 
+Public reviewer URL: <https://career-codesk-review.vercel.app/>
+
 ## Local preview
 
 ```sh
